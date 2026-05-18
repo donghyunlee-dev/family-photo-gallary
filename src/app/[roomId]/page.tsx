@@ -11,14 +11,13 @@ type RoomPageProps = {
 
 export default async function RoomPage({ params }: RoomPageProps) {
   const { roomId } = await params;
-
   if (!isRoomKey(roomId)) notFound();
 
   const room = getRoomById(roomId);
   if (!room) notFound();
 
-  const folderId = process.env[room.envFolderKey];
-  if (!folderId) {
+  const roomFolderId = process.env[room.envFolderKey];
+  if (!roomFolderId) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 py-12">
         <section className="w-full max-w-xl rounded-3xl border border-amber-200 bg-amber-50 p-8 shadow-sm">
@@ -37,8 +36,8 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
   try {
     [photos, folders] = await Promise.all([
-      listRecentPhotosFromFolder(folderId, 24),
-      listFoldersFromFolder(folderId, 50),
+      listRecentPhotosFromFolder(roomFolderId, 24),
+      listFoldersFromFolder(roomFolderId, 50),
     ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
@@ -61,11 +60,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
           </Link>
         </div>
 
-        {loadError ? (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">
-            {loadError}
-          </div>
-        ) : null}
+        {loadError ? <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">{loadError}</div> : null}
 
         {!loadError ? (
           <>
@@ -101,11 +96,16 @@ export default async function RoomPage({ params }: RoomPageProps) {
               ) : (
                 <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {folders.map((folder) => (
-                    <li key={folder.id} className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3">
-                      <p className="truncate text-sm font-medium text-stone-900">{folder.name}</p>
-                      <p className="mt-1 text-xs text-stone-500">
-                        생성일 {new Date(folder.createdTime).toLocaleDateString("ko-KR")}
-                      </p>
+                    <li key={folder.id}>
+                      <Link
+                        href={`/${roomId}/folder/${folder.id}`}
+                        className="block rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 transition hover:bg-stone-100"
+                      >
+                        <p className="truncate text-sm font-medium text-stone-900">{folder.name}</p>
+                        <p className="mt-1 text-xs text-stone-500">
+                          생성일 {new Date(folder.createdTime).toLocaleDateString("ko-KR")}
+                        </p>
+                      </Link>
                     </li>
                   ))}
                 </ul>
