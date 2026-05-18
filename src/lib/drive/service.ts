@@ -7,6 +7,12 @@ export type DrivePhoto = {
   createdTime: string;
 };
 
+export type DriveFolder = {
+  id: string;
+  name: string;
+  createdTime: string;
+};
+
 const DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive.readonly"];
 
 function createAuth() {
@@ -70,4 +76,34 @@ export async function downloadFile(fileId: string) {
     { fileId, alt: "media" },
     { responseType: "stream" },
   );
+}
+
+export async function listFoldersFromFolder(parentFolderId: string, limit = 50): Promise<DriveFolder[]> {
+  if (!parentFolderId.trim()) {
+    throw new Error("parentFolderId is empty.");
+  }
+
+  const drive = createDriveClient();
+  let response;
+  try {
+    response = await drive.files.list({
+      q: `'${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+      orderBy: "createdTime desc",
+      pageSize: limit,
+      fields: "files(id,name,createdTime)",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown drive error";
+    throw new Error(`drive.files.list folders failed (${message})`);
+  }
+
+  return (response.data.files ?? [])
+    .filter((file): file is Required<Pick<DriveFolder, "id" | "name" | "createdTime">> =>
+      Boolean(file.id && file.name && file.createdTime),
+    )
+    .map((file) => ({
+      id: file.id,
+      name: file.name,
+      createdTime: file.createdTime,
+    }));
 }
