@@ -54,10 +54,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
             최근 사진 {photos.length}장 · 폴더 {folders.length}개
           </p>
           <div className="mt-4">
-            <UploadForm
-              folders={folders.map((folder) => ({ id: folder.id, name: folder.name }))}
-              defaultFolderId={roomFolderId}
-            />
+            <UploadForm folderId={roomFolderId} folderName={room.name} />
           </div>
           <Link
             href="/"

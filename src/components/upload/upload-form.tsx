@@ -3,19 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type FolderOption = {
-  id: string;
-  name: string;
-};
-
 type UploadFormProps = {
-  folders: FolderOption[];
-  defaultFolderId: string;
+  folderId: string;
+  folderName?: string;
 };
 
-export default function UploadForm({ folders, defaultFolderId }: UploadFormProps) {
+export default function UploadForm({ folderId, folderName }: UploadFormProps) {
   const router = useRouter();
-  const [folderId, setFolderId] = useState(defaultFolderId);
   const [files, setFiles] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -58,19 +52,10 @@ export default function UploadForm({ folders, defaultFolderId }: UploadFormProps
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <div>
-        <label className="mb-1 block text-xs font-medium text-stone-700">업로드 폴더</label>
-        <select
-          value={folderId}
-          onChange={(event) => setFolderId(event.target.value)}
-          className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm text-stone-800"
-        >
-          <option value={defaultFolderId}>현재 폴더</option>
-          {folders.map((folder) => (
-            <option key={folder.id} value={folder.id}>
-              {folder.name}
-            </option>
-          ))}
-        </select>
+        <label className="mb-1 block text-xs font-medium text-stone-700">업로드 위치</label>
+        <div className="rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-700">
+          {folderName ?? "현재 위치"}
+        </div>
       </div>
 
       <div>
@@ -86,7 +71,7 @@ export default function UploadForm({ folders, defaultFolderId }: UploadFormProps
 
       <button
         type="submit"
-        disabled={!folderId || !files || files.length === 0 || loading}
+        disabled={!files || files.length === 0 || loading}
         className="h-10 rounded-xl bg-stone-900 px-4 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-stone-300"
       >
         {loading ? "업로드 중..." : "사진 업로드"}

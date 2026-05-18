@@ -31,6 +31,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ uploadedCount: uploaded.length }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upload failed.";
+    if (message.includes("Service Accounts do not have storage quota")) {
+      return NextResponse.json(
+        {
+          error:
+            "서비스계정 업로드 quota 오류입니다. 대상 폴더를 Shared Drive로 옮기거나, 사용자 OAuth(위임) 방식으로 전환이 필요합니다.",
+        },
+        { status: 500 },
+      );
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

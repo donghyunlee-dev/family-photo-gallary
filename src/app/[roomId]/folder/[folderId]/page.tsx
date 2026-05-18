@@ -32,7 +32,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
           <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
           <p className="mt-2 text-sm text-stone-600">사진 {photos.length}장</p>
           <div className="mt-4">
-            <UploadForm folders={[]} defaultFolderId={folderId} />
+            <UploadForm folderId={folderId} folderName="현재 폴더" />
           </div>
           <Link
             href={`/${roomId}`}

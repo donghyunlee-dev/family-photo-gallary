@@ -53,6 +53,8 @@ export async function listRecentPhotosFromFolder(folderId: string, limit = 30): 
       orderBy: "createdTime desc",
       pageSize: limit,
       fields: "files(id,name,mimeType,createdTime)",
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown drive error";
@@ -74,7 +76,7 @@ export async function listRecentPhotosFromFolder(folderId: string, limit = 30): 
 export async function downloadFile(fileId: string) {
   const drive = createDriveClient();
   return drive.files.get(
-    { fileId, alt: "media" },
+    { fileId, alt: "media", supportsAllDrives: true },
     { responseType: "stream" },
   );
 }
@@ -92,6 +94,8 @@ export async function listFoldersFromFolder(parentFolderId: string, limit = 50):
       orderBy: "createdTime desc",
       pageSize: limit,
       fields: "files(id,name,createdTime)",
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown drive error";
@@ -132,6 +136,7 @@ export async function uploadPhotoToFolder(input: {
         body: Readable.from(buffer),
       },
       fields: "id,name,mimeType,createdTime",
+      supportsAllDrives: true,
     });
 
     return response.data;
