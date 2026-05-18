@@ -64,7 +64,7 @@ export default function UploadForm({ folders, defaultFolderId }: UploadFormProps
           onChange={(event) => setFolderId(event.target.value)}
           className="h-10 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm text-stone-800"
         >
-          <option value={defaultFolderId}>방 루트 폴더</option>
+          <option value={defaultFolderId}>현재 폴더</option>
           {folders.map((folder) => (
             <option key={folder.id} value={folder.id}>
               {folder.name}

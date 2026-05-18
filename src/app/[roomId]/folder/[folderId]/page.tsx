@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import UploadForm from "@/components/upload/upload-form";
 import { listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { isRoomKey } from "@/lib/room/config";
 
@@ -30,6 +31,9 @@ export default async function FolderPage({ params }: FolderPageProps) {
         <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
           <p className="mt-2 text-sm text-stone-600">사진 {photos.length}장</p>
+          <div className="mt-4">
+            <UploadForm folders={[]} defaultFolderId={folderId} />
+          </div>
           <Link
             href={`/${roomId}`}
             className="mt-4 inline-flex h-10 items-center rounded-xl border border-stone-300 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50"

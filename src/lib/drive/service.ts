@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { Readable } from "node:stream";
 
 export type DrivePhoto = {
   id: string;
@@ -128,7 +129,7 @@ export async function uploadPhotoToFolder(input: {
       },
       media: {
         mimeType,
-        body: buffer,
+        body: Readable.from(buffer),
       },
       fields: "id,name,mimeType,createdTime",
     });
