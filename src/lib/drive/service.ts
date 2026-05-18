@@ -145,3 +145,27 @@ export async function uploadPhotoToFolder(input: {
     throw new Error(`drive.files.create failed (${message})`);
   }
 }
+
+export async function createFolderInFolder(input: { parentFolderId: string; folderName: string }) {
+  const { parentFolderId, folderName } = input;
+  if (!parentFolderId.trim()) throw new Error("parentFolderId is empty.");
+  if (!folderName.trim()) throw new Error("folderName is empty.");
+
+  const drive = createDriveClient();
+  try {
+    const response = await drive.files.create({
+      requestBody: {
+        name: folderName.trim(),
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [parentFolderId],
+      },
+      fields: "id,name,createdTime",
+      supportsAllDrives: true,
+    });
+
+    return response.data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown drive error";
+    throw new Error(`drive.files.create folder failed (${message})`);
+  }
+}

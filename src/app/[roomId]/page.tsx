@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import UploadForm from "@/components/upload/upload-form";
+import CreateFolderForm from "@/components/folder/create-folder-form";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
@@ -55,6 +56,9 @@ export default async function RoomPage({ params }: RoomPageProps) {
           </p>
           <div className="mt-4">
             <UploadForm folderId={roomFolderId} folderName={room.name} />
+          </div>
+          <div className="mt-4">
+            <CreateFolderForm parentFolderId={roomFolderId} />
           </div>
           <Link
             href="/"
