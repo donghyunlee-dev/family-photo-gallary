@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import UploadForm from "@/components/upload/upload-form";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
@@ -52,6 +53,12 @@ export default async function RoomPage({ params }: RoomPageProps) {
           <p className="mt-2 text-sm text-stone-600">
             최근 사진 {photos.length}장 · 폴더 {folders.length}개
           </p>
+          <div className="mt-4">
+            <UploadForm
+              folders={folders.map((folder) => ({ id: folder.id, name: folder.name }))}
+              defaultFolderId={roomFolderId}
+            />
+          </div>
           <Link
             href="/"
             className="mt-4 inline-flex h-10 items-center rounded-xl border border-stone-300 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50"

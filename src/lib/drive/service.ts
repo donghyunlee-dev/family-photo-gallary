@@ -13,7 +13,7 @@ export type DriveFolder = {
   createdTime: string;
 };
 
-const DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive.readonly"];
+const DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"];
 
 function createAuth() {
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -106,4 +106,36 @@ export async function listFoldersFromFolder(parentFolderId: string, limit = 50):
       name: file.name,
       createdTime: file.createdTime,
     }));
+}
+
+export async function uploadPhotoToFolder(input: {
+  folderId: string;
+  fileName: string;
+  mimeType: string;
+  buffer: Buffer;
+}) {
+  const { folderId, fileName, mimeType, buffer } = input;
+  if (!folderId.trim()) throw new Error("folderId is empty.");
+  if (!fileName.trim()) throw new Error("fileName is empty.");
+  if (!mimeType.startsWith("image/")) throw new Error("Only image files are allowed.");
+
+  const drive = createDriveClient();
+  try {
+    const response = await drive.files.create({
+      requestBody: {
+        name: fileName,
+        parents: [folderId],
+      },
+      media: {
+        mimeType,
+        body: buffer,
+      },
+      fields: "id,name,mimeType,createdTime",
+    });
+
+    return response.data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown drive error";
+    throw new Error(`drive.files.create failed (${message})`);
+  }
 }
