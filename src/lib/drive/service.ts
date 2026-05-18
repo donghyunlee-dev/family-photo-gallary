@@ -34,13 +34,23 @@ function createDriveClient() {
 }
 
 export async function listRecentPhotosFromFolder(folderId: string, limit = 30): Promise<DrivePhoto[]> {
+  if (!folderId.trim()) {
+    throw new Error("folderId is empty.");
+  }
+
   const drive = createDriveClient();
-  const response = await drive.files.list({
-    q: `'${folderId}' in parents and mimeType contains 'image/' and trashed = false`,
-    orderBy: "createdTime desc",
-    pageSize: limit,
-    fields: "files(id,name,mimeType,createdTime)",
-  });
+  let response;
+  try {
+    response = await drive.files.list({
+      q: `'${folderId}' in parents and mimeType contains 'image/' and trashed = false`,
+      orderBy: "createdTime desc",
+      pageSize: limit,
+      fields: "files(id,name,mimeType,createdTime)",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown drive error";
+    throw new Error(`drive.files.list failed (${message})`);
+  }
 
   return (response.data.files ?? [])
     .filter((file): file is Required<Pick<DrivePhoto, "id" | "name" | "mimeType" | "createdTime">> =>

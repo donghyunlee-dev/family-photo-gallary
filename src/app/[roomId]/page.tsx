@@ -41,7 +41,15 @@ export default async function RoomPage({ params }: RoomPageProps) {
     );
   }
 
-  const photos = await listRecentPhotosFromFolder(folderId, 48);
+  let photos: Awaited<ReturnType<typeof listRecentPhotosFromFolder>> = [];
+  let loadError = "";
+
+  try {
+    photos = await listRecentPhotosFromFolder(folderId, 48);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown error";
+    loadError = `Google Drive에서 사진을 불러오지 못했습니다: ${message}`;
+  }
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-8">
@@ -57,7 +65,14 @@ export default async function RoomPage({ params }: RoomPageProps) {
           </Link>
         </div>
 
-        {photos.length === 0 ? (
+        {loadError ? (
+          <div className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">
+            {loadError}
+            <p className="mt-3 text-xs text-red-600">
+              서비스 계정 폴더 공유 권한과 Vercel 환경변수 값을 다시 확인해 주세요.
+            </p>
+          </div>
+        ) : photos.length === 0 ? (
           <div className="mt-6 rounded-3xl border border-stone-200 bg-white p-8 text-sm text-stone-600 shadow-sm">
             아직 표시할 사진이 없습니다. Google Drive의 방 폴더에 이미지를 올린 뒤 새로고침해 주세요.
           </div>
