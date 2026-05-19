@@ -47,8 +47,8 @@ export default function FolderPhotoManager({
   const [targetFolderId, setTargetFolderId] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
 
-  const current = activeIndex !== null ? photos[activeIndex] : null;
   const selectionMode = target === "file";
+  const current = activeIndex !== null ? photos[activeIndex] : null;
 
   const moveFolderTargets = useMemo(
     () => moveTargets.filter((folder) => folder.id !== currentFolderId),
@@ -92,6 +92,7 @@ export default function FolderPhotoManager({
   async function deleteSelectedFiles() {
     if (selectedIds.length === 0 || busy) return;
     if (!confirm(`${selectedIds.length}개 파일을 삭제할까요?`)) return;
+
     setBusy(true);
     setError("");
     try {
@@ -257,15 +258,15 @@ export default function FolderPhotoManager({
 
       {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
 
-      <div className="fixed bottom-6 right-6 z-40">
-        <div className="mb-2 flex gap-2">
+      <div className="fixed right-4 z-[9997] flex flex-col items-end gap-3" style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}>
+        <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={() => {
               setTarget((v) => (v === "file" ? null : "file"));
               if (target !== "file") setSelectedIds([]);
             }}
-            className={`h-12 w-12 rounded-full text-xs text-white shadow ${
+            className={`h-16 w-16 rounded-full text-sm font-semibold text-white shadow-lg ${
               target === "file" ? "bg-blue-600" : "bg-stone-700"
             }`}
           >
@@ -274,7 +275,7 @@ export default function FolderPhotoManager({
           <button
             type="button"
             onClick={() => setTarget((v) => (v === "folder" ? null : "folder"))}
-            className={`h-12 w-12 rounded-full text-xs text-white shadow ${
+            className={`h-16 w-16 rounded-full text-sm font-semibold text-white shadow-lg ${
               target === "folder" ? "bg-emerald-600" : "bg-stone-700"
             }`}
           >
@@ -283,19 +284,15 @@ export default function FolderPhotoManager({
         </div>
 
         {target === "file" ? (
-          <div className="mb-2 space-y-2">
-            <button
-              type="button"
-              onClick={() => setShowUploadPopup(true)}
-              className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow"
-            >
+          <div className="flex flex-col-reverse gap-3">
+            <button type="button" onClick={() => setShowUploadPopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">
               추가
             </button>
             <button
               type="button"
               disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy}
               onClick={() => setShowMovePopup(true)}
-              className="block w-full rounded-full bg-blue-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               이동
             </button>
@@ -303,7 +300,7 @@ export default function FolderPhotoManager({
               type="button"
               disabled={selectedIds.length === 0 || busy}
               onClick={deleteSelectedFiles}
-              className="block w-full rounded-full bg-red-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               삭제
             </button>
@@ -311,19 +308,15 @@ export default function FolderPhotoManager({
         ) : null}
 
         {target === "folder" ? (
-          <div className="mb-2 space-y-2">
-            <button
-              type="button"
-              onClick={() => setShowFolderCreatePopup(true)}
-              className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow"
-            >
+          <div className="flex flex-col-reverse gap-3">
+            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">
               추가
             </button>
             <button
               type="button"
               disabled={moveFolderTargets.length === 0 || busy}
               onClick={() => setShowFolderMovePopup(true)}
-              className="block w-full rounded-full bg-blue-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               이동
             </button>
@@ -331,7 +324,7 @@ export default function FolderPhotoManager({
               type="button"
               disabled={busy}
               onClick={deleteCurrentFolder}
-              className="block w-full rounded-full bg-red-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               삭제
             </button>
@@ -457,10 +450,7 @@ export default function FolderPhotoManager({
 
       {current
         ? createPortal(
-            <div
-              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
-              onClick={closeLightbox}
-            >
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" onClick={closeLightbox}>
               <div className="relative w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
                 <Image
                   src={`/api/drive/file/${current.id}`}

@@ -336,32 +336,32 @@ export default function RoomDashboardManager({
 
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
 
-      <div className="fixed bottom-6 right-6 z-40">
-        <div className="mb-2 flex gap-2">
+      <div className="fixed right-4 z-[9997] flex flex-col items-end gap-3" style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}>
+        <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={() => toggleTarget("file")}
-            className={`h-12 w-12 rounded-full text-xs text-white shadow ${target === "file" ? "bg-blue-600" : "bg-stone-700"}`}
+            className={`h-16 w-16 rounded-full text-sm font-semibold text-white shadow-lg ${target === "file" ? "bg-blue-600" : "bg-stone-700"}`}
           >
             파일
           </button>
           <button
             type="button"
             onClick={() => toggleTarget("folder")}
-            className={`h-12 w-12 rounded-full text-xs text-white shadow ${target === "folder" ? "bg-emerald-600" : "bg-stone-700"}`}
+            className={`h-16 w-16 rounded-full text-sm font-semibold text-white shadow-lg ${target === "folder" ? "bg-emerald-600" : "bg-stone-700"}`}
           >
             폴더
           </button>
         </div>
 
         {target === "file" ? (
-          <div className="mb-2 space-y-2">
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow">추가</button>
+          <div className="flex flex-col-reverse gap-3">
+            <button type="button" onClick={() => setShowUploadPopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
             <button
               type="button"
               disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy}
               onClick={() => setShowFileMovePopup(true)}
-              className="block w-full rounded-full bg-blue-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               이동
             </button>
@@ -369,7 +369,7 @@ export default function RoomDashboardManager({
               type="button"
               disabled={selectedPhotoIds.length === 0 || busy}
               onClick={deleteFiles}
-              className="block w-full rounded-full bg-red-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               삭제
             </button>
@@ -377,13 +377,13 @@ export default function RoomDashboardManager({
         ) : null}
 
         {target === "folder" ? (
-          <div className="mb-2 space-y-2">
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow">추가</button>
+          <div className="flex flex-col-reverse gap-3">
+            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
             <button
               type="button"
               disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy}
               onClick={() => setShowFolderMovePopup(true)}
-              className="block w-full rounded-full bg-blue-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               이동
             </button>
@@ -391,7 +391,7 @@ export default function RoomDashboardManager({
               type="button"
               disabled={selectedFolderIds.length === 0 || busy}
               onClick={deleteFolders}
-              className="block w-full rounded-full bg-red-600 px-4 py-2 text-sm text-white shadow disabled:bg-stone-400"
+              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
             >
               삭제
             </button>
