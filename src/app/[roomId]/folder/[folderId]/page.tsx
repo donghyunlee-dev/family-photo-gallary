@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
-import UploadForm from "@/components/upload/upload-form";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
@@ -40,9 +39,6 @@ export default async function FolderPage({ params }: FolderPageProps) {
         <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
           <p className="mt-2 text-sm text-stone-600">사진 {photos.length}장</p>
-          <div className="mt-4">
-            <UploadForm folderId={folderId} folderName="현재 폴더" />
-          </div>
           <Link
             href={`/${roomId}`}
             className="mt-4 inline-flex h-10 items-center rounded-xl border border-stone-300 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
@@ -65,7 +61,9 @@ export default async function FolderPage({ params }: FolderPageProps) {
           ) : (
             <FolderPhotoManager
               photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
+              roomId={roomId}
               currentFolderId={folderId}
+              roomRootFolderId={roomRootFolderId}
               moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
             />
           )
