@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import FolderPhotoViewer from "@/components/gallery/folder-photo-viewer";
+import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
 import UploadForm from "@/components/upload/upload-form";
-import { listRecentPhotosFromFolder } from "@/lib/drive/service";
-import { isRoomKey } from "@/lib/room/config";
+import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
+import { getRoomById, isRoomKey } from "@/lib/room/config";
 
 type FolderPageProps = {
   params: Promise<{ roomId: string; folderId: string }>;
@@ -15,14 +15,23 @@ export default async function FolderPage({ params }: FolderPageProps) {
   if (!isRoomKey(roomId)) notFound();
   if (!folderId) notFound();
 
+  const room = getRoomById(roomId);
+  if (!room) notFound();
+  const roomRootFolderId = process.env[room.envFolderKey];
+  if (!roomRootFolderId) notFound();
+
   let photos: Awaited<ReturnType<typeof listRecentPhotosFromFolder>> = [];
+  let moveTargets: Awaited<ReturnType<typeof listFoldersFromFolder>> = [];
   let loadError = "";
 
   try {
-    photos = await listRecentPhotosFromFolder(folderId, 120);
+    [photos, moveTargets] = await Promise.all([
+      listRecentPhotosFromFolder(folderId, 120),
+      listFoldersFromFolder(roomRootFolderId, 100),
+    ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
-    loadError = `폴더 사진을 불러오지 못했습니다: ${message}`;
+    loadError = `폴더 데이터를 불러오지 못했습니다: ${message}`;
   }
 
   return (
@@ -54,7 +63,11 @@ export default async function FolderPage({ params }: FolderPageProps) {
               이 폴더에는 아직 사진이 없습니다.
             </div>
           ) : (
-            <FolderPhotoViewer photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))} />
+            <FolderPhotoManager
+              photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
+              currentFolderId={folderId}
+              moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
+            />
           )
         ) : null}
       </section>

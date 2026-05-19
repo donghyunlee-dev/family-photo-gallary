@@ -169,3 +169,44 @@ export async function createFolderInFolder(input: { parentFolderId: string; fold
     throw new Error(`drive.files.create folder failed (${message})`);
   }
 }
+
+export async function moveFileToFolder(input: {
+  fileId: string;
+  fromFolderId: string;
+  toFolderId: string;
+}) {
+  const { fileId, fromFolderId, toFolderId } = input;
+  if (!fileId.trim()) throw new Error("fileId is empty.");
+  if (!fromFolderId.trim()) throw new Error("fromFolderId is empty.");
+  if (!toFolderId.trim()) throw new Error("toFolderId is empty.");
+
+  const drive = createDriveClient();
+  try {
+    const response = await drive.files.update({
+      fileId,
+      addParents: toFolderId,
+      removeParents: fromFolderId,
+      fields: "id,name,parents",
+      supportsAllDrives: true,
+    });
+    return response.data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown drive error";
+    throw new Error(`drive.files.update move failed (${message})`);
+  }
+}
+
+export async function deleteFileById(fileId: string) {
+  if (!fileId.trim()) throw new Error("fileId is empty.");
+
+  const drive = createDriveClient();
+  try {
+    await drive.files.delete({
+      fileId,
+      supportsAllDrives: true,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown drive error";
+    throw new Error(`drive.files.delete failed (${message})`);
+  }
+}
