@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import CreateFolderForm from "@/components/folder/create-folder-form";
@@ -62,9 +62,10 @@ export default async function RoomPage({ params }: RoomPageProps) {
           </div>
           <Link
             href="/"
-            className="mt-4 inline-flex h-10 items-center rounded-xl border border-stone-300 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+            aria-label="코드 입력 화면으로 돌아가기"
+            className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
           >
-            코드 입력 화면으로
+            ←
           </Link>
         </div>
 

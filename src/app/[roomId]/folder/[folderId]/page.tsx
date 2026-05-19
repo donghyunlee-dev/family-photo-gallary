@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
@@ -41,9 +41,10 @@ export default async function FolderPage({ params }: FolderPageProps) {
           <p className="mt-2 text-sm text-stone-600">사진 {photos.length}장</p>
           <Link
             href={`/${roomId}`}
-            className="mt-4 inline-flex h-10 items-center rounded-xl border border-stone-300 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+            aria-label="방으로 돌아가기"
+            className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
           >
-            방으로 돌아가기
+            ←
           </Link>
         </div>
 
