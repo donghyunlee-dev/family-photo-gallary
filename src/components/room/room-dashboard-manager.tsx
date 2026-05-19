@@ -265,7 +265,7 @@ export default function RoomDashboardManager({
         </Link>
       </div>
 
-      <section className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+      <section className="rounded-3xl border border-stone-200 bg-white p-5 pb-64 shadow-sm">
         <h2 className="text-lg font-semibold text-stone-900">최근 사진</h2>
         {photos.length === 0 ? (
           <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
@@ -300,38 +300,46 @@ export default function RoomDashboardManager({
         )}
       </section>
 
-      <section className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-stone-900">폴더</h2>
-        {folders.length === 0 ? (
-          <p className="mt-3 text-sm text-stone-600">아직 생성된 폴더가 없습니다.</p>
-        ) : (
-          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {folders.map((folder) => {
-              const selected = selectedFolderIds.includes(folder.id);
-              return (
-                <li key={folder.id}>
-                  <div
-                    onClick={() => onFolderTap(folder.id)}
-                    onTouchEnd={() => onFolderTap(folder.id)}
-                    className={`rounded-2xl border p-3 transition ${
-                      selected ? "border-emerald-500 ring-2 ring-emerald-200" : "border-stone-200"
-                    }`}
-                  >
+      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur">
+        <div className="mx-auto w-full max-w-5xl">
+          <h2 className="text-sm font-semibold text-stone-900">폴더</h2>
+          {folders.length === 0 ? (
+            <p className="mt-2 text-xs text-stone-600">아직 생성된 폴더가 없습니다.</p>
+          ) : (
+            <ul className="mt-3 grid max-h-44 grid-cols-4 gap-3 overflow-y-auto sm:grid-cols-5 md:grid-cols-6">
+              {folders.map((folder) => {
+                const selected = selectedFolderIds.includes(folder.id);
+                return (
+                  <li key={folder.id} className="flex justify-center">
                     <Link
                       href={`/${roomId}/folder/${folder.id}`}
-                      className={folderSelectionMode ? "pointer-events-none opacity-70" : ""}
+                      onClick={(event) => {
+                        if (!folderSelectionMode) return;
+                        event.preventDefault();
+                        onFolderTap(folder.id);
+                      }}
+                      onTouchEnd={(event) => {
+                        if (!folderSelectionMode) return;
+                        event.preventDefault();
+                        onFolderTap(folder.id);
+                      }}
+                      className={`flex w-full flex-col items-center ${folderSelectionMode ? "" : ""}`}
                     >
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-2xl shadow-sm">
+                      <div
+                        className={`flex h-16 w-16 items-center justify-center rounded-2xl text-2xl shadow-sm transition ${
+                          selected ? "bg-emerald-600 text-white ring-2 ring-emerald-200" : "bg-emerald-100 text-emerald-700"
+                        }`}
+                      >
                         📁
                       </div>
-                      <p className="mt-3 line-clamp-2 text-center text-xs font-medium text-stone-800">{folder.name}</p>
+                      <p className="mt-2 line-clamp-2 text-center text-[11px] font-medium text-stone-800">{folder.name}</p>
                     </Link>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </section>
 
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
