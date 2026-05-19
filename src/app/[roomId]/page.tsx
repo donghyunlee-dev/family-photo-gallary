@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import UploadForm from "@/components/upload/upload-form";
 import CreateFolderForm from "@/components/folder/create-folder-form";
+import FolderPhotoViewer from "@/components/gallery/folder-photo-viewer";
+import UploadForm from "@/components/upload/upload-form";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
@@ -68,7 +68,11 @@ export default async function RoomPage({ params }: RoomPageProps) {
           </Link>
         </div>
 
-        {loadError ? <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">{loadError}</div> : null}
+        {loadError ? (
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">
+            {loadError}
+          </div>
+        ) : null}
 
         {!loadError ? (
           <>
@@ -77,23 +81,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
               {photos.length === 0 ? (
                 <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
               ) : (
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                  {photos.map((photo) => (
-                    <article key={photo.id} className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
-                      <Image
-                        src={`/api/drive/file/${photo.id}`}
-                        alt={photo.name}
-                        width={640}
-                        height={440}
-                        className="h-44 w-full object-cover"
-                        unoptimized
-                      />
-                      <div className="px-3 py-2">
-                        <p className="truncate text-xs text-stone-700">{photo.name}</p>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                <FolderPhotoViewer photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))} />
               )}
             </section>
 
