@@ -253,7 +253,8 @@ export default function RoomDashboardManager({
 
   return (
     <>
-      <div className="relative rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+      <div className="sticky top-0 z-[9993] -mx-4 border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
+        <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{roomName}</h1>
         <p className="mt-1 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
         <Link
@@ -263,14 +264,14 @@ export default function RoomDashboardManager({
         >
           ←
         </Link>
+        </div>
       </div>
 
-      <section className="rounded-3xl border border-stone-200 bg-white p-5 pb-52 shadow-sm">
-        <h2 className="text-lg font-semibold text-stone-900">최근 사진</h2>
+      <section className="pb-40 pt-2">
         {photos.length === 0 ? (
           <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
         ) : (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {photos.map((photo, index) => {
               const selected = selectedPhotoIds.includes(photo.id);
               return (
@@ -290,9 +291,6 @@ export default function RoomDashboardManager({
                     className="h-44 w-full object-cover"
                     unoptimized
                   />
-                  <div className="px-3 py-2">
-                    <p className="truncate text-xs text-stone-700">{photo.name}</p>
-                  </div>
                 </article>
               );
             })}
@@ -326,11 +324,14 @@ export default function RoomDashboardManager({
                       className={`flex w-full flex-col items-center ${folderSelectionMode ? "" : ""}`}
                     >
                       <div
-                        className={`flex h-16 w-16 items-center justify-center rounded-2xl text-2xl shadow-sm transition ${
-                          selected ? "bg-emerald-600 text-white ring-2 ring-emerald-200" : "bg-emerald-100 text-emerald-700"
+                        className={`relative flex h-16 w-16 items-center justify-center rounded-2xl border shadow-sm transition ${
+                          selected
+                            ? "border-sky-300 bg-sky-100 ring-2 ring-sky-200"
+                            : "border-slate-300 bg-slate-100"
                         }`}
                       >
-                        📁
+                        <span className="absolute left-2 top-2 h-2.5 w-5 rounded-t-md bg-slate-300" />
+                        <span className="mt-1 h-7 w-10 rounded-md bg-slate-400" />
                       </div>
                       <p className="mt-2 line-clamp-2 text-center text-[11px] font-medium text-stone-800">{folder.name}</p>
                     </Link>

@@ -38,16 +38,18 @@ export default async function FolderPage({ params }: FolderPageProps) {
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-8">
       <section className="mx-auto w-full max-w-5xl space-y-6">
-        <div className="relative rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
-          <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
-          <p className="mt-1 text-sm text-stone-600">사진 {photos.length}장</p>
-          <Link
-            href={`/${roomId}`}
-            aria-label="방으로 돌아가기"
-            className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
-          >
-            ←
-          </Link>
+        <div className="sticky top-0 z-[9993] -mx-4 border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
+          <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+            <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
+            <p className="mt-1 text-sm text-stone-600">사진 {photos.length}장</p>
+            <Link
+              href={`/${roomId}`}
+              aria-label="방으로 돌아가기"
+              className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
+            >
+              ←
+            </Link>
+          </div>
         </div>
 
         {loadError ? (

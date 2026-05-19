@@ -227,7 +227,7 @@ export default function FolderPhotoManager({
 
   return (
     <>
-      <div className="mb-3 text-xs text-stone-600">
+      <div className="mb-3 pt-1 text-xs text-stone-600">
         {selectionMode ? `파일 선택 모드 · ${selectedIds.length}개 선택` : "사진을 누르면 크게 볼 수 있습니다."}
       </div>
 
@@ -236,7 +236,7 @@ export default function FolderPhotoManager({
           이 폴더에는 아직 사진이 없습니다.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 pb-52 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 pb-40 sm:grid-cols-3 md:grid-cols-4">
           {photos.map((photo, index) => {
             const selected = selectedIds.includes(photo.id);
             return (
@@ -256,9 +256,6 @@ export default function FolderPhotoManager({
                   className="h-44 w-full object-cover"
                   unoptimized
                 />
-                <div className="px-3 py-2">
-                  <p className="truncate text-xs text-stone-700">{photo.name}</p>
-                </div>
               </article>
             );
           })}
@@ -275,8 +272,9 @@ export default function FolderPhotoManager({
               {childFolders.map((folder) => (
                 <li key={folder.id} className="flex justify-center">
                   <Link href={`/${roomId}/folder/${folder.id}`} className="flex w-full flex-col items-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-2xl text-emerald-700 shadow-sm">
-                      📁
+                    <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-300 bg-slate-100 shadow-sm">
+                      <span className="absolute left-2 top-2 h-2.5 w-5 rounded-t-md bg-slate-300" />
+                      <span className="mt-1 h-7 w-10 rounded-md bg-slate-400" />
                     </div>
                     <p className="mt-2 line-clamp-2 text-center text-[11px] font-medium text-stone-800">{folder.name}</p>
                   </Link>
