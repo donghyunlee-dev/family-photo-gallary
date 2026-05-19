@@ -253,7 +253,7 @@ export default function RoomDashboardManager({
 
   return (
     <>
-      <div className="sticky top-0 z-[9993] -mx-4 border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
+      <div className="fixed inset-x-0 top-0 z-[9993] border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
         <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{roomName}</h1>
         <p className="mt-1 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
@@ -266,6 +266,7 @@ export default function RoomDashboardManager({
         </Link>
         </div>
       </div>
+      <div className="h-28" aria-hidden />
 
       <section className="pb-40 pt-2">
         {photos.length === 0 ? (
@@ -559,9 +560,6 @@ export default function RoomDashboardManager({
                   className="max-h-[78vh] w-full rounded-2xl object-contain"
                   unoptimized
                 />
-                <p className="mt-3 truncate text-sm text-stone-200">
-                  {activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${photos.length}` : ""} · {currentPhoto.name}
-                </p>
               </div>
             </div>,
             document.body,

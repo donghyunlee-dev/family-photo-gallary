@@ -519,9 +519,6 @@ export default function FolderPhotoManager({
                   className="max-h-[78vh] w-full rounded-2xl object-contain"
                   unoptimized
                 />
-                <p className="mt-3 truncate text-sm text-stone-200">
-                  {activeIndex !== null ? `${activeIndex + 1} / ${photos.length}` : ""} · {current.name}
-                </p>
               </div>
             </div>,
             document.body,

@@ -38,7 +38,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-8">
       <section className="mx-auto w-full max-w-5xl space-y-6">
-        <div className="sticky top-0 z-[9993] -mx-4 border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
+        <div className="fixed inset-x-0 top-0 z-[9993] border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
           <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
             <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
             <p className="mt-1 text-sm text-stone-600">사진 {photos.length}장</p>
@@ -51,6 +51,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
             </Link>
           </div>
         </div>
+        <div className="h-28" aria-hidden />
 
         {loadError ? (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">
