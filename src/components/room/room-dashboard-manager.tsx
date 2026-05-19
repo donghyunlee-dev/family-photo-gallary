@@ -1,22 +1,16 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { createPortal } from "react-dom";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 
 import UploadForm from "@/components/upload/upload-form";
 
-type PhotoItem = {
-  id: string;
-  name: string;
-};
-
-type FolderItem = {
-  id: string;
-  name: string;
-};
+type PhotoItem = { id: string; name: string };
+type FolderItem = { id: string; name: string };
+type ActionTarget = "file" | "folder" | null;
 
 type RoomDashboardManagerProps = {
   roomId: string;
@@ -26,8 +20,6 @@ type RoomDashboardManagerProps = {
   folders: FolderItem[];
 };
 
-type ActionTarget = "file" | "folder" | null;
-
 export default function RoomDashboardManager({
   roomId,
   roomName,
@@ -36,14 +28,17 @@ export default function RoomDashboardManager({
   folders,
 }: RoomDashboardManagerProps) {
   const router = useRouter();
+
   const [target, setTarget] = useState<ActionTarget>(null);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<string[]>([]);
   const [selectedFolderIds, setSelectedFolderIds] = useState<string[]>([]);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
+
   const [showUploadPopup, setShowUploadPopup] = useState(false);
   const [showFileMovePopup, setShowFileMovePopup] = useState(false);
   const [showFolderCreatePopup, setShowFolderCreatePopup] = useState(false);
   const [showFolderMovePopup, setShowFolderMovePopup] = useState(false);
+
   const [targetFolderId, setTargetFolderId] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -51,16 +46,18 @@ export default function RoomDashboardManager({
 
   const photoSelectionMode = target === "file";
   const folderSelectionMode = target === "folder";
+
   const currentPhoto = activePhotoIndex !== null ? photos[activePhotoIndex] : null;
 
   const moveTargets = useMemo(
     () => folders.filter((folder) => !selectedFolderIds.includes(folder.id)),
     [folders, selectedFolderIds],
   );
+
   const effectiveTargetFolderId =
     targetFolderId && moveTargets.some((folder) => folder.id === targetFolderId)
       ? targetFolderId
-      : (moveTargets[0]?.id ?? "");
+      : moveTargets[0]?.id ?? "";
 
   const closeLightbox = useCallback(() => setActivePhotoIndex(null), []);
   const prev = useCallback(() => {
@@ -104,16 +101,16 @@ export default function RoomDashboardManager({
   }
 
   function onFolderTap(folderId: string) {
-    if (folderSelectionMode) {
-      setSelectedFolderIds((prevIds) =>
-        prevIds.includes(folderId) ? prevIds.filter((id) => id !== folderId) : [...prevIds, folderId],
-      );
-    }
+    if (!folderSelectionMode) return;
+    setSelectedFolderIds((prevIds) =>
+      prevIds.includes(folderId) ? prevIds.filter((id) => id !== folderId) : [...prevIds, folderId],
+    );
   }
 
   async function deleteFiles() {
     if (selectedPhotoIds.length === 0 || busy) return;
     if (!confirm(`${selectedPhotoIds.length}개 파일을 삭제할까요?`)) return;
+
     setBusy(true);
     setError("");
     try {
@@ -138,6 +135,7 @@ export default function RoomDashboardManager({
 
   async function moveFiles() {
     if (selectedPhotoIds.length === 0 || !effectiveTargetFolderId || busy) return;
+
     setBusy(true);
     setError("");
     try {
@@ -170,6 +168,7 @@ export default function RoomDashboardManager({
 
   async function createFolder() {
     if (!newFolderName.trim() || busy) return;
+
     setBusy(true);
     setError("");
     try {
@@ -195,6 +194,7 @@ export default function RoomDashboardManager({
 
   async function moveFolders() {
     if (selectedFolderIds.length === 0 || !effectiveTargetFolderId || busy) return;
+
     setBusy(true);
     setError("");
     try {
@@ -228,6 +228,7 @@ export default function RoomDashboardManager({
   async function deleteFolders() {
     if (selectedFolderIds.length === 0 || busy) return;
     if (!confirm(`${selectedFolderIds.length}개 폴더를 삭제할까요?`)) return;
+
     setBusy(true);
     setError("");
     try {
@@ -254,9 +255,7 @@ export default function RoomDashboardManager({
     <>
       <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{roomName}</h1>
-        <p className="mt-2 text-sm text-stone-600">
-          최근 사진 {photos.length}장 · 폴더 {folders.length}개
-        </p>
+        <p className="mt-2 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
         <Link
           href="/"
           aria-label="코드 입력 화면으로 돌아가기"
@@ -314,18 +313,18 @@ export default function RoomDashboardManager({
                   <div
                     onClick={() => onFolderTap(folder.id)}
                     onTouchEnd={() => onFolderTap(folder.id)}
-                    className={`group rounded-2xl border bg-stone-50 p-3 transition ${
+                    className={`rounded-2xl border p-3 transition ${
                       selected ? "border-emerald-500 ring-2 ring-emerald-200" : "border-stone-200"
                     }`}
                   >
-                    <Link href={`/${roomId}/folder/${folder.id}`} className={folderSelectionMode ? "pointer-events-none opacity-70" : ""}>
-                      <div className="mx-auto w-16 rounded-[18px] border-2 border-stone-300 bg-white px-2 py-3 text-center shadow-sm">
-                        <div className="mx-auto mb-2 h-1 w-8 rounded-full bg-stone-200" />
-                        <div className="text-xl">📁</div>
+                    <Link
+                      href={`/${roomId}/folder/${folder.id}`}
+                      className={folderSelectionMode ? "pointer-events-none opacity-70" : ""}
+                    >
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-2xl shadow-sm">
+                        📁
                       </div>
-                      <p className="mt-3 line-clamp-2 text-center text-xs font-medium text-stone-800">
-                        {folder.name}
-                      </p>
+                      <p className="mt-3 line-clamp-2 text-center text-xs font-medium text-stone-800">{folder.name}</p>
                     </Link>
                   </div>
                 </li>
@@ -357,9 +356,7 @@ export default function RoomDashboardManager({
 
         {target === "file" ? (
           <div className="mb-2 space-y-2">
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow">
-              추가
-            </button>
+            <button type="button" onClick={() => setShowUploadPopup(true)} className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow">추가</button>
             <button
               type="button"
               disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy}
@@ -381,9 +378,7 @@ export default function RoomDashboardManager({
 
         {target === "folder" ? (
           <div className="mb-2 space-y-2">
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow">
-              추가
-            </button>
+            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="block w-full rounded-full bg-stone-800 px-4 py-2 text-sm text-white shadow">추가</button>
             <button
               type="button"
               disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy}
@@ -436,9 +431,7 @@ export default function RoomDashboardManager({
                   ))}
                 </select>
                 <div className="mt-4 flex gap-2">
-                  <button type="button" onClick={() => setShowFileMovePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">
-                    취소
-                  </button>
+                  <button type="button" onClick={() => setShowFileMovePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">취소</button>
                   <button
                     type="button"
                     disabled={!effectiveTargetFolderId || selectedPhotoIds.length === 0 || busy}
@@ -466,9 +459,7 @@ export default function RoomDashboardManager({
                   className="mt-3 h-11 w-full rounded-xl border border-stone-300 px-3 text-sm"
                 />
                 <div className="mt-4 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">
-                    취소
-                  </button>
+                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">취소</button>
                   <button
                     type="button"
                     disabled={!newFolderName.trim() || busy}
@@ -502,9 +493,7 @@ export default function RoomDashboardManager({
                   ))}
                 </select>
                 <div className="mt-4 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">
-                    취소
-                  </button>
+                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">취소</button>
                   <button
                     type="button"
                     disabled={!effectiveTargetFolderId || selectedFolderIds.length === 0 || busy}
@@ -522,10 +511,7 @@ export default function RoomDashboardManager({
 
       {currentPhoto
         ? createPortal(
-            <div
-              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4"
-              onClick={closeLightbox}
-            >
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" onClick={closeLightbox}>
               <div className="relative w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
                 <Image
                   src={`/api/drive/file/${currentPhoto.id}`}
@@ -539,15 +525,9 @@ export default function RoomDashboardManager({
                   {activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${photos.length}` : ""} · {currentPhoto.name}
                 </p>
                 <div className="mt-3 flex gap-2">
-                  <button type="button" onClick={prev} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">
-                    이전
-                  </button>
-                  <button type="button" onClick={next} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">
-                    다음
-                  </button>
-                  <button type="button" onClick={closeLightbox} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">
-                    닫기
-                  </button>
+                  <button type="button" onClick={prev} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">이전</button>
+                  <button type="button" onClick={next} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">다음</button>
+                  <button type="button" onClick={closeLightbox} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">닫기</button>
                 </div>
               </div>
             </div>,
