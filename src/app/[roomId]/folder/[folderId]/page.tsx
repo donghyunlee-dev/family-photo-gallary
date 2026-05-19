@@ -36,13 +36,13 @@ export default async function FolderPage({ params }: FolderPageProps) {
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-8">
       <section className="mx-auto w-full max-w-5xl space-y-6">
-        <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+        <div className="relative rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
           <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
-          <p className="mt-2 text-sm text-stone-600">사진 {photos.length}장</p>
+          <p className="mt-1 text-sm text-stone-600">사진 {photos.length}장</p>
           <Link
             href={`/${roomId}`}
             aria-label="방으로 돌아가기"
-            className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
+            className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
           >
             ←
           </Link>
@@ -55,19 +55,13 @@ export default async function FolderPage({ params }: FolderPageProps) {
         ) : null}
 
         {!loadError ? (
-          photos.length === 0 ? (
-            <div className="rounded-3xl border border-stone-200 bg-white p-8 text-sm text-stone-600 shadow-sm">
-              이 폴더에는 아직 사진이 없습니다.
-            </div>
-          ) : (
-            <FolderPhotoManager
-              photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
-              roomId={roomId}
-              currentFolderId={folderId}
-              roomRootFolderId={roomRootFolderId}
-              moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
-            />
-          )
+          <FolderPhotoManager
+            photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
+            roomId={roomId}
+            currentFolderId={folderId}
+            roomRootFolderId={roomRootFolderId}
+            moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
+          />
         ) : null}
       </section>
     </main>

@@ -253,13 +253,13 @@ export default function RoomDashboardManager({
 
   return (
     <>
-      <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+      <div className="relative rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{roomName}</h1>
-        <p className="mt-2 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
+        <p className="mt-1 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
         <Link
           href="/"
           aria-label="코드 입력 화면으로 돌아가기"
-          className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
+          className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
         >
           ←
         </Link>
@@ -336,8 +336,11 @@ export default function RoomDashboardManager({
 
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
 
-      <div className="fixed right-4 z-[9997] flex flex-col items-end gap-3" style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}>
-        <div className="flex flex-col gap-3">
+      <div
+        className="fixed right-4 z-[9997]"
+        style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      >
+        <div className="relative flex flex-col gap-3">
           <button
             type="button"
             onClick={() => toggleTarget("file")}
@@ -352,51 +355,50 @@ export default function RoomDashboardManager({
           >
             폴더
           </button>
+          {target === "file" ? (
+            <div className="absolute right-[4.5rem] top-1/2 flex -translate-y-1/2 flex-col gap-2">
+              <button type="button" onClick={() => setShowUploadPopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
+              <button
+                type="button"
+                disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy}
+                onClick={() => setShowFileMovePopup(true)}
+                className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                이동
+              </button>
+              <button
+                type="button"
+                disabled={selectedPhotoIds.length === 0 || busy}
+                onClick={deleteFiles}
+                className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                삭제
+              </button>
+            </div>
+          ) : null}
+
+          {target === "folder" ? (
+            <div className="absolute right-[4.5rem] top-1/2 flex -translate-y-1/2 flex-col gap-2">
+              <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
+              <button
+                type="button"
+                disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy}
+                onClick={() => setShowFolderMovePopup(true)}
+                className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                이동
+              </button>
+              <button
+                type="button"
+                disabled={selectedFolderIds.length === 0 || busy}
+                onClick={deleteFolders}
+                className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                삭제
+              </button>
+            </div>
+          ) : null}
         </div>
-
-        {target === "file" ? (
-          <div className="flex flex-col-reverse gap-3">
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
-            <button
-              type="button"
-              disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy}
-              onClick={() => setShowFileMovePopup(true)}
-              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              이동
-            </button>
-            <button
-              type="button"
-              disabled={selectedPhotoIds.length === 0 || busy}
-              onClick={deleteFiles}
-              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              삭제
-            </button>
-          </div>
-        ) : null}
-
-        {target === "folder" ? (
-          <div className="flex flex-col-reverse gap-3">
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
-            <button
-              type="button"
-              disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy}
-              onClick={() => setShowFolderMovePopup(true)}
-              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              이동
-            </button>
-            <button
-              type="button"
-              disabled={selectedFolderIds.length === 0 || busy}
-              onClick={deleteFolders}
-              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              삭제
-            </button>
-          </div>
-        ) : null}
       </div>
 
       {showUploadPopup

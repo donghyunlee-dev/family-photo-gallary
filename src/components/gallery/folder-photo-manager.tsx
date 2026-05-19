@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -225,41 +225,50 @@ export default function FolderPhotoManager({
   return (
     <>
       <div className="mb-3 text-xs text-stone-600">
-        {selectionMode ? `파일 선택 모드 · ${selectedIds.length}개 선택됨` : "사진을 탭하면 크게 볼 수 있습니다."}
+        {selectionMode ? `파일 선택 모드 · ${selectedIds.length}개 선택` : "사진을 누르면 크게 볼 수 있습니다."}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {photos.map((photo, index) => {
-          const selected = selectedIds.includes(photo.id);
-          return (
-            <article
-              key={photo.id}
-              onClick={() => onPhotoTap(index, photo.id)}
-              onTouchEnd={() => onPhotoTap(index, photo.id)}
-              className={`cursor-pointer overflow-hidden rounded-2xl border bg-white ${
-                selected ? "border-emerald-500 ring-2 ring-emerald-200" : "border-stone-200"
-              }`}
-            >
-              <Image
-                src={`/api/drive/file/${photo.id}`}
-                alt={photo.name}
-                width={640}
-                height={440}
-                className="h-44 w-full object-cover"
-                unoptimized
-              />
-              <div className="px-3 py-2">
-                <p className="truncate text-xs text-stone-700">{photo.name}</p>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+      {photos.length === 0 ? (
+        <div className="rounded-3xl border border-stone-200 bg-white p-8 text-sm text-stone-600 shadow-sm">
+          이 폴더에는 아직 사진이 없습니다.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {photos.map((photo, index) => {
+            const selected = selectedIds.includes(photo.id);
+            return (
+              <article
+                key={photo.id}
+                onClick={() => onPhotoTap(index, photo.id)}
+                onTouchEnd={() => onPhotoTap(index, photo.id)}
+                className={`cursor-pointer overflow-hidden rounded-2xl border bg-white ${
+                  selected ? "border-emerald-500 ring-2 ring-emerald-200" : "border-stone-200"
+                }`}
+              >
+                <Image
+                  src={`/api/drive/file/${photo.id}`}
+                  alt={photo.name}
+                  width={640}
+                  height={440}
+                  className="h-44 w-full object-cover"
+                  unoptimized
+                />
+                <div className="px-3 py-2">
+                  <p className="truncate text-xs text-stone-700">{photo.name}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
 
       {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
 
-      <div className="fixed right-4 z-[9997] flex flex-col items-end gap-3" style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}>
-        <div className="flex flex-col gap-3">
+      <div
+        className="fixed right-4 z-[9997]"
+        style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      >
+        <div className="relative flex flex-col gap-3">
           <button
             type="button"
             onClick={() => {
@@ -281,55 +290,55 @@ export default function FolderPhotoManager({
           >
             폴더
           </button>
+
+          {target === "file" ? (
+            <div className="absolute right-[4.5rem] top-1/2 flex -translate-y-1/2 flex-col gap-2">
+              <button type="button" onClick={() => setShowUploadPopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">
+                추가
+              </button>
+              <button
+                type="button"
+                disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy}
+                onClick={() => setShowMovePopup(true)}
+                className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                이동
+              </button>
+              <button
+                type="button"
+                disabled={selectedIds.length === 0 || busy}
+                onClick={deleteSelectedFiles}
+                className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                삭제
+              </button>
+            </div>
+          ) : null}
+
+          {target === "folder" ? (
+            <div className="absolute right-[4.5rem] top-1/2 flex -translate-y-1/2 flex-col gap-2">
+              <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">
+                추가
+              </button>
+              <button
+                type="button"
+                disabled={moveFolderTargets.length === 0 || busy}
+                onClick={() => setShowFolderMovePopup(true)}
+                className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                이동
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={deleteCurrentFolder}
+                className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
+              >
+                삭제
+              </button>
+            </div>
+          ) : null}
         </div>
-
-        {target === "file" ? (
-          <div className="flex flex-col-reverse gap-3">
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">
-              추가
-            </button>
-            <button
-              type="button"
-              disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy}
-              onClick={() => setShowMovePopup(true)}
-              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              이동
-            </button>
-            <button
-              type="button"
-              disabled={selectedIds.length === 0 || busy}
-              onClick={deleteSelectedFiles}
-              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              삭제
-            </button>
-          </div>
-        ) : null}
-
-        {target === "folder" ? (
-          <div className="flex flex-col-reverse gap-3">
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">
-              추가
-            </button>
-            <button
-              type="button"
-              disabled={moveFolderTargets.length === 0 || busy}
-              onClick={() => setShowFolderMovePopup(true)}
-              className="h-14 w-14 rounded-full bg-blue-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              이동
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={deleteCurrentFolder}
-              className="h-14 w-14 rounded-full bg-red-600 text-xs font-semibold text-white shadow-lg disabled:bg-stone-400"
-            >
-              삭제
-            </button>
-          </div>
-        ) : null}
       </div>
 
       {showUploadPopup
