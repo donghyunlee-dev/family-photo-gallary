@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +24,7 @@ type FolderPhotoManagerProps = {
   currentFolderId: string;
   roomRootFolderId: string;
   moveTargets: FolderOption[];
+  childFolders: FolderOption[];
 };
 
 type ActionTarget = "file" | "folder" | null;
@@ -33,6 +35,7 @@ export default function FolderPhotoManager({
   currentFolderId,
   roomRootFolderId,
   moveTargets,
+  childFolders,
 }: FolderPhotoManagerProps) {
   const router = useRouter();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -233,7 +236,7 @@ export default function FolderPhotoManager({
           이 폴더에는 아직 사진이 없습니다.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 pb-52 sm:grid-cols-3 md:grid-cols-4">
           {photos.map((photo, index) => {
             const selected = selectedIds.includes(photo.id);
             return (
@@ -262,11 +265,33 @@ export default function FolderPhotoManager({
         </div>
       )}
 
+      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
+        <div className="mx-auto w-full max-w-5xl">
+          <h2 className="text-sm font-semibold text-stone-900">하위 폴더</h2>
+          {childFolders.length === 0 ? (
+            <p className="mt-2 text-xs text-stone-600">현재 폴더 안에 하위 폴더가 없습니다.</p>
+          ) : (
+            <ul className="mt-3 grid max-h-44 grid-cols-4 gap-3 overflow-y-auto sm:grid-cols-5 md:grid-cols-6">
+              {childFolders.map((folder) => (
+                <li key={folder.id} className="flex justify-center">
+                  <Link href={`/${roomId}/folder/${folder.id}`} className="flex w-full flex-col items-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-2xl text-emerald-700 shadow-sm">
+                      📁
+                    </div>
+                    <p className="mt-2 line-clamp-2 text-center text-[11px] font-medium text-stone-800">{folder.name}</p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
       {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
 
       <div
         className="fixed right-4 z-[9997]"
-        style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        style={{ bottom: "max(10rem, calc(env(safe-area-inset-bottom) + 9.5rem))" }}
       >
         <div className="relative flex flex-col gap-3">
           <button

@@ -21,12 +21,14 @@ export default async function FolderPage({ params }: FolderPageProps) {
 
   let photos: Awaited<ReturnType<typeof listRecentPhotosFromFolder>> = [];
   let moveTargets: Awaited<ReturnType<typeof listFoldersFromFolder>> = [];
+  let childFolders: Awaited<ReturnType<typeof listFoldersFromFolder>> = [];
   let loadError = "";
 
   try {
-    [photos, moveTargets] = await Promise.all([
+    [photos, moveTargets, childFolders] = await Promise.all([
       listRecentPhotosFromFolder(folderId, 120),
       listFoldersFromFolder(roomRootFolderId, 100),
+      listFoldersFromFolder(folderId, 100),
     ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
@@ -61,6 +63,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
             currentFolderId={folderId}
             roomRootFolderId={roomRootFolderId}
             moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
+            childFolders={childFolders.map((folder) => ({ id: folder.id, name: folder.name }))}
           />
         ) : null}
       </section>

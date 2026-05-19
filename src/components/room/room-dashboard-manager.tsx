@@ -265,7 +265,7 @@ export default function RoomDashboardManager({
         </Link>
       </div>
 
-      <section className="rounded-3xl border border-stone-200 bg-white p-5 pb-64 shadow-sm">
+      <section className="rounded-3xl border border-stone-200 bg-white p-5 pb-52 shadow-sm">
         <h2 className="text-lg font-semibold text-stone-900">최근 사진</h2>
         {photos.length === 0 ? (
           <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
@@ -300,7 +300,7 @@ export default function RoomDashboardManager({
         )}
       </section>
 
-      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur">
+      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
         <div className="mx-auto w-full max-w-5xl">
           <h2 className="text-sm font-semibold text-stone-900">폴더</h2>
           {folders.length === 0 ? (
@@ -346,7 +346,7 @@ export default function RoomDashboardManager({
 
       <div
         className="fixed right-4 z-[9997]"
-        style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        style={{ bottom: "max(10rem, calc(env(safe-area-inset-bottom) + 9.5rem))" }}
       >
         <div className="relative flex flex-col gap-3">
           <button
