@@ -1,9 +1,6 @@
-﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import CreateFolderForm from "@/components/folder/create-folder-form";
-import FolderPhotoViewer from "@/components/gallery/folder-photo-viewer";
-import UploadForm from "@/components/upload/upload-form";
+import RoomDashboardManager from "@/components/room/room-dashboard-manager";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
@@ -49,70 +46,19 @@ export default async function RoomPage({ params }: RoomPageProps) {
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-8">
       <section className="mx-auto w-full max-w-5xl space-y-6">
-        <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{room.name}</h1>
-          <p className="mt-2 text-sm text-stone-600">
-            최근 사진 {photos.length}장 · 폴더 {folders.length}개
-          </p>
-          <div className="mt-4">
-            <UploadForm folderId={roomFolderId} folderName={room.name} />
-          </div>
-          <div className="mt-4">
-            <CreateFolderForm parentFolderId={roomFolderId} />
-          </div>
-          <Link
-            href="/"
-            aria-label="코드 입력 화면으로 돌아가기"
-            className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
-          >
-            ←
-          </Link>
-        </div>
-
         {loadError ? (
           <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">
             {loadError}
           </div>
-        ) : null}
-
-        {!loadError ? (
-          <>
-            <section className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-stone-900">최근 사진</h2>
-              {photos.length === 0 ? (
-                <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
-              ) : (
-                <FolderPhotoViewer photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))} />
-              )}
-            </section>
-
-            <section className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-stone-900">폴더</h2>
-              {folders.length === 0 ? (
-                <p className="mt-3 text-sm text-stone-600">아직 생성된 폴더가 없습니다.</p>
-              ) : (
-                <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                  {folders.map((folder) => (
-                    <li key={folder.id}>
-                      <Link
-                        href={`/${roomId}/folder/${folder.id}`}
-                        className="group block rounded-2xl border border-stone-200 bg-stone-50 p-3 transition hover:-translate-y-0.5 hover:bg-stone-100"
-                      >
-                        <div className="mx-auto w-16 rounded-[18px] border-2 border-stone-300 bg-white px-2 py-3 text-center shadow-sm">
-                          <div className="mx-auto mb-2 h-1 w-8 rounded-full bg-stone-200" />
-                          <div className="text-xl">📁</div>
-                        </div>
-                        <p className="mt-3 line-clamp-2 text-center text-xs font-medium text-stone-800">
-                          {folder.name}
-                        </p>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </>
-        ) : null}
+        ) : (
+          <RoomDashboardManager
+            roomId={roomId}
+            roomName={room.name}
+            roomRootFolderId={roomFolderId}
+            photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
+            folders={folders.map((folder) => ({ id: folder.id, name: folder.name }))}
+          />
+        )}
       </section>
     </main>
   );
