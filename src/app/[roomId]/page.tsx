@@ -86,20 +86,23 @@ export default async function RoomPage({ params }: RoomPageProps) {
             </section>
 
             <section className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-stone-900">폴더 목록</h2>
+              <h2 className="text-lg font-semibold text-stone-900">폴더</h2>
               {folders.length === 0 ? (
                 <p className="mt-3 text-sm text-stone-600">아직 생성된 폴더가 없습니다.</p>
               ) : (
-                <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                   {folders.map((folder) => (
                     <li key={folder.id}>
                       <Link
                         href={`/${roomId}/folder/${folder.id}`}
-                        className="block rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 transition hover:bg-stone-100"
+                        className="group block rounded-2xl border border-stone-200 bg-stone-50 p-3 transition hover:-translate-y-0.5 hover:bg-stone-100"
                       >
-                        <p className="truncate text-sm font-medium text-stone-900">{folder.name}</p>
-                        <p className="mt-1 text-xs text-stone-500">
-                          생성일 {new Date(folder.createdTime).toLocaleDateString("ko-KR")}
+                        <div className="mx-auto w-16 rounded-[18px] border-2 border-stone-300 bg-white px-2 py-3 text-center shadow-sm">
+                          <div className="mx-auto mb-2 h-1 w-8 rounded-full bg-stone-200" />
+                          <div className="text-xl">📁</div>
+                        </div>
+                        <p className="mt-3 line-clamp-2 text-center text-xs font-medium text-stone-800">
+                          {folder.name}
                         </p>
                       </Link>
                     </li>
