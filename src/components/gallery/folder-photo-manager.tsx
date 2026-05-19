@@ -452,6 +452,33 @@ export default function FolderPhotoManager({
         ? createPortal(
             <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" onClick={closeLightbox}>
               <div className="relative w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
+                <button
+                  type="button"
+                  onClick={closeLightbox}
+                  aria-label="닫기"
+                  className="absolute right-2 top-2 z-10 h-10 w-10 rounded-full bg-black/55 text-xl text-white hover:bg-black/70"
+                >
+                  ×
+                </button>
+
+                <button
+                  type="button"
+                  onClick={prev}
+                  aria-label="이전 사진"
+                  className="absolute left-2 top-1/2 z-10 h-10 w-10 -translate-y-1/2 rounded-full bg-black/55 text-xl text-white hover:bg-black/70"
+                >
+                  ‹
+                </button>
+
+                <button
+                  type="button"
+                  onClick={next}
+                  aria-label="다음 사진"
+                  className="absolute right-2 top-1/2 z-10 h-10 w-10 -translate-y-1/2 rounded-full bg-black/55 text-xl text-white hover:bg-black/70"
+                >
+                  ›
+                </button>
+
                 <Image
                   src={`/api/drive/file/${current.id}`}
                   alt={current.name}
@@ -463,17 +490,6 @@ export default function FolderPhotoManager({
                 <p className="mt-3 truncate text-sm text-stone-200">
                   {activeIndex !== null ? `${activeIndex + 1} / ${photos.length}` : ""} · {current.name}
                 </p>
-                <div className="mt-3 flex gap-2">
-                  <button type="button" onClick={prev} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">
-                    이전
-                  </button>
-                  <button type="button" onClick={next} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">
-                    다음
-                  </button>
-                  <button type="button" onClick={closeLightbox} className="rounded-lg bg-white/15 px-3 py-2 text-sm text-white hover:bg-white/25">
-                    닫기
-                  </button>
-                </div>
               </div>
             </div>,
             document.body,
