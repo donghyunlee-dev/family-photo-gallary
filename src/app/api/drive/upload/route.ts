@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { uploadPhotoToFolder } from "@/lib/drive/service";
 
@@ -31,15 +31,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ uploadedCount: uploaded.length }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upload failed.";
-    if (message.includes("Service Accounts do not have storage quota")) {
+
+    if (message.includes("storage quota") || message.includes("insufficientFilePermissions")) {
       return NextResponse.json(
         {
           error:
-            "서비스계정 업로드 quota 오류입니다. 대상 폴더를 Shared Drive로 옮기거나, 사용자 OAuth(위임) 방식으로 전환이 필요합니다.",
+            "Google Drive 권한 또는 용량 문제입니다. OAuth 계정의 Drive 권한과 대상 폴더 편집 권한을 확인해 주세요.",
         },
         { status: 500 },
       );
     }
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

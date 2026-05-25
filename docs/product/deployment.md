@@ -11,19 +11,18 @@ npm run check:env
 
 If any key is missing, the command fails with the missing variable list.
 
-## 2) Google Drive setup
+## 2) Google Drive setup (OAuth)
 1. Create a Google Cloud project.
 2. Enable Google Drive API.
-3. Create a Service Account.
-4. Generate a JSON key.
-5. Create root folder `/family-photo-gallery` in Google Drive.
-6. Share the root folder with the Service Account email as `Editor`.
+3. Configure OAuth consent screen.
+4. Create OAuth Client (Desktop or Web).
+5. Generate a refresh token with `https://www.googleapis.com/auth/drive` scope.
+6. Ensure the OAuth account has edit permission to target Drive folders.
 7. Create subfolders:
 - `our-family`
 - `my-parents-family`
 - `wife-parents-family`
-8. Copy the root/subfolder IDs into env values:
-- `GOOGLE_DRIVE_ROOT_FOLDER_ID`
+8. Copy folder IDs into env values:
 - `DRIVE_FOLDER_OUR_FAMILY`
 - `DRIVE_FOLDER_MY_PARENTS`
 - `DRIVE_FOLDER_WIFE_PARENTS`
@@ -39,9 +38,9 @@ If any key is missing, the command fails with the missing variable list.
 ## 4) Vercel environment variables
 Set these in Vercel Project Settings > Environment Variables:
 
-- `GOOGLE_SERVICE_ACCOUNT_EMAIL`
-- `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
-- `GOOGLE_DRIVE_ROOT_FOLDER_ID`
+- `GOOGLE_OAUTH_CLIENT_ID`
+- `GOOGLE_OAUTH_CLIENT_SECRET`
+- `GOOGLE_OAUTH_REFRESH_TOKEN`
 - `DRIVE_FOLDER_OUR_FAMILY`
 - `DRIVE_FOLDER_MY_PARENTS`
 - `DRIVE_FOLDER_WIFE_PARENTS`
@@ -49,8 +48,6 @@ Set these in Vercel Project Settings > Environment Variables:
 - `ROOM_CODE_OUR_FAMILY`
 - `ROOM_CODE_MY_PARENTS`
 - `ROOM_CODE_WIFE_PARENTS`
-
-For `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`, paste the full key with line breaks preserved.
 
 ## 5) Deploy and verify
 1. Trigger deployment in Vercel.

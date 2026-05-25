@@ -14,23 +14,18 @@ export type DriveFolder = {
   createdTime: string;
 };
 
-const DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"];
-
 function createAuth() {
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
 
-  if (!clientEmail || !privateKey) {
-    throw new Error("Google service account env vars are missing.");
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error("Google OAuth env vars are missing.");
   }
 
-  return new google.auth.GoogleAuth({
-    credentials: {
-      client_email: clientEmail,
-      private_key: privateKey,
-    },
-    scopes: DRIVE_SCOPES,
-  });
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
+  return oauth2Client;
 }
 
 function createDriveClient() {
