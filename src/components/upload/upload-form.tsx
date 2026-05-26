@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type UploadFormProps = {
@@ -27,7 +27,7 @@ function uploadSingleFile(input: {
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/drive/upload");
-    xhr.timeout = 120000;
+    xhr.timeout = 600000;
 
     xhr.upload.onprogress = (event) => {
       if (!event.lengthComputable) return;
@@ -53,13 +53,35 @@ function uploadSingleFile(input: {
     };
 
     xhr.onerror = () => reject(new Error("네트워크 오류가 발생했습니다. 다시 시도해 주세요."));
-    xhr.ontimeout = () => reject(new Error("업로드 시간이 초과되었습니다. 파일 수를 줄이거나 다시 시도해 주세요."));
+    xhr.ontimeout = () => reject(new Error("업로드 시간이 초과되었습니다. 다시 시도해 주세요."));
     xhr.send(formData);
   });
 }
 
+async function uploadSingleFileWithRetry(input: {
+  folderId: string;
+  file: File;
+  onProgress: (percent: number) => void;
+}) {
+  try {
+    return await uploadSingleFile(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    const retryable =
+      message.includes("네트워크 오류") ||
+      message.includes("시간이 초과") ||
+      message.includes("502") ||
+      message.includes("503");
+
+    if (!retryable) throw error;
+    return uploadSingleFile(input);
+  }
+}
+
 export default function UploadForm({ folderId, folderName }: UploadFormProps) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -105,7 +127,7 @@ export default function UploadForm({ folderId, folderName }: UploadFormProps) {
         setCurrentFileName(file.name);
         setProgress(0);
 
-        await uploadSingleFile({
+        await uploadSingleFileWithRetry({
           folderId,
           file,
           onProgress: (percent) => setProgress(percent),
@@ -116,6 +138,7 @@ export default function UploadForm({ folderId, folderName }: UploadFormProps) {
 
       setMessage(`${files.length}장 업로드 완료`);
       setFiles([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       router.refresh();
     } catch (submitError) {
       const uploadErrorMessage =
@@ -140,33 +163,16 @@ export default function UploadForm({ folderId, folderName }: UploadFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-stone-800">사진 선택</label>
         <input
+          ref={fileInputRef}
           type="file"
           accept="image/*"
           multiple
           onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
           className="block w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 file:mr-3 file:rounded-lg file:border-0 file:bg-stone-800 file:px-3 file:py-2 file:text-xs file:font-medium file:text-white"
         />
-        <p className="text-xs text-stone-500">선택된 파일 {selectedCount}개</p>
+        <p className="text-xs text-stone-500">{selectedCount > 0 ? `${selectedCount}개 선택됨` : "파일을 선택해 주세요"}</p>
       </div>
-
-      {selectedCount > 0 ? (
-        <div className="max-h-32 space-y-1 overflow-y-auto rounded-xl border border-stone-200 bg-stone-50 p-2">
-          {files.map((file, index) => {
-            const isCompleted = index < completedCount;
-            const isCurrent = loading && index === completedCount;
-            return (
-              <div key={`${file.name}-${index}`} className="flex items-center justify-between gap-2 text-xs">
-                <span className="truncate text-stone-700">{file.name}</span>
-                <span className={isCompleted ? "text-emerald-700" : isCurrent ? "text-blue-700" : "text-stone-500"}>
-                  {isCompleted ? "완료" : isCurrent ? "업로드 중" : "대기"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
 
       {loading ? (
         <div className="space-y-2 rounded-xl border border-blue-200 bg-blue-50 p-3">
@@ -188,7 +194,7 @@ export default function UploadForm({ folderId, folderName }: UploadFormProps) {
         {loading ? "업로드 진행 중..." : "사진 업로드"}
       </button>
 
-      {message ? <p className="text-xs text-emerald-700">{message}</p> : null}
+      {message ? <p className="text-xs font-semibold text-emerald-700">{message}</p> : null}
       {error ? <p className="text-xs text-red-700">{error}</p> : null}
     </form>
   );
