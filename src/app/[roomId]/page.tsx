@@ -24,7 +24,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         <section className="gallery-paper w-full max-w-xl rounded-3xl p-8">
           <h1 className="text-2xl font-semibold tracking-tight text-amber-900">{room.name}</h1>
           <p className="mt-3 text-sm leading-6 text-amber-800">
-            ¹æ Æú´õ È¯°æº¯¼ö°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. `{room.envFolderKey}` °ªÀ» Vercel È¯°æº¯¼ö¿¡ ³Ö¾î ÁÖ¼¼¿ä.
+            방 폴더 환경변수가 설정되지 않았습니다. `{room.envFolderKey}` 값을 Vercel 환경변수에 넣어 주세요.
           </p>
         </section>
       </main>
@@ -42,7 +42,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
     ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
-    loadError = `Google Drive¿¡¼­ µ¥ÀÌÅÍ¸¦ ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù: ${message}`;
+    loadError = `Google Drive에서 데이터를 불러오지 못했습니다: ${message}`;
   }
 
   return (
@@ -65,3 +65,4 @@ export default async function RoomPage({ params }: RoomPageProps) {
     </main>
   );
 }
+

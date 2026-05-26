@@ -31,14 +31,14 @@ export default function Home() {
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
-        setError(data.error ?? "ÀÔÀå¿¡ ½ÇÆÐÇß½À´Ï´Ù. ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.");
+        setError(data.error ?? "입장에 실패했습니다. 다시 시도해 주세요.");
         return;
       }
 
       const data = (await response.json()) as VerifyResponse;
       router.push(`/${data.roomId}`);
     } catch {
-      setError("³×Æ®¿öÅ© ¿À·ù°¡ ¹ß»ýÇß½À´Ï´Ù. Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.");
+      setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
       setLoading(false);
     }
@@ -48,14 +48,14 @@ export default function Home() {
     <main className="paper-bg flex min-h-screen items-center justify-center px-4 py-12 text-stone-900">
       <section className="gallery-paper w-full max-w-md rounded-[1.75rem] p-8">
         <p className="text-sm tracking-wide text-[color:var(--text-secondary)]">Family Photo Gallery</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-[color:var(--foreground)]">°¡Á·»çÁø°ü</h1>
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-[color:var(--foreground)]">가족사진관</h1>
         <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
-          °øÀ¯¹ÞÀº 6ÀÚ¸® ÄÚµå¸¦ ÀÔ·ÂÇÏ¸é °¡Á· »çÁø¹æÀ¸·Î ÀÔÀåÇÒ ¼ö ÀÖ¾î¿ä.
+          공유받은 6자리 코드를 입력하면 가족 사진방으로 입장할 수 있어요.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-3">
           <label htmlFor="room-code" className="text-sm font-medium text-[color:var(--foreground)]">
-            ÀÔÀå ÄÚµå
+            입장 코드
           </label>
           <input
             id="room-code"
@@ -67,7 +67,7 @@ export default function Home() {
             }}
             inputMode="numeric"
             maxLength={6}
-            placeholder="6ÀÚ¸® ¼ýÀÚ"
+            placeholder="6자리 숫자"
             autoComplete="one-time-code"
             className="h-12 w-full rounded-xl border border-[color:var(--accent-soft)] bg-white/80 px-4 text-lg tracking-[0.25em] outline-none transition focus:border-[color:var(--primary-warm)]"
           />
@@ -76,7 +76,7 @@ export default function Home() {
             disabled={!canSubmit || loading}
             className="h-12 w-full rounded-xl bg-[color:var(--accent-terracotta)] text-sm font-medium text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-stone-300"
           >
-            {loading ? "È®ÀÎ Áß..." : "ÀÔÀåÇÏ±â"}
+            {loading ? "확인 중..." : "입장하기"}
           </button>
         </form>
 
@@ -87,3 +87,4 @@ export default function Home() {
     </main>
   );
 }
+
