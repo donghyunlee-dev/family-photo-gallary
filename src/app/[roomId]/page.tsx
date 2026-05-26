@@ -4,6 +4,8 @@ import RoomDashboardManager from "@/components/room/room-dashboard-manager";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
+export const dynamic = "force-dynamic";
+
 type RoomPageProps = {
   params: Promise<{ roomId: string }>;
 };

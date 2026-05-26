@@ -5,6 +5,8 @@ import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
+export const dynamic = "force-dynamic";
+
 type FolderPageProps = {
   params: Promise<{ roomId: string; folderId: string }>;
 };

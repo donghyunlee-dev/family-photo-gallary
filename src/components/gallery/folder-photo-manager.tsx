@@ -367,8 +367,17 @@ export default function FolderPhotoManager({
       {showUploadPopup
         ? createPortal(
             <div className="fixed inset-0 z-[9998] flex items-end bg-black/40 p-4" onClick={() => setShowUploadPopup(false)}>
-              <div className="w-full rounded-2xl bg-white p-4" onClick={(event) => event.stopPropagation()}>
-                <h3 className="text-base font-semibold text-stone-900">파일 추가</h3>
+              <div className="w-full rounded-3xl border border-stone-200 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-stone-900">파일 추가</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowUploadPopup(false)}
+                    className="h-9 rounded-full border border-stone-300 px-3 text-xs font-medium text-stone-700"
+                  >
+                    닫기
+                  </button>
+                </div>
                 <div className="mt-3">
                   <UploadForm folderId={currentFolderId} folderName="현재 폴더" />
                 </div>
@@ -417,13 +426,14 @@ export default function FolderPhotoManager({
       {showFolderCreatePopup
         ? createPortal(
             <div className="fixed inset-0 z-[9998] flex items-end bg-black/40 p-4" onClick={() => setShowFolderCreatePopup(false)}>
-              <div className="w-full rounded-2xl bg-white p-4" onClick={(event) => event.stopPropagation()}>
-                <h3 className="text-base font-semibold text-stone-900">폴더 추가</h3>
+              <div className="w-full rounded-3xl border border-stone-200 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-stone-900">폴더 추가</h3>
+                {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
                 <input
                   value={newFolderName}
                   onChange={(event) => setNewFolderName(event.target.value)}
                   placeholder="예: 2026-08-강릉여행-2차"
-                  className="mt-3 h-11 w-full rounded-xl border border-stone-300 px-3 text-sm"
+                  className="mt-3 h-11 w-full rounded-xl border border-stone-300 bg-stone-50 px-3 text-sm font-medium text-stone-900 placeholder:text-stone-400"
                 />
                 <div className="mt-4 flex gap-2">
                   <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">
