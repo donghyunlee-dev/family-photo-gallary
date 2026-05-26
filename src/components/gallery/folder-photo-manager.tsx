@@ -271,7 +271,7 @@ export default function FolderPhotoManager({
           이 폴더에는 아직 사진이 없습니다.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 pb-40 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 pb-32 sm:grid-cols-3 md:grid-cols-4">
           {photos.map((photo, index) => {
             const selected = selectedIds.includes(photo.id);
             return (
@@ -285,10 +285,10 @@ export default function FolderPhotoManager({
                 <Image
                   src={`/api/drive/file/${photo.id}`}
                   alt={photo.name}
-                  width={640}
-                  height={440}
-                  className="h-44 w-full object-cover"
-                  unoptimized
+                  width={480}
+                  height={360}
+                  sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
+                  className="h-40 w-full object-cover"
                 />
               </article>
             );
@@ -296,7 +296,7 @@ export default function FolderPhotoManager({
         </div>
       )}
 
-      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
+      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
         <div className="mx-auto w-full max-w-5xl">
           {childFolders.length === 0 ? (
             <p className="mt-2 text-xs text-stone-600">현재 폴더 안에 하위 폴더가 없습니다.</p>

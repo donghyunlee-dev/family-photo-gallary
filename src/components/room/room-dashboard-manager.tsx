@@ -281,22 +281,22 @@ export default function RoomDashboardManager({
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-[9993] border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
+      <div className="fixed inset-x-0 top-0 z-[9993] border-b border-stone-200 bg-stone-100/95 px-4 py-2 backdrop-blur">
         <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{roomName}</h1>
         <p className="mt-1 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
         <Link
           href="/"
           aria-label="로그아웃"
-          className="absolute right-4 top-4 inline-flex h-10 items-center justify-center rounded-full border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
+          className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-300 bg-white text-lg font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
         >
-          로그아웃
+          ⎋
         </Link>
         </div>
       </div>
-      <div className="h-28" aria-hidden />
+      <div className="h-24" aria-hidden />
 
-      <section className="pb-40 pt-2">
+      <section className="pb-32 pt-1">
         {photos.length === 0 ? (
           <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
         ) : (
@@ -314,10 +314,10 @@ export default function RoomDashboardManager({
                   <Image
                     src={`/api/drive/file/${photo.id}`}
                     alt={photo.name}
-                    width={640}
-                    height={440}
-                    className="h-44 w-full object-cover"
-                    unoptimized
+                    width={480}
+                    height={360}
+                    sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
+                    className="h-40 w-full object-cover"
                   />
                 </article>
               );
@@ -326,7 +326,7 @@ export default function RoomDashboardManager({
         )}
       </section>
 
-      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
+      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
         <div className="mx-auto w-full max-w-5xl">
           {folders.length === 0 ? (
             <p className="mt-2 text-xs text-stone-600">아직 생성된 폴더가 없습니다.</p>

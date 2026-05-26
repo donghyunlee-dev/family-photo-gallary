@@ -21,7 +21,7 @@ export async function GET(_: Request, { params }: RouteProps) {
     return new Response(Readable.toWeb(stream) as ReadableStream, {
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "public, max-age=120, s-maxage=120",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
       },
     });
   } catch {
