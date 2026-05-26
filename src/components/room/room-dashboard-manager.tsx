@@ -156,7 +156,7 @@ export default function RoomDashboardManager({
     );
   }
 
-  function renderPhotoCard(photo: PhotoItem, index: number, className: string) {
+  function renderPhotoCard(photo: PhotoItem, index: number, className: string, imageClassName = "aspect-[4/3]") {
     const selected = selectedPhotoIds.includes(photo.id);
     return (
       <article
@@ -166,14 +166,16 @@ export default function RoomDashboardManager({
           selected ? "border-blue-500 ring-2 ring-blue-200" : "border-stone-200"
         }`}
       >
-        <Image
-          src={`/api/drive/file/${photo.id}`}
-          alt={photo.name}
-          width={480}
-          height={360}
-          sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
-          className="h-full w-full object-cover"
-        />
+        <div className={imageClassName}>
+          <Image
+            src={`/api/drive/file/${photo.id}`}
+            alt={photo.name}
+            width={480}
+            height={360}
+            sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
+            className="h-full w-full object-cover"
+          />
+        </div>
       </article>
     );
   }
@@ -188,8 +190,8 @@ export default function RoomDashboardManager({
                 <span className="text-[10px] tracking-[0.35em]">•••••</span>
                 <span className="text-[10px] tracking-[0.35em]">•••••</span>
               </div>
-              <div className="h-44">
-                {renderPhotoCard(photo, index, "rounded-lg border-stone-700")}
+              <div>
+                {renderPhotoCard(photo, index, "rounded-lg border-stone-700", "aspect-[4/3]")}
               </div>
               <div className="mt-2 flex items-center justify-between px-1 text-stone-300">
                 <span className="text-[10px] tracking-[0.35em]">•••••</span>
@@ -203,13 +205,10 @@ export default function RoomDashboardManager({
 
     if (viewMode === "wall") {
       return (
-        <div className="columns-2 gap-3 space-y-3 sm:columns-3 md:columns-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {photos.map((photo, index) => (
-            <div
-              key={photo.id}
-              className={`${index % 3 === 0 ? "rotate-[1deg]" : index % 3 === 1 ? "-rotate-[1deg]" : "rotate-0"} break-inside-avoid`}
-            >
-              {renderPhotoCard(photo, index, "rounded-sm border-[6px] border-white shadow-md")}
+            <div key={photo.id} className={index % 2 === 0 ? "translate-y-1" : ""}>
+              {renderPhotoCard(photo, index, "rounded-sm border-[6px] border-white shadow-md", "aspect-[4/5]")}
             </div>
           ))}
         </div>
@@ -218,12 +217,12 @@ export default function RoomDashboardManager({
 
     if (viewMode === "magazine") {
       return (
-        <div className="grid auto-rows-[140px] grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid auto-rows-[110px] grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {photos.map((photo, index) => {
             const big = index % 7 === 0 || index % 7 === 3;
             return (
               <div key={photo.id} className={big ? "col-span-2 row-span-2" : "col-span-1 row-span-1"}>
-                {renderPhotoCard(photo, index, "rounded-xl")}
+                {renderPhotoCard(photo, index, "rounded-xl", "h-full")}
               </div>
             );
           })}
@@ -236,7 +235,7 @@ export default function RoomDashboardManager({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {photos.map((photo, index) => (
             <div key={photo.id} className="rounded-3xl bg-stone-50 p-3 shadow-inner">
-              {renderPhotoCard(photo, index, "rounded-2xl")}
+              {renderPhotoCard(photo, index, "rounded-2xl", "aspect-[4/3]")}
             </div>
           ))}
         </div>
@@ -248,7 +247,7 @@ export default function RoomDashboardManager({
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {photos.map((photo, index) => (
             <div key={photo.id}>
-              {renderPhotoCard(photo, index, "rounded-lg")}
+              {renderPhotoCard(photo, index, "rounded-lg", "aspect-[4/3]")}
             </div>
           ))}
         </div>
@@ -259,7 +258,7 @@ export default function RoomDashboardManager({
       <div className="grid grid-cols-2 gap-3 overflow-x-hidden sm:grid-cols-3 md:grid-cols-4">
         {photos.map((photo, index) => (
           <div key={photo.id} className={index % 2 === 0 ? "pt-2" : ""}>
-            {renderPhotoCard(photo, index, `rounded-md ${index % 2 === 0 ? "-rotate-[1deg]" : "rotate-[1deg]"}`)}
+            {renderPhotoCard(photo, index, `rounded-md ${index % 2 === 0 ? "-rotate-[1deg]" : "rotate-[1deg]"}`, "aspect-[4/3]")}
           </div>
         ))}
       </div>
@@ -427,7 +426,7 @@ export default function RoomDashboardManager({
       </div>
       <div className="h-24" aria-hidden />
 
-      <section className="overflow-x-hidden pb-32 pt-1">
+      <section className="overflow-x-clip pb-32 pt-1">
         <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
           {viewModes.map((mode) => (
             <button
