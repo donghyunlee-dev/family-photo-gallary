@@ -78,6 +78,13 @@ export default function RoomDashboardManager({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activePhotoIndex, closeLightbox, prev, next]);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      router.refresh();
+    }, 30000);
+    return () => window.clearInterval(timer);
+  }, [router]);
+
   function resetSelections() {
     setSelectedPhotoIds([]);
     setSelectedFolderIds([]);
@@ -279,7 +286,6 @@ export default function RoomDashboardManager({
                 <article
                   key={photo.id}
                   onClick={() => onPhotoTap(index, photo.id)}
-                  onTouchEnd={() => onPhotoTap(index, photo.id)}
                   className={`cursor-pointer overflow-hidden rounded-2xl border bg-white ${
                     selected ? "border-blue-500 ring-2 ring-blue-200" : "border-stone-200"
                   }`}
@@ -313,11 +319,6 @@ export default function RoomDashboardManager({
                     <Link
                       href={`/${roomId}/folder/${folder.id}`}
                       onClick={(event) => {
-                        if (!folderSelectionMode) return;
-                        event.preventDefault();
-                        onFolderTap(folder.id);
-                      }}
-                      onTouchEnd={(event) => {
                         if (!folderSelectionMode) return;
                         event.preventDefault();
                         onFolderTap(folder.id);
@@ -364,6 +365,13 @@ export default function RoomDashboardManager({
             className={`h-16 w-16 rounded-full text-sm font-semibold text-white shadow-lg ${target === "folder" ? "bg-emerald-600" : "bg-stone-700"}`}
           >
             폴더
+          </button>
+          <button
+            type="button"
+            onClick={() => router.refresh()}
+            className="h-12 w-16 rounded-full border border-stone-300 bg-white text-[11px] font-semibold text-stone-700 shadow"
+          >
+            새로고침
           </button>
           {target === "file" ? (
             <div className="absolute right-[4.5rem] top-1/2 flex -translate-y-1/2 flex-col gap-2">

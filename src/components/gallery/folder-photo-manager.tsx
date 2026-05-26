@@ -81,6 +81,13 @@ export default function FolderPhotoManager({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeIndex, closeLightbox, prev, next]);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      router.refresh();
+    }, 30000);
+    return () => window.clearInterval(timer);
+  }, [router]);
+
   function onPhotoTap(index: number, photoId: string) {
     setError("");
     if (selectionMode) {
@@ -202,6 +209,10 @@ export default function FolderPhotoManager({
 
   async function deleteCurrentFolder() {
     if (busy) return;
+    if (photos.length > 0) {
+      setError("사진이 있는 폴더는 삭제할 수 없습니다. 먼저 사진을 모두 이동/삭제해 주세요.");
+      return;
+    }
     if (!confirm("현재 폴더를 삭제할까요?")) return;
     setBusy(true);
     setError("");
@@ -243,7 +254,6 @@ export default function FolderPhotoManager({
               <article
                 key={photo.id}
                 onClick={() => onPhotoTap(index, photo.id)}
-                onTouchEnd={() => onPhotoTap(index, photo.id)}
                 className={`cursor-pointer overflow-hidden rounded-2xl border bg-white ${
                   selected ? "border-emerald-500 ring-2 ring-emerald-200" : "border-stone-200"
                 }`}
@@ -303,6 +313,13 @@ export default function FolderPhotoManager({
             }`}
           >
             파일
+          </button>
+          <button
+            type="button"
+            onClick={() => router.refresh()}
+            className="h-12 w-16 rounded-full border border-stone-300 bg-white text-[11px] font-semibold text-stone-700 shadow"
+          >
+            새로고침
           </button>
           <button
             type="button"

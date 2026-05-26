@@ -32,6 +32,16 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upload failed.";
 
+    if (message.includes("invalid_client")) {
+      return NextResponse.json(
+        {
+          error:
+            "Google OAuth 인증 정보가 올바르지 않습니다. Vercel의 GOOGLE_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN 값을 다시 확인해 주세요.",
+        },
+        { status: 500 },
+      );
+    }
+
     if (message.includes("storage quota") || message.includes("insufficientFilePermissions")) {
       return NextResponse.json(
         {
