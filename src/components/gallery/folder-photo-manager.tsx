@@ -29,6 +29,7 @@ type FolderPhotoManagerProps = {
 };
 
 type ActionTarget = "file" | "folder" | null;
+type GalleryViewMode = "polaroid" | "photobook" | "wall" | "filmstrip" | "magazine";
 
 export default function FolderPhotoManager({
   photos,
@@ -51,9 +52,24 @@ export default function FolderPhotoManager({
   const [error, setError] = useState("");
   const [targetFolderId, setTargetFolderId] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
+  const [viewMode, setViewMode] = useState<GalleryViewMode>(() => {
+    if (typeof window === "undefined") return "polaroid";
+    const savedMode = window.localStorage.getItem("folder-gallery-view-mode");
+    if (savedMode && ["polaroid", "photobook", "wall", "filmstrip", "magazine"].includes(savedMode)) {
+      return savedMode as GalleryViewMode;
+    }
+    return "polaroid";
+  });
 
   const selectionMode = target === "file";
   const current = activeIndex !== null ? photos[activeIndex] : null;
+  const viewModes: Array<{ key: GalleryViewMode; label: string; icon: string }> = [
+    { key: "polaroid", label: "폴라로이드", icon: "▣" },
+    { key: "photobook", label: "포토북", icon: "▤" },
+    { key: "wall", label: "벽사진", icon: "◫" },
+    { key: "filmstrip", label: "필름스트립", icon: "☰" },
+    { key: "magazine", label: "콜라주", icon: "◧" },
+  ];
 
   const moveFolderTargets = useMemo(
     () => moveTargets.filter((folder) => folder.id !== currentFolderId),
@@ -82,6 +98,10 @@ export default function FolderPhotoManager({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeIndex, closeLightbox, prev, next]);
+
+  useEffect(() => {
+    window.localStorage.setItem("folder-gallery-view-mode", viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     const shouldAutoRefresh =
@@ -121,6 +141,104 @@ export default function FolderPhotoManager({
       return;
     }
     setActiveIndex(index);
+  }
+
+  function renderPhotoCard(photo: PhotoItem, index: number, className: string) {
+    const selected = selectedIds.includes(photo.id);
+    return (
+      <article
+        key={photo.id}
+        onClick={() => onPhotoTap(index, photo.id)}
+        className={`w-full cursor-pointer overflow-hidden border bg-white ${className} ${
+          selected ? "border-emerald-500 ring-2 ring-emerald-200" : "border-stone-200"
+        }`}
+      >
+        <Image
+          src={`/api/drive/file/${photo.id}`}
+          alt={photo.name}
+          width={480}
+          height={360}
+          sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
+          className="h-full w-full object-cover"
+        />
+      </article>
+    );
+  }
+
+  function renderGalleryByView() {
+    if (viewMode === "filmstrip") {
+      return (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+          {photos.map((photo, index) => (
+            <div key={photo.id} className="rounded-2xl border border-stone-300 bg-stone-900 p-2">
+              <div className="mb-2 flex items-center justify-between px-1 text-stone-300">
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+              </div>
+              <div className="h-44">
+                {renderPhotoCard(photo, index, "rounded-lg border-stone-700")}
+              </div>
+              <div className="mt-2 flex items-center justify-between px-1 text-stone-300">
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (viewMode === "wall") {
+      return (
+        <div className="columns-2 gap-3 space-y-3 sm:columns-3 md:columns-4">
+          {photos.map((photo, index) => (
+            <div
+              key={photo.id}
+              className={`${index % 3 === 0 ? "rotate-[1deg]" : index % 3 === 1 ? "-rotate-[1deg]" : "rotate-0"} break-inside-avoid`}
+            >
+              {renderPhotoCard(photo, index, "rounded-sm border-[6px] border-white shadow-md")}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (viewMode === "magazine") {
+      return (
+        <div className="grid auto-rows-[140px] grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {photos.map((photo, index) => {
+            const big = index % 7 === 0 || index % 7 === 3;
+            return (
+              <div key={photo.id} className={big ? "col-span-2 row-span-2" : "col-span-1 row-span-1"}>
+                {renderPhotoCard(photo, index, "rounded-xl")}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (viewMode === "photobook") {
+      return (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {photos.map((photo, index) => (
+            <div key={photo.id} className="rounded-3xl bg-stone-50 p-3 shadow-inner">
+              {renderPhotoCard(photo, index, "rounded-2xl")}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-2 gap-3 overflow-x-hidden sm:grid-cols-3 md:grid-cols-4">
+        {photos.map((photo, index) => (
+          <div key={photo.id} className={index % 2 === 0 ? "pt-2" : ""}>
+            {renderPhotoCard(photo, index, `rounded-md ${index % 2 === 0 ? "-rotate-[1deg]" : "rotate-[1deg]"}`)}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   async function deleteSelectedFiles() {
@@ -266,34 +384,31 @@ export default function FolderPhotoManager({
         {selectionMode ? `파일 선택 모드 · ${selectedIds.length}개 선택` : "사진을 누르면 크게 볼 수 있습니다."}
       </div>
 
+      <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+        {viewModes.map((mode) => (
+          <button
+            key={mode.key}
+            type="button"
+            title={mode.label}
+            aria-label={mode.label}
+            onClick={() => setViewMode(mode.key)}
+            className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition ${
+              viewMode === mode.key
+                ? "border-stone-700 bg-stone-700 text-white"
+                : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+            }`}
+          >
+            {mode.icon}
+          </button>
+        ))}
+      </div>
+
       {photos.length === 0 ? (
         <div className="rounded-3xl border border-stone-200 bg-white p-8 text-sm text-stone-600 shadow-sm">
           이 폴더에는 아직 사진이 없습니다.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 pb-32 sm:grid-cols-3 md:grid-cols-4">
-          {photos.map((photo, index) => {
-            const selected = selectedIds.includes(photo.id);
-            return (
-              <article
-                key={photo.id}
-                onClick={() => onPhotoTap(index, photo.id)}
-                className={`cursor-pointer overflow-hidden rounded-2xl border bg-white ${
-                  selected ? "border-emerald-500 ring-2 ring-emerald-200" : "border-stone-200"
-                }`}
-              >
-                <Image
-                  src={`/api/drive/file/${photo.id}`}
-                  alt={photo.name}
-                  width={480}
-                  height={360}
-                  sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
-                  className="h-40 w-full object-cover"
-                />
-              </article>
-            );
-          })}
-        </div>
+        <div className="overflow-x-hidden pb-32">{renderGalleryByView()}</div>
       )}
 
       <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-2 pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">

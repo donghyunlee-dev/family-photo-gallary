@@ -57,12 +57,12 @@ export default function RoomDashboardManager({
   const folderSelectionMode = target === "folder";
 
   const currentPhoto = activePhotoIndex !== null ? photos[activePhotoIndex] : null;
-  const viewModes: Array<{ key: GalleryViewMode; label: string }> = [
-    { key: "polaroid", label: "폴라로이드" },
-    { key: "photobook", label: "포토북" },
-    { key: "wall", label: "벽사진" },
-    { key: "filmstrip", label: "필름스트립" },
-    { key: "magazine", label: "콜라주" },
+  const viewModes: Array<{ key: GalleryViewMode; label: string; icon: string }> = [
+    { key: "polaroid", label: "폴라로이드", icon: "▣" },
+    { key: "photobook", label: "포토북", icon: "▤" },
+    { key: "wall", label: "벽사진", icon: "◫" },
+    { key: "filmstrip", label: "필름스트립", icon: "☰" },
+    { key: "magazine", label: "콜라주", icon: "◧" },
   ];
 
   const moveTargets = useMemo(
@@ -161,7 +161,7 @@ export default function RoomDashboardManager({
       <article
         key={photo.id}
         onClick={() => onPhotoTap(index, photo.id)}
-        className={`cursor-pointer overflow-hidden border bg-white ${className} ${
+        className={`w-full cursor-pointer overflow-hidden border bg-white ${className} ${
           selected ? "border-blue-500 ring-2 ring-blue-200" : "border-stone-200"
         }`}
       >
@@ -180,10 +180,20 @@ export default function RoomDashboardManager({
   function renderGalleryByView() {
     if (viewMode === "filmstrip") {
       return (
-        <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
           {photos.map((photo, index) => (
-            <div key={photo.id} className="h-56 w-[72%] shrink-0 snap-start sm:w-72">
-              {renderPhotoCard(photo, index, "rounded-2xl")}
+            <div key={photo.id} className="rounded-2xl border border-stone-300 bg-stone-900 p-2">
+              <div className="mb-2 flex items-center justify-between px-1 text-stone-300">
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+              </div>
+              <div className="h-44">
+                {renderPhotoCard(photo, index, "rounded-lg border-stone-700")}
+              </div>
+              <div className="mt-2 flex items-center justify-between px-1 text-stone-300">
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+                <span className="text-[10px] tracking-[0.35em]">•••••</span>
+              </div>
             </div>
           ))}
         </div>
@@ -233,7 +243,7 @@ export default function RoomDashboardManager({
     }
 
     return (
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 overflow-x-hidden sm:grid-cols-3 md:grid-cols-4">
         {photos.map((photo, index) => (
           <div key={photo.id} className={index % 2 === 0 ? "pt-2" : ""}>
             {renderPhotoCard(photo, index, `rounded-md ${index % 2 === 0 ? "-rotate-[1deg]" : "rotate-[1deg]"}`)}
@@ -404,20 +414,22 @@ export default function RoomDashboardManager({
       </div>
       <div className="h-24" aria-hidden />
 
-      <section className="pb-32 pt-1">
+      <section className="overflow-x-hidden pb-32 pt-1">
         <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
           {viewModes.map((mode) => (
             <button
               key={mode.key}
               type="button"
+              title={mode.label}
+              aria-label={mode.label}
               onClick={() => setViewMode(mode.key)}
-              className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+              className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition ${
                 viewMode === mode.key
                   ? "border-stone-700 bg-stone-700 text-white"
                   : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
               }`}
             >
-              {mode.label}
+              {mode.icon}
             </button>
           ))}
         </div>
