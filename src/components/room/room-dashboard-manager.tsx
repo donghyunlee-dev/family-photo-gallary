@@ -428,7 +428,7 @@ export default function RoomDashboardManager({
         )}
       </section>
 
-      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
+      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-2 pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
         <div className="mx-auto w-full max-w-5xl">
           {folders.length === 0 ? (
             <p className="mt-2 text-xs text-stone-600">아직 생성된 폴더가 없습니다.</p>
