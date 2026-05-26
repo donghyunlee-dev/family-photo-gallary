@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 type UploadFormProps = {
   folderId: string;
-  folderName?: string;
 };
 
 type UploadResponse = {
@@ -78,7 +77,7 @@ async function uploadSingleFileWithRetry(input: {
   }
 }
 
-export default function UploadForm({ folderId, folderName }: UploadFormProps) {
+export default function UploadForm({ folderId }: UploadFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -153,15 +152,6 @@ export default function UploadForm({ folderId, folderName }: UploadFormProps) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-3">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-semibold text-stone-600">현재 폴더</p>
-          <span className="max-w-[65%] truncate rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-800">
-            {folderName ?? "현재 위치"}
-          </span>
-        </div>
-      </div>
-
       <div className="space-y-2">
         <input
           ref={fileInputRef}

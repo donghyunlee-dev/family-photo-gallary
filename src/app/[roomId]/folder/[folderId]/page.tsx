@@ -36,20 +36,19 @@ export default async function FolderPage({ params }: FolderPageProps) {
     const message = error instanceof Error ? error.message : "unknown error";
     loadError = `폴더 데이터를 불러오지 못했습니다: ${message}`;
   }
-  const currentFolderName =
-    moveTargets.find((folder) => folder.id === folderId)?.name ?? "현재 폴더";
+  const currentFolderName = moveTargets.find((folder) => folder.id === folderId)?.name ?? "현재 폴더";
 
   return (
-    <main className="min-h-screen bg-stone-100 px-4 py-8">
+    <main className="paper-bg min-h-screen px-4 py-8">
       <section className="mx-auto w-full max-w-5xl space-y-6">
-        <div className="fixed inset-x-0 top-0 z-[9993] border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
-          <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-            <h1 className="text-2xl font-semibold tracking-tight text-stone-900">{currentFolderName}</h1>
-            <p className="mt-1 text-sm text-stone-600">사진 {photos.length}장</p>
+        <div className="fixed inset-x-0 top-0 z-[9993] border-b border-[color:var(--accent-soft)] bg-[color:var(--background)]/95 px-4 py-3 backdrop-blur">
+          <div className="gallery-paper relative mx-auto w-full max-w-5xl rounded-2xl p-4">
+            <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--foreground)]">{currentFolderName}</h1>
+            <p className="mt-1 text-sm text-[color:var(--text-secondary)]">사진 {photos.length}장</p>
             <Link
               href={`/${roomId}`}
               aria-label="방으로 돌아가기"
-              className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
+              className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--accent-soft)] bg-white text-lg text-[color:var(--foreground)] shadow-sm transition hover:bg-stone-50"
             >
               ←
             </Link>
@@ -58,9 +57,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
         <div className="h-28" aria-hidden />
 
         {loadError ? (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">
-            {loadError}
-          </div>
+          <div className="gallery-paper rounded-3xl border border-red-200 bg-red-50/90 p-8 text-sm text-red-700">{loadError}</div>
         ) : null}
 
         {!loadError ? (
@@ -68,7 +65,6 @@ export default async function FolderPage({ params }: FolderPageProps) {
             photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
             roomId={roomId}
             currentFolderId={folderId}
-            currentFolderName={currentFolderName}
             roomRootFolderId={roomRootFolderId}
             moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
             childFolders={childFolders.map((folder) => ({ id: folder.id, name: folder.name }))}
@@ -78,3 +74,4 @@ export default async function FolderPage({ params }: FolderPageProps) {
     </main>
   );
 }
+

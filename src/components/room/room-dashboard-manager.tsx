@@ -411,8 +411,8 @@ export default function RoomDashboardManager({
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-[9993] border-b border-stone-200 bg-stone-100/95 px-4 py-2 backdrop-blur">
-        <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+      <div className="fixed inset-x-0 top-0 z-[9993] border-b border-[color:var(--accent-soft)] bg-[color:var(--background)]/95 px-4 py-2 backdrop-blur">
+        <div className="gallery-paper relative mx-auto w-full max-w-5xl rounded-2xl p-4">
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{roomName}</h1>
         <p className="mt-1 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
         <Link
@@ -435,10 +435,10 @@ export default function RoomDashboardManager({
               title={mode.label}
               aria-label={mode.label}
               onClick={() => setViewMode(mode.key)}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition ${
+            className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition ${
                 viewMode === mode.key
-                  ? "border-stone-700 bg-stone-700 text-white"
-                  : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+                  ? "border-[color:var(--accent-terracotta)] bg-[color:var(--accent-terracotta)] text-white"
+                  : "border-[color:var(--accent-soft)] bg-white text-[color:var(--foreground)] hover:bg-[color:var(--accent-soft)]/30"
               }`}
             >
               {mode.icon}
@@ -452,7 +452,7 @@ export default function RoomDashboardManager({
         )}
       </section>
 
-      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-stone-200 bg-white px-4 pb-2 pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
+      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-[color:var(--accent-soft)] bg-white/95 px-4 pb-2 pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur">
         <div className="mx-auto w-full max-w-5xl">
           {folders.length === 0 ? (
             <p className="mt-2 text-xs text-stone-600">아직 생성된 폴더가 없습니다.</p>
@@ -501,14 +501,14 @@ export default function RoomDashboardManager({
           <button
             type="button"
             onClick={() => toggleTarget("file")}
-            className={`h-16 w-16 rounded-full text-sm font-semibold shadow-lg ${target === "file" ? "bg-sky-200 text-sky-900" : "bg-stone-700 text-white"}`}
+            className={`h-16 w-16 rounded-full text-sm font-semibold shadow-lg ${target === "file" ? "bg-[color:var(--accent-soft)] text-[color:var(--foreground)]" : "bg-[color:var(--foreground)] text-white"}`}
           >
             파일
           </button>
           <button
             type="button"
             onClick={() => toggleTarget("folder")}
-            className={`h-16 w-16 rounded-full text-sm font-semibold shadow-lg ${target === "folder" ? "bg-emerald-200 text-emerald-900" : "bg-stone-700 text-white"}`}
+            className={`h-16 w-16 rounded-full text-sm font-semibold shadow-lg ${target === "folder" ? "bg-[color:var(--accent-soft)] text-[color:var(--foreground)]" : "bg-[color:var(--foreground)] text-white"}`}
           >
             폴더
           </button>
@@ -575,13 +575,14 @@ export default function RoomDashboardManager({
                   <button
                     type="button"
                     onClick={() => setShowUploadPopup(false)}
-                    className="h-9 rounded-full border border-stone-300 px-3 text-xs font-medium text-stone-700"
+                    aria-label="닫기"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-stone-300 text-sm font-medium text-stone-700"
                   >
-                    닫기
+                    ×
                   </button>
                 </div>
                 <div className="mt-3">
-                  <UploadForm folderId={roomRootFolderId} folderName={roomName} />
+                  <UploadForm folderId={roomRootFolderId} />
                 </div>
               </div>
             </div>,
