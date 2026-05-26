@@ -36,13 +36,15 @@ export default async function FolderPage({ params }: FolderPageProps) {
     const message = error instanceof Error ? error.message : "unknown error";
     loadError = `폴더 데이터를 불러오지 못했습니다: ${message}`;
   }
+  const currentFolderName =
+    moveTargets.find((folder) => folder.id === folderId)?.name ?? "현재 폴더";
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-8">
       <section className="mx-auto w-full max-w-5xl space-y-6">
         <div className="fixed inset-x-0 top-0 z-[9993] border-b border-stone-200 bg-stone-100/95 px-4 py-3 backdrop-blur">
           <div className="relative mx-auto w-full max-w-5xl rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-            <h1 className="text-2xl font-semibold tracking-tight text-stone-900">폴더 상세</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-stone-900">{currentFolderName}</h1>
             <p className="mt-1 text-sm text-stone-600">사진 {photos.length}장</p>
             <Link
               href={`/${roomId}`}
@@ -66,6 +68,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
             photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
             roomId={roomId}
             currentFolderId={folderId}
+            currentFolderName={currentFolderName}
             roomRootFolderId={roomRootFolderId}
             moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
             childFolders={childFolders.map((folder) => ({ id: folder.id, name: folder.name }))}
