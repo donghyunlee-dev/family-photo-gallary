@@ -24,7 +24,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         <section className="gallery-paper w-full max-w-xl rounded-3xl p-8">
           <h1 className="text-2xl font-semibold tracking-tight text-amber-900">{room.name}</h1>
           <p className="mt-3 text-sm leading-6 text-amber-800">
-            ¹æ Æú´õ È¯°æº¯¼ö°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. `{room.envFolderKey}` °ªÀ» Vercel È¯°æº¯¼ö¿¡ ³Ö¾î ÁÖ¼¼¿ä.
+            Â¹Ã¦ Ã†ÃºÂ´Ãµ ÃˆÂ¯Â°Ã¦ÂºÂ¯Â¼Ã¶Â°Â¡ Â¼Â³ÃÂ¤ÂµÃ‡ÃÃ¶ Â¾ÃŠÂ¾Ã’Â½Ã€Â´ÃÂ´Ã™. `{room.envFolderKey}` Â°ÂªÃ€Â» Vercel ÃˆÂ¯Â°Ã¦ÂºÂ¯Â¼Ã¶Â¿Â¡ Â³Ã–Â¾Ã® ÃÃ–Â¼Â¼Â¿Ã¤.
           </p>
         </section>
       </main>
@@ -42,7 +42,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
     ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
-    loadError = `Google Drive¿¡¼­ µ¥ÀÌÅÍ¸¦ ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù: ${message}`;
+    loadError = `Google DriveÂ¿Â¡Â¼Â­ ÂµÂ¥Ã€ÃŒÃ…ÃÂ¸Â¦ ÂºÃ’Â·Â¯Â¿Ã€ÃÃ¶ Â¸Ã¸Ã‡ÃŸÂ½Ã€Â´ÃÂ´Ã™: ${message}`;
   }
 
   return (

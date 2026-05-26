@@ -31,14 +31,14 @@ export default function Home() {
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
-        setError(data.error ?? "ÀÔÀå¿¡ ½ÇÆĞÇß½À´Ï´Ù. ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.");
+        setError(data.error ?? "Ã€Ã”Ã€Ã¥Â¿Â¡ Â½Ã‡Ã†ÃÃ‡ÃŸÂ½Ã€Â´ÃÂ´Ã™. Â´Ã™Â½Ãƒ Â½ÃƒÂµÂµÃ‡Ã˜ ÃÃ–Â¼Â¼Â¿Ã¤.");
         return;
       }
 
       const data = (await response.json()) as VerifyResponse;
       router.push(`/${data.roomId}`);
     } catch {
-      setError("³×Æ®¿öÅ© ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù. Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.");
+      setError("Â³Ã—Ã†Â®Â¿Ã¶Ã…Â© Â¿Ã€Â·Ã¹Â°Â¡ Â¹ÃŸÂ»Ã½Ã‡ÃŸÂ½Ã€Â´ÃÂ´Ã™. Ã€Ã¡Â½Ãƒ ÃˆÃ„ Â´Ã™Â½Ãƒ Â½ÃƒÂµÂµÃ‡Ã˜ ÃÃ–Â¼Â¼Â¿Ã¤.");
     } finally {
       setLoading(false);
     }
@@ -48,14 +48,14 @@ export default function Home() {
     <main className="paper-bg flex min-h-screen items-center justify-center px-4 py-12 text-stone-900">
       <section className="gallery-paper w-full max-w-md rounded-[1.75rem] p-8">
         <p className="text-sm tracking-wide text-[color:var(--text-secondary)]">Family Photo Gallery</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-[color:var(--foreground)]">°¡Á·»çÁø°ü</h1>
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-[color:var(--foreground)]">Â°Â¡ÃÂ·Â»Ã§ÃÃ¸Â°Ã¼</h1>
         <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
-          °øÀ¯¹ŞÀº 6ÀÚ¸® ÄÚµå¸¦ ÀÔ·ÂÇÏ¸é °¡Á· »çÁø¹æÀ¸·Î ÀÔÀåÇÒ ¼ö ÀÖ¾î¿ä.
+          Â°Ã¸Ã€Â¯Â¹ÃÃ€Âº 6Ã€ÃšÂ¸Â® Ã„ÃšÂµÃ¥Â¸Â¦ Ã€Ã”Â·Ã‚Ã‡ÃÂ¸Ã© Â°Â¡ÃÂ· Â»Ã§ÃÃ¸Â¹Ã¦Ã€Â¸Â·Ã Ã€Ã”Ã€Ã¥Ã‡Ã’ Â¼Ã¶ Ã€Ã–Â¾Ã®Â¿Ã¤.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-3">
           <label htmlFor="room-code" className="text-sm font-medium text-[color:var(--foreground)]">
-            ÀÔÀå ÄÚµå
+            Ã€Ã”Ã€Ã¥ Ã„ÃšÂµÃ¥
           </label>
           <input
             id="room-code"
@@ -67,7 +67,7 @@ export default function Home() {
             }}
             inputMode="numeric"
             maxLength={6}
-            placeholder="6ÀÚ¸® ¼ıÀÚ"
+            placeholder="6Ã€ÃšÂ¸Â® Â¼Ã½Ã€Ãš"
             autoComplete="one-time-code"
             className="h-12 w-full rounded-xl border border-[color:var(--accent-soft)] bg-white/80 px-4 text-lg tracking-[0.25em] outline-none transition focus:border-[color:var(--primary-warm)]"
           />
@@ -76,7 +76,7 @@ export default function Home() {
             disabled={!canSubmit || loading}
             className="h-12 w-full rounded-xl bg-[color:var(--accent-terracotta)] text-sm font-medium text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-stone-300"
           >
-            {loading ? "È®ÀÎ Áß..." : "ÀÔÀåÇÏ±â"}
+            {loading ? "ÃˆÂ®Ã€Ã ÃÃŸ..." : "Ã€Ã”Ã€Ã¥Ã‡ÃÂ±Ã¢"}
           </button>
         </form>
 
