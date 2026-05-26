@@ -7,6 +7,7 @@
   --accent-terracotta: #c9926b;
   --accent-soft: #e8d5c4;
   --text-secondary: #7d6d63;
+  --paper-shadow: 0 10px 30px rgba(101, 77, 62, 0.12);
 }
 
 @theme inline {
@@ -43,4 +44,18 @@ h1, h2, h3, h4, h5, h6 {
 
 p {
   line-height: 1.6;
+}
+
+.paper-bg {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.55) 0, transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(212, 165, 116, 0.2) 0, transparent 35%),
+    linear-gradient(160deg, #f7f2ec 0%, #efe5d9 50%, #f5f1ed 100%);
+}
+
+.gallery-paper {
+  border: 1px solid rgba(165, 131, 104, 0.28);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--paper-shadow);
+  backdrop-filter: blur(4px);
 }

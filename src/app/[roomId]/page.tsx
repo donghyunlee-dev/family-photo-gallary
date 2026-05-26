@@ -20,11 +20,11 @@ export default async function RoomPage({ params }: RoomPageProps) {
   const roomFolderId = process.env[room.envFolderKey];
   if (!roomFolderId) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-stone-100 px-4 py-12">
-        <section className="w-full max-w-xl rounded-3xl border border-amber-200 bg-amber-50 p-8 shadow-sm">
+      <main className="paper-bg flex min-h-screen items-center justify-center px-4 py-12">
+        <section className="gallery-paper w-full max-w-xl rounded-3xl p-8">
           <h1 className="text-2xl font-semibold tracking-tight text-amber-900">{room.name}</h1>
           <p className="mt-3 text-sm leading-6 text-amber-800">
-            ë°© í´ë” í™˜ê²½ë³€ìˆ˜ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. `{room.envFolderKey}` ê°’ì„ Vercel í™˜ê²½ë³€ìˆ˜ì— ë„£ì–´ ì£¼ì„¸ìš”.
+            ¹æ Æú´õ È¯°æº¯¼ö°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. `{room.envFolderKey}` °ªÀ» Vercel È¯°æº¯¼ö¿¡ ³Ö¾î ÁÖ¼¼¿ä.
           </p>
         </section>
       </main>
@@ -42,14 +42,14 @@ export default async function RoomPage({ params }: RoomPageProps) {
     ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown error";
-    loadError = `Google Driveì—ì„œ ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤: ${message}`;
+    loadError = `Google Drive¿¡¼­ µ¥ÀÌÅÍ¸¦ ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù: ${message}`;
   }
 
   return (
-    <main className="min-h-screen bg-stone-100 px-4 py-8">
+    <main className="paper-bg min-h-screen px-4 py-8">
       <section className="mx-auto w-full max-w-5xl space-y-6">
         {loadError ? (
-          <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm">
+          <div className="gallery-paper rounded-3xl border border-red-200 bg-red-50/90 p-8 text-sm text-red-700">
             {loadError}
           </div>
         ) : (
