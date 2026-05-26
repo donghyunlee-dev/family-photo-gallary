@@ -11,6 +11,7 @@ import UploadForm from "@/components/upload/upload-form";
 type PhotoItem = { id: string; name: string };
 type FolderItem = { id: string; name: string };
 type ActionTarget = "file" | "folder" | null;
+type GalleryViewMode = "polaroid" | "photobook" | "wall" | "filmstrip" | "magazine";
 
 type RoomDashboardManagerProps = {
   roomId: string;
@@ -43,11 +44,26 @@ export default function RoomDashboardManager({
   const [newFolderName, setNewFolderName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [viewMode, setViewMode] = useState<GalleryViewMode>(() => {
+    if (typeof window === "undefined") return "polaroid";
+    const savedMode = window.localStorage.getItem("room-gallery-view-mode");
+    if (savedMode && ["polaroid", "photobook", "wall", "filmstrip", "magazine"].includes(savedMode)) {
+      return savedMode as GalleryViewMode;
+    }
+    return "polaroid";
+  });
 
   const photoSelectionMode = target === "file";
   const folderSelectionMode = target === "folder";
 
   const currentPhoto = activePhotoIndex !== null ? photos[activePhotoIndex] : null;
+  const viewModes: Array<{ key: GalleryViewMode; label: string }> = [
+    { key: "polaroid", label: "폴라로이드" },
+    { key: "photobook", label: "포토북" },
+    { key: "wall", label: "벽사진" },
+    { key: "filmstrip", label: "필름스트립" },
+    { key: "magazine", label: "콜라주" },
+  ];
 
   const moveTargets = useMemo(
     () => folders.filter((folder) => !selectedFolderIds.includes(folder.id)),
@@ -77,6 +93,10 @@ export default function RoomDashboardManager({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activePhotoIndex, closeLightbox, prev, next]);
+
+  useEffect(() => {
+    window.localStorage.setItem("room-gallery-view-mode", viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     const shouldAutoRefresh =
@@ -132,6 +152,94 @@ export default function RoomDashboardManager({
     if (!folderSelectionMode) return;
     setSelectedFolderIds((prevIds) =>
       prevIds.includes(folderId) ? prevIds.filter((id) => id !== folderId) : [...prevIds, folderId],
+    );
+  }
+
+  function renderPhotoCard(photo: PhotoItem, index: number, className: string) {
+    const selected = selectedPhotoIds.includes(photo.id);
+    return (
+      <article
+        key={photo.id}
+        onClick={() => onPhotoTap(index, photo.id)}
+        className={`cursor-pointer overflow-hidden border bg-white ${className} ${
+          selected ? "border-blue-500 ring-2 ring-blue-200" : "border-stone-200"
+        }`}
+      >
+        <Image
+          src={`/api/drive/file/${photo.id}`}
+          alt={photo.name}
+          width={480}
+          height={360}
+          sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
+          className="h-full w-full object-cover"
+        />
+      </article>
+    );
+  }
+
+  function renderGalleryByView() {
+    if (viewMode === "filmstrip") {
+      return (
+        <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1">
+          {photos.map((photo, index) => (
+            <div key={photo.id} className="h-56 w-[72%] shrink-0 snap-start sm:w-72">
+              {renderPhotoCard(photo, index, "rounded-2xl")}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (viewMode === "wall") {
+      return (
+        <div className="columns-2 gap-3 space-y-3 sm:columns-3 md:columns-4">
+          {photos.map((photo, index) => (
+            <div
+              key={photo.id}
+              className={`${index % 3 === 0 ? "rotate-[1deg]" : index % 3 === 1 ? "-rotate-[1deg]" : "rotate-0"} break-inside-avoid`}
+            >
+              {renderPhotoCard(photo, index, "rounded-sm border-[6px] border-white shadow-md")}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (viewMode === "magazine") {
+      return (
+        <div className="grid auto-rows-[140px] grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {photos.map((photo, index) => {
+            const big = index % 7 === 0 || index % 7 === 3;
+            return (
+              <div key={photo.id} className={big ? "col-span-2 row-span-2" : "col-span-1 row-span-1"}>
+                {renderPhotoCard(photo, index, "rounded-xl")}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (viewMode === "photobook") {
+      return (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {photos.map((photo, index) => (
+            <div key={photo.id} className="rounded-3xl bg-stone-50 p-3 shadow-inner">
+              {renderPhotoCard(photo, index, "rounded-2xl")}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        {photos.map((photo, index) => (
+          <div key={photo.id} className={index % 2 === 0 ? "pt-2" : ""}>
+            {renderPhotoCard(photo, index, `rounded-md ${index % 2 === 0 ? "-rotate-[1deg]" : "rotate-[1deg]"}`)}
+          </div>
+        ))}
+      </div>
     );
   }
 
@@ -297,32 +405,26 @@ export default function RoomDashboardManager({
       <div className="h-24" aria-hidden />
 
       <section className="pb-32 pt-1">
+        <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+          {viewModes.map((mode) => (
+            <button
+              key={mode.key}
+              type="button"
+              onClick={() => setViewMode(mode.key)}
+              className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                viewMode === mode.key
+                  ? "border-stone-700 bg-stone-700 text-white"
+                  : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100"
+              }`}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
         {photos.length === 0 ? (
           <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {photos.map((photo, index) => {
-              const selected = selectedPhotoIds.includes(photo.id);
-              return (
-                <article
-                  key={photo.id}
-                  onClick={() => onPhotoTap(index, photo.id)}
-                  className={`cursor-pointer overflow-hidden rounded-2xl border bg-white ${
-                    selected ? "border-blue-500 ring-2 ring-blue-200" : "border-stone-200"
-                  }`}
-                >
-                  <Image
-                    src={`/api/drive/file/${photo.id}`}
-                    alt={photo.name}
-                    width={480}
-                    height={360}
-                    sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
-                    className="h-40 w-full object-cover"
-                  />
-                </article>
-              );
-            })}
-          </div>
+          renderGalleryByView()
         )}
       </section>
 
