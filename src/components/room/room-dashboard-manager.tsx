@@ -79,11 +79,26 @@ export default function RoomDashboardManager({
   }, [activePhotoIndex, closeLightbox, prev, next]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      router.refresh();
-    }, 30000);
+    const shouldAutoRefresh =
+      !showUploadPopup &&
+      !showFileMovePopup &&
+      !showFolderCreatePopup &&
+      !showFolderMovePopup &&
+      !busy &&
+      activePhotoIndex === null;
+
+    if (!shouldAutoRefresh) return;
+    const timer = window.setInterval(() => router.refresh(), 30000);
     return () => window.clearInterval(timer);
-  }, [router]);
+  }, [
+    activePhotoIndex,
+    busy,
+    router,
+    showFileMovePopup,
+    showFolderCreatePopup,
+    showFolderMovePopup,
+    showUploadPopup,
+  ]);
 
   function resetSelections() {
     setSelectedPhotoIds([]);
@@ -94,6 +109,12 @@ export default function RoomDashboardManager({
   function toggleTarget(nextTarget: ActionTarget) {
     setTarget((current) => (current === nextTarget ? null : nextTarget));
     resetSelections();
+  }
+
+  function refreshView() {
+    setTarget(null);
+    resetSelections();
+    router.refresh();
   }
 
   function onPhotoTap(index: number, photoId: string) {
@@ -266,10 +287,10 @@ export default function RoomDashboardManager({
         <p className="mt-1 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
         <Link
           href="/"
-          aria-label="코드 입력 화면으로 돌아가기"
-          className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 bg-white text-lg text-stone-700 shadow-sm transition hover:bg-stone-50"
+          aria-label="로그아웃"
+          className="absolute right-4 top-4 inline-flex h-10 items-center justify-center rounded-full border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
         >
-          ←
+          로그아웃
         </Link>
         </div>
       </div>
@@ -367,7 +388,7 @@ export default function RoomDashboardManager({
           </button>
           <button
             type="button"
-            onClick={() => router.refresh()}
+            onClick={refreshView}
             className="h-16 w-16 rounded-full border border-stone-300 bg-white text-2xl font-semibold text-stone-700 shadow-lg"
             aria-label="새로고침"
           >

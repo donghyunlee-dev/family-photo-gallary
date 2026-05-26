@@ -84,11 +84,33 @@ export default function FolderPhotoManager({
   }, [activeIndex, closeLightbox, prev, next]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      router.refresh();
-    }, 30000);
+    const shouldAutoRefresh =
+      !showUploadPopup &&
+      !showMovePopup &&
+      !showFolderCreatePopup &&
+      !showFolderMovePopup &&
+      !busy &&
+      activeIndex === null;
+
+    if (!shouldAutoRefresh) return;
+    const timer = window.setInterval(() => router.refresh(), 30000);
     return () => window.clearInterval(timer);
-  }, [router]);
+  }, [
+    activeIndex,
+    busy,
+    router,
+    showFolderCreatePopup,
+    showFolderMovePopup,
+    showMovePopup,
+    showUploadPopup,
+  ]);
+
+  function refreshView() {
+    setTarget(null);
+    setSelectedIds([]);
+    setError("");
+    router.refresh();
+  }
 
   function onPhotoTap(index: number, photoId: string) {
     setError("");
@@ -317,20 +339,20 @@ export default function FolderPhotoManager({
           </button>
           <button
             type="button"
-            onClick={() => router.refresh()}
-            className="h-16 w-16 rounded-full border border-stone-300 bg-white text-2xl font-semibold text-stone-700 shadow-lg"
-            aria-label="새로고침"
-          >
-            ↻
-          </button>
-          <button
-            type="button"
             onClick={() => setTarget((v) => (v === "folder" ? null : "folder"))}
             className={`h-16 w-16 rounded-full text-sm font-semibold text-white shadow-lg ${
               target === "folder" ? "bg-emerald-200 text-emerald-900" : "bg-stone-700 text-white"
             }`}
           >
             폴더
+          </button>
+          <button
+            type="button"
+            onClick={refreshView}
+            className="h-16 w-16 rounded-full border border-stone-300 bg-white text-2xl font-semibold text-stone-700 shadow-lg"
+            aria-label="새로고침"
+          >
+            ↻
           </button>
 
           {target === "file" ? (

@@ -27,6 +27,7 @@ function uploadSingleFile(input: {
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/drive/upload");
+    xhr.timeout = 120000;
 
     xhr.upload.onprogress = (event) => {
       if (!event.lengthComputable) return;
@@ -52,6 +53,7 @@ function uploadSingleFile(input: {
     };
 
     xhr.onerror = () => reject(new Error("네트워크 오류가 발생했습니다. 다시 시도해 주세요."));
+    xhr.ontimeout = () => reject(new Error("업로드 시간이 초과되었습니다. 파일 수를 줄이거나 다시 시도해 주세요."));
     xhr.send(formData);
   });
 }
