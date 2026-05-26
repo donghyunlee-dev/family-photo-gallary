@@ -29,7 +29,7 @@ type FolderPhotoManagerProps = {
 };
 
 type ActionTarget = "file" | "folder" | null;
-type GalleryViewMode = "polaroid" | "photobook" | "wall" | "filmstrip" | "magazine";
+type GalleryViewMode = "plain" | "polaroid" | "photobook" | "wall" | "filmstrip" | "magazine";
 
 export default function FolderPhotoManager({
   photos,
@@ -55,15 +55,16 @@ export default function FolderPhotoManager({
   const [viewMode, setViewMode] = useState<GalleryViewMode>(() => {
     if (typeof window === "undefined") return "polaroid";
     const savedMode = window.localStorage.getItem("folder-gallery-view-mode");
-    if (savedMode && ["polaroid", "photobook", "wall", "filmstrip", "magazine"].includes(savedMode)) {
+    if (savedMode && ["plain", "polaroid", "photobook", "wall", "filmstrip", "magazine"].includes(savedMode)) {
       return savedMode as GalleryViewMode;
     }
-    return "polaroid";
+    return "plain";
   });
 
   const selectionMode = target === "file";
   const current = activeIndex !== null ? photos[activeIndex] : null;
   const viewModes: Array<{ key: GalleryViewMode; label: string; icon: string }> = [
+    { key: "plain", label: "기본", icon: "☷" },
     { key: "polaroid", label: "폴라로이드", icon: "▣" },
     { key: "photobook", label: "포토북", icon: "▤" },
     { key: "wall", label: "벽사진", icon: "◫" },
@@ -224,6 +225,18 @@ export default function FolderPhotoManager({
           {photos.map((photo, index) => (
             <div key={photo.id} className="rounded-3xl bg-stone-50 p-3 shadow-inner">
               {renderPhotoCard(photo, index, "rounded-2xl")}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (viewMode === "plain") {
+      return (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {photos.map((photo, index) => (
+            <div key={photo.id}>
+              {renderPhotoCard(photo, index, "rounded-lg")}
             </div>
           ))}
         </div>

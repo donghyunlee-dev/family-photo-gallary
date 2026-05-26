@@ -11,7 +11,7 @@ import UploadForm from "@/components/upload/upload-form";
 type PhotoItem = { id: string; name: string };
 type FolderItem = { id: string; name: string };
 type ActionTarget = "file" | "folder" | null;
-type GalleryViewMode = "polaroid" | "photobook" | "wall" | "filmstrip" | "magazine";
+type GalleryViewMode = "plain" | "polaroid" | "photobook" | "wall" | "filmstrip" | "magazine";
 
 type RoomDashboardManagerProps = {
   roomId: string;
@@ -47,10 +47,10 @@ export default function RoomDashboardManager({
   const [viewMode, setViewMode] = useState<GalleryViewMode>(() => {
     if (typeof window === "undefined") return "polaroid";
     const savedMode = window.localStorage.getItem("room-gallery-view-mode");
-    if (savedMode && ["polaroid", "photobook", "wall", "filmstrip", "magazine"].includes(savedMode)) {
+    if (savedMode && ["plain", "polaroid", "photobook", "wall", "filmstrip", "magazine"].includes(savedMode)) {
       return savedMode as GalleryViewMode;
     }
-    return "polaroid";
+    return "plain";
   });
 
   const photoSelectionMode = target === "file";
@@ -58,6 +58,7 @@ export default function RoomDashboardManager({
 
   const currentPhoto = activePhotoIndex !== null ? photos[activePhotoIndex] : null;
   const viewModes: Array<{ key: GalleryViewMode; label: string; icon: string }> = [
+    { key: "plain", label: "기본", icon: "☷" },
     { key: "polaroid", label: "폴라로이드", icon: "▣" },
     { key: "photobook", label: "포토북", icon: "▤" },
     { key: "wall", label: "벽사진", icon: "◫" },
@@ -236,6 +237,18 @@ export default function RoomDashboardManager({
           {photos.map((photo, index) => (
             <div key={photo.id} className="rounded-3xl bg-stone-50 p-3 shadow-inner">
               {renderPhotoCard(photo, index, "rounded-2xl")}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (viewMode === "plain") {
+      return (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {photos.map((photo, index) => (
+            <div key={photo.id}>
+              {renderPhotoCard(photo, index, "rounded-lg")}
             </div>
           ))}
         </div>
