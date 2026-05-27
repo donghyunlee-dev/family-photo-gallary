@@ -41,7 +41,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
   return (
     <div className="min-h-dvh bg-background">
       {/* ── Top bar ── */}
-      <header className="topbar px-4 py-3">
+      <header className="topbar px-4">
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
           <div>
             <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)] leading-tight">

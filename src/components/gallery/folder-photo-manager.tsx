@@ -278,7 +278,7 @@ export default function FolderPhotoManager({
           {childFolders.length === 0 ? (
             <p className="py-2 text-center text-xs text-[color:var(--foreground-secondary)]">하위 폴더 없음</p>
           ) : (
-            <div className="flex gap-1 overflow-x-auto">
+            <div className={`flex gap-1 overflow-x-auto ${childFolders.length <= 4 ? "justify-center" : ""}`}>
               {childFolders.map((folder) => (
                 <Link
                   key={folder.id}
@@ -301,27 +301,27 @@ export default function FolderPhotoManager({
 
       {/* ── FAB cluster ── */}
       <div
-        className="fixed right-4 z-[9997] flex flex-col items-end gap-2"
+        className="fixed right-3 z-[9997] flex flex-col items-end gap-2 sm:right-4"
         style={{ bottom: "calc(var(--bottom-sheet-h, 88px) + 1rem)" }}
       >
         {/* File sub-actions */}
         {target === "file" && (
           <div className="flex flex-col items-center gap-2">
             <button type="button" onClick={() => setShowUploadPopup(true)}
-              className="fab bg-[color:var(--foreground)] text-[color:var(--primary-fg)]" aria-label="사진 추가">
+              className="fab fab-primary" aria-label="사진 추가">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                 <path d="M9 3v12M3 9h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </button>
             <button type="button" disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy}
               onClick={() => setShowMovePopup(true)}
-              className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] disabled:opacity-30" aria-label="이동">
+              className="fab fab-secondary disabled:opacity-30" aria-label="이동">
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
                 <path d="M3 8.5h11M10 5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
             <button type="button" disabled={selectedIds.length === 0 || busy} onClick={deleteSelectedFiles}
-              className="fab border border-[#f5c6c0] bg-[color:var(--danger-light)] text-[color:var(--danger)] disabled:opacity-30" aria-label="삭제">
+              className="fab fab-danger disabled:opacity-30" aria-label="삭제">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -333,19 +333,19 @@ export default function FolderPhotoManager({
         {target === "folder" && (
           <div className="flex flex-col items-center gap-2">
             <button type="button" onClick={() => setShowFolderCreatePopup(true)}
-              className="fab bg-[color:var(--foreground)] text-[color:var(--primary-fg)]" aria-label="하위 폴더 추가">
+              className="fab fab-primary" aria-label="하위 폴더 추가">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                 <path d="M9 3v12M3 9h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </button>
             <button type="button" disabled={moveFolderTargets.length === 0 || busy} onClick={() => setShowFolderMovePopup(true)}
-              className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] disabled:opacity-30" aria-label="폴더 이동">
+              className="fab fab-secondary disabled:opacity-30" aria-label="폴더 이동">
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
                 <path d="M3 8.5h11M10 5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
             <button type="button" disabled={busy} onClick={deleteCurrentFolder}
-              className="fab border border-[#f5c6c0] bg-[color:var(--danger-light)] text-[color:var(--danger)] disabled:opacity-30" aria-label="폴더 삭제">
+              className="fab fab-danger disabled:opacity-30" aria-label="폴더 삭제">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -355,7 +355,7 @@ export default function FolderPhotoManager({
 
         {/* Primary FABs */}
         <button type="button" onClick={() => { setTarget((v) => v === "file" ? null : "file"); setSelectedIds([]); }}
-          className={`fab ${target === "file" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "bg-[color:var(--foreground)] text-[color:var(--primary-fg)]"}`}
+          className={`fab ${target === "file" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "fab-primary"}`}
           aria-label="파일 관리">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <rect x="3" y="2" width="8" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
@@ -363,14 +363,14 @@ export default function FolderPhotoManager({
           </svg>
         </button>
         <button type="button" onClick={() => setTarget((v) => v === "folder" ? null : "folder")}
-          className={`fab ${target === "folder" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)]"}`}
+          className={`fab ${target === "folder" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "fab-secondary"}`}
           aria-label="폴더 관리">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path d="M2 5a2 2 0 012-2h3l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" stroke="currentColor" strokeWidth="1.5"/>
           </svg>
         </button>
         <button type="button" onClick={refreshView}
-          className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)]"
+          className="fab fab-secondary"
           aria-label="새로고침">
           <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
             <path d="M3 8.5a5.5 5.5 0 1110.5-2.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>

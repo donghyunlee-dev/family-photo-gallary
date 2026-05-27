@@ -231,7 +231,7 @@ export default function RoomDashboardManager({
   return (
     <div style={{ "--bottom-sheet-h": FOLDER_ROW_H } as React.CSSProperties}>
       {/* ── Top bar ── */}
-      <header className="topbar px-4 py-3">
+      <header className="topbar px-4">
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
           <div>
             <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)] leading-tight">{roomName}</h1>
@@ -318,7 +318,7 @@ export default function RoomDashboardManager({
           {folders.length === 0 ? (
             <p className="py-2 text-center text-xs text-[color:var(--foreground-secondary)]">폴더가 없습니다</p>
           ) : (
-            <div className="flex gap-1 overflow-x-auto pb-safe-area-inset-bottom">
+            <div className={`flex gap-1 overflow-x-auto pb-safe-area-inset-bottom ${folders.length <= 4 ? "justify-center" : ""}`}>
               {folders.map((folder) => {
                 const selected = selectedFolderIds.includes(folder.id);
                 return (
@@ -349,7 +349,7 @@ export default function RoomDashboardManager({
 
       {/* ── FAB cluster ── */}
       <div
-        className="fixed right-4 z-[9997] flex flex-col items-end gap-2"
+        className="fixed right-3 z-[9997] flex flex-col items-end gap-2 sm:right-4"
         style={{ bottom: "calc(var(--bottom-sheet-h, 96px) + 1rem)" }}
       >
         {/* File sub-actions */}
@@ -358,7 +358,7 @@ export default function RoomDashboardManager({
             <button
               type="button"
               onClick={() => setShowUploadPopup(true)}
-              className="fab bg-[color:var(--foreground)] text-[color:var(--primary-fg)]"
+              className="fab fab-primary"
               aria-label="사진 추가"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -369,7 +369,7 @@ export default function RoomDashboardManager({
               type="button"
               disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy}
               onClick={() => setShowFileMovePopup(true)}
-              className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] disabled:opacity-30"
+              className="fab fab-secondary disabled:opacity-30"
               aria-label="이동"
             >
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
@@ -380,7 +380,7 @@ export default function RoomDashboardManager({
               type="button"
               disabled={selectedPhotoIds.length === 0 || busy}
               onClick={deleteFiles}
-              className="fab border border-[#f5c6c0] bg-[color:var(--danger-light)] text-[color:var(--danger)] disabled:opacity-30"
+              className="fab fab-danger disabled:opacity-30"
               aria-label="삭제"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -396,7 +396,7 @@ export default function RoomDashboardManager({
             <button
               type="button"
               onClick={() => setShowFolderCreatePopup(true)}
-              className="fab bg-[color:var(--foreground)] text-[color:var(--primary-fg)]"
+              className="fab fab-primary"
               aria-label="폴더 추가"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -407,7 +407,7 @@ export default function RoomDashboardManager({
               type="button"
               disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy}
               onClick={() => setShowFolderMovePopup(true)}
-              className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] disabled:opacity-30"
+              className="fab fab-secondary disabled:opacity-30"
               aria-label="이동"
             >
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
@@ -418,7 +418,7 @@ export default function RoomDashboardManager({
               type="button"
               disabled={selectedFolderIds.length === 0 || busy}
               onClick={deleteFolders}
-              className="fab border border-[#f5c6c0] bg-[color:var(--danger-light)] text-[color:var(--danger)] disabled:opacity-30"
+              className="fab fab-danger disabled:opacity-30"
               aria-label="삭제"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -432,7 +432,7 @@ export default function RoomDashboardManager({
         <button
           type="button"
           onClick={() => toggleTarget("file")}
-          className={`fab ${target === "file" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "bg-[color:var(--foreground)] text-[color:var(--primary-fg)]"}`}
+          className={`fab ${target === "file" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "fab-primary"}`}
           aria-label="파일 관리"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -444,7 +444,7 @@ export default function RoomDashboardManager({
         <button
           type="button"
           onClick={() => toggleTarget("folder")}
-          className={`fab ${target === "folder" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)]"}`}
+          className={`fab ${target === "folder" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "fab-secondary"}`}
           aria-label="폴더 관리"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -454,7 +454,7 @@ export default function RoomDashboardManager({
         <button
           type="button"
           onClick={refreshView}
-          className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)]"
+          className="fab fab-secondary"
           aria-label="새로고침"
         >
           <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">

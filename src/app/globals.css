@@ -17,7 +17,7 @@
   --success:      #5a7a4a;
   --success-light:#eef4ea;
   --radius:       0.5rem;
-  --header-h: 64px;
+  --header-h: 72px;
   --bottom-sheet-h: 96px;
 }
 
@@ -277,17 +277,18 @@ h1, h2, h3 {
   position: fixed;
   inset-x: 0;
   top: 0;
-  min-height: var(--header-h);
+  height: var(--header-h);
   z-index: 9993;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding-top: env(safe-area-inset-top);
+  display: flex;
+  align-items: center;
 }
 
 /* FAB cluster */
 .fab {
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -301,14 +302,28 @@ h1, h2, h3 {
   transition: transform 0.12s, opacity 0.12s;
 }
 .fab svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 .fab:disabled {
   opacity: 0.45;
 }
 .fab:active {
   transform: scale(0.94);
+}
+.fab-primary {
+  background: var(--foreground);
+  color: var(--primary-fg);
+  box-shadow: 0 6px 16px rgba(44, 33, 24, 0.28);
+}
+.fab-secondary {
+  background: var(--surface);
+  color: var(--foreground);
+}
+.fab-danger {
+  background: #fff7f6;
+  color: var(--danger);
+  border-color: #f5c6c0;
 }
 
 /* Modal overlay */
@@ -333,6 +348,6 @@ h1, h2, h3 {
 
 @media (max-width: 640px) {
   :root {
-    --header-h: 68px;
+    --header-h: 72px;
   }
 }
