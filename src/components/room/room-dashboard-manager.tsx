@@ -337,7 +337,6 @@ export default function RoomDashboardManager({
                   <div className="editorial-photo-meta">
                     <div>
                       <p className="editorial-photo-index">{String(index + 1).padStart(2, "0")}</p>
-                      <p className="font-serif text-lg">{photo.name}</p>
                     </div>
                   </div>
                 </article>
@@ -353,41 +352,18 @@ export default function RoomDashboardManager({
         </div>
       ) : null}
 
-      <div className="action-dock">
-        <button
-          type="button"
-          onClick={() => toggleTarget("file")}
-          className={`action-pill ${target === "file" ? "active" : ""}`}
-        >
-          사진
-        </button>
-        <button
-          type="button"
-          onClick={() => toggleTarget("folder")}
-          className={`action-pill ${target === "folder" ? "secondary-active" : "subtle"}`}
-        >
-          폴더
-        </button>
-        {!target ? (
-          <>
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle">
-              업로드
-            </button>
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle">
-              추가
-            </button>
-          </>
-        ) : null}
+      <div className="action-dock" data-testid="room-action-dock">
         {target === "file" ? (
-          <>
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle">
-              업로드
+          <div className="action-subdock" data-testid="file-subdock">
+            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle" data-testid="file-add-button">
+              추가
             </button>
             <button
               type="button"
               disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy || isMock}
               onClick={() => setShowFileMovePopup(true)}
               className="action-pill subtle disabled:opacity-40"
+              data-testid="file-move-button"
             >
               이동
             </button>
@@ -396,21 +372,23 @@ export default function RoomDashboardManager({
               disabled={selectedPhotoIds.length === 0 || busy || isMock}
               onClick={deleteFiles}
               className="action-pill danger disabled:opacity-40"
+              data-testid="file-delete-button"
             >
               삭제
             </button>
-          </>
+          </div>
         ) : null}
         {target === "folder" ? (
-          <>
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle">
-              새 폴더
+          <div className="action-subdock" data-testid="folder-subdock">
+            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle" data-testid="folder-add-button">
+              추가
             </button>
             <button
               type="button"
               disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy || isMock}
               onClick={() => setShowFolderMovePopup(true)}
               className="action-pill subtle disabled:opacity-40"
+              data-testid="folder-move-button"
             >
               이동
             </button>
@@ -419,11 +397,30 @@ export default function RoomDashboardManager({
               disabled={selectedFolderIds.length === 0 || busy || isMock}
               onClick={deleteFolders}
               className="action-pill danger disabled:opacity-40"
+              data-testid="folder-delete-button"
             >
-              폴더 삭제
+              삭제
             </button>
-          </>
+          </div>
         ) : null}
+        <div className="action-main-row">
+        <button
+          type="button"
+          onClick={() => toggleTarget("file")}
+          className={`action-pill action-pill-main ${target === "file" ? "active" : ""}`}
+          data-testid="file-main-button"
+        >
+          파일
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleTarget("folder")}
+          className={`action-pill action-pill-main ${target === "folder" ? "secondary-active" : "subtle"}`}
+          data-testid="folder-main-button"
+        >
+          폴더
+        </button>
+        </div>
       </div>
 
       <section className="folder-rail">
@@ -444,6 +441,7 @@ export default function RoomDashboardManager({
                       onFolderTap(folder.id);
                     }}
                     className={`folder-chip${isSelected ? " selected" : ""}`}
+                    data-testid={`folder-chip-${folder.id}`}
                   >
                     <span className="font-serif text-lg leading-none">{folder.name}</span>
                   </Link>
@@ -548,7 +546,7 @@ export default function RoomDashboardManager({
                 <div className="mb-4 flex items-center justify-between text-white/80">
                   <div>
                     <p className="eyebrow text-[rgba(255,250,244,0.55)]">Viewer</p>
-                    <h3 className="font-serif text-2xl text-white">{currentPhoto.name}</h3>
+                    <h3 className="font-serif text-2xl text-white">{activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${visiblePhotos.length}` : ""}</h3>
                   </div>
                   <button type="button" onClick={() => setActivePhotoIndex(null)} className="ghost-icon-button border-white/20 bg-white/10 text-white" aria-label="닫기">
                     ×
@@ -562,7 +560,7 @@ export default function RoomDashboardManager({
                         current === null ? current : current === 0 ? visiblePhotos.length - 1 : current - 1,
                       )
                     }
-                    className="absolute left-0 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur sm:flex"
+                    className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
                     aria-label="이전"
                   >
                     ‹
@@ -584,7 +582,7 @@ export default function RoomDashboardManager({
                         current === null ? current : current === visiblePhotos.length - 1 ? 0 : current + 1,
                       )
                     }
-                    className="absolute right-0 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur sm:flex"
+                    className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
                     aria-label="다음"
                   >
                     ›

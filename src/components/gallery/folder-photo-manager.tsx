@@ -300,7 +300,6 @@ export default function FolderPhotoManager({
                   <div className="editorial-photo-meta">
                     <div>
                       <p className="editorial-photo-index">{String(index + 1).padStart(2, "0")}</p>
-                      <p className="font-serif text-lg">{photo.name}</p>
                     </div>
                   </div>
                 </article>
@@ -316,44 +315,18 @@ export default function FolderPhotoManager({
         </div>
       ) : null}
 
-      <div className="action-dock">
-        <button
-          type="button"
-          onClick={() => {
-            setTarget((current) => (current === "file" ? null : "file"));
-            setSelectedIds([]);
-          }}
-          className={`action-pill ${target === "file" ? "active" : ""}`}
-        >
-          사진
-        </button>
-        <button
-          type="button"
-          onClick={() => setTarget((current) => (current === "folder" ? null : "folder"))}
-          className={`action-pill ${target === "folder" ? "secondary-active" : "subtle"}`}
-        >
-          폴더
-        </button>
-        {!target ? (
-          <>
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle">
-              업로드
-            </button>
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle">
-              추가
-            </button>
-          </>
-        ) : null}
+      <div className="action-dock" data-testid="folder-page-action-dock">
         {target === "file" ? (
-          <>
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle">
-              업로드
+          <div className="action-subdock" data-testid="file-subdock">
+            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle" data-testid="file-add-button">
+              추가
             </button>
             <button
               type="button"
               disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy || isMock}
               onClick={() => setShowMovePopup(true)}
               className="action-pill subtle disabled:opacity-40"
+              data-testid="file-move-button"
             >
               이동
             </button>
@@ -362,21 +335,23 @@ export default function FolderPhotoManager({
               disabled={selectedIds.length === 0 || busy || isMock}
               onClick={deleteSelectedFiles}
               className="action-pill danger disabled:opacity-40"
+              data-testid="file-delete-button"
             >
               삭제
             </button>
-          </>
+          </div>
         ) : null}
         {target === "folder" ? (
-          <>
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle">
-              하위 폴더
+          <div className="action-subdock" data-testid="folder-subdock">
+            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle" data-testid="folder-add-button">
+              추가
             </button>
             <button
               type="button"
               disabled={moveFolderTargets.length === 0 || busy || isMock}
               onClick={() => setShowFolderMovePopup(true)}
               className="action-pill subtle disabled:opacity-40"
+              data-testid="folder-move-button"
             >
               이동
             </button>
@@ -385,11 +360,33 @@ export default function FolderPhotoManager({
               disabled={busy || isMock}
               onClick={deleteCurrentFolder}
               className="action-pill danger disabled:opacity-40"
+              data-testid="folder-delete-button"
             >
-              폴더 삭제
+              삭제
             </button>
-          </>
+          </div>
         ) : null}
+        <div className="action-main-row">
+        <button
+          type="button"
+          onClick={() => {
+            setTarget((current) => (current === "file" ? null : "file"));
+            setSelectedIds([]);
+          }}
+          className={`action-pill action-pill-main ${target === "file" ? "active" : ""}`}
+          data-testid="file-main-button"
+        >
+          파일
+        </button>
+        <button
+          type="button"
+          onClick={() => setTarget((current) => (current === "folder" ? null : "folder"))}
+          className={`action-pill action-pill-main ${target === "folder" ? "secondary-active" : "subtle"}`}
+          data-testid="folder-main-button"
+        >
+          폴더
+        </button>
+        </div>
       </div>
 
       <section className="folder-rail">
@@ -404,7 +401,7 @@ export default function FolderPhotoManager({
                   href={`/${roomId}/folder/${folder.id}${isMock ? "?mock=1" : ""}`}
                   className="folder-chip"
                 >
-                  <span className="font-serif text-lg leading-none">{folder.name}</span>
+                  <span className="font-serif text-lg leading-none" data-testid={`folder-chip-${folder.id}`}>{folder.name}</span>
                 </Link>
               ))}
             </div>
@@ -506,7 +503,7 @@ export default function FolderPhotoManager({
                 <div className="mb-4 flex items-center justify-between text-white/80">
                   <div>
                     <p className="eyebrow text-[rgba(255,250,244,0.55)]">Viewer</p>
-                    <h3 className="font-serif text-2xl text-white">{currentPhoto.name}</h3>
+                    <h3 className="font-serif text-2xl text-white">{activeIndex !== null ? `${activeIndex + 1} / ${visiblePhotos.length}` : ""}</h3>
                   </div>
                   <button type="button" onClick={() => setActiveIndex(null)} className="ghost-icon-button border-white/20 bg-white/10 text-white" aria-label="닫기">
                     ×
@@ -520,7 +517,7 @@ export default function FolderPhotoManager({
                         currentValue === null ? currentValue : currentValue === 0 ? visiblePhotos.length - 1 : currentValue - 1,
                       )
                     }
-                    className="absolute left-0 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur sm:flex"
+                    className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
                     aria-label="이전"
                   >
                     ‹
@@ -542,7 +539,7 @@ export default function FolderPhotoManager({
                         currentValue === null ? currentValue : currentValue === visiblePhotos.length - 1 ? 0 : currentValue + 1,
                       )
                     }
-                    className="absolute right-0 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur sm:flex"
+                    className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
                     aria-label="다음"
                   >
                     ›

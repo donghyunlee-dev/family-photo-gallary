@@ -28,6 +28,18 @@ function createAuth() {
   return oauth2Client;
 }
 
+async function getAccessToken() {
+  const auth = createAuth();
+  const token = await auth.getAccessToken();
+  const value = typeof token === "string" ? token : token?.token;
+
+  if (!value) {
+    throw new Error("Failed to acquire Google OAuth access token.");
+  }
+
+  return value;
+}
+
 function createDriveClient() {
   return google.drive({
     version: "v3",
@@ -139,6 +151,50 @@ export async function uploadPhotoToFolder(input: {
     const message = error instanceof Error ? error.message : "unknown drive error";
     throw new Error(`drive.files.create failed (${message})`);
   }
+}
+
+export async function createResumableUploadSession(input: {
+  folderId: string;
+  fileName: string;
+  mimeType: string;
+  fileSize: number;
+}) {
+  const { folderId, fileName, mimeType, fileSize } = input;
+
+  if (!folderId.trim()) throw new Error("folderId is empty.");
+  if (!fileName.trim()) throw new Error("fileName is empty.");
+  if (!mimeType.startsWith("image/")) throw new Error("Only image files are allowed.");
+  if (!Number.isFinite(fileSize) || fileSize <= 0) throw new Error("fileSize must be greater than 0.");
+
+  const accessToken = await getAccessToken();
+  const response = await fetch(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id,name,mimeType,createdTime",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json; charset=UTF-8",
+        "X-Upload-Content-Type": mimeType,
+        "X-Upload-Content-Length": String(fileSize),
+      },
+      body: JSON.stringify({
+        name: fileName,
+        parents: [folderId],
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`drive resumable session failed (${response.status}: ${body || response.statusText})`);
+  }
+
+  const uploadUrl = response.headers.get("location");
+  if (!uploadUrl) {
+    throw new Error("Google Drive did not return a resumable upload URL.");
+  }
+
+  return { uploadUrl };
 }
 
 export async function createFolderInFolder(input: { parentFolderId: string; folderName: string }) {

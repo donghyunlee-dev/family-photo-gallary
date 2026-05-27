@@ -308,20 +308,14 @@ h1, h2, h3 {
 
 .action-dock {
   position: fixed;
-  left: 50%;
-  bottom: calc(var(--bottom-sheet-h) + 0.75rem);
+  right: 0.9rem;
+  bottom: calc(var(--bottom-sheet-h) + 0.9rem);
   z-index: 70;
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 0.6rem;
-  width: max-content;
-  max-width: calc(100% - 1rem);
-  padding: 0.45rem;
-  transform: translateX(-50%);
-  border-radius: 1.4rem;
-  border: 1px solid rgba(159, 92, 56, 0.08);
-  background: rgba(255, 252, 248, 0.84);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 18px 38px rgba(47, 31, 19, 0.12);
+  width: min(calc(100vw - 1.4rem), 18rem);
 }
 
 .action-pill {
@@ -337,11 +331,35 @@ h1, h2, h3 {
   color: var(--foreground);
   font-size: 0.82rem;
   font-weight: 600;
+  box-shadow: 0 10px 24px rgba(47, 31, 19, 0.14);
 }
 
 .action-pill svg {
   width: 1.05rem;
   height: 1.05rem;
+}
+
+.action-subdock {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.action-pill-main {
+  min-width: 5rem;
+  min-height: 3.15rem;
+  padding-inline: 1.1rem;
+  background: rgba(255, 252, 248, 0.96);
+  font-size: 0.95rem;
+}
+
+.action-main-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  width: 100%;
 }
 
 .action-pill.active {
@@ -419,12 +437,21 @@ h1, h2, h3 {
   }
 
   .action-dock {
-    overflow-x: auto;
-    justify-content: flex-start;
+    right: 0.75rem;
+    width: min(calc(100vw - 1rem), 14rem);
   }
 
   .action-pill {
     flex: 0 0 auto;
-    min-width: 4.9rem;
+    min-width: 4.6rem;
+  }
+
+  .action-pill-main {
+    min-width: 4.8rem;
+    min-height: 3rem;
+  }
+
+  .action-subdock {
+    justify-content: flex-end;
   }
 }
