@@ -20,13 +20,13 @@ export default async function RoomPage({ params }: RoomPageProps) {
   const roomFolderId = process.env[room.envFolderKey];
   if (!roomFolderId) {
     return (
-      <main className="paper-bg flex min-h-screen items-center justify-center px-4 py-12">
-        <section className="gallery-paper w-full max-w-xl rounded-3xl p-8">
-          <h1 className="text-2xl font-semibold tracking-tight text-amber-900">{room.name}</h1>
-          <p className="mt-3 text-sm leading-6 text-amber-800">
-            방 폴더 환경변수가 설정되지 않았습니다. `{room.envFolderKey}` 값을 Vercel 환경변수에 넣어 주세요.
+      <main className="flex min-h-dvh items-center justify-center bg-background px-4">
+        <div className="card max-w-sm p-6">
+          <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)]">{room.name}</h1>
+          <p className="mt-2 text-sm text-[color:var(--foreground-secondary)]">
+            방 폴더 환경변수가 설정되지 않았습니다. {"`"}{room.envFolderKey}{"`"} 값을 Vercel 환경변수에 추가해 주세요.
           </p>
-        </section>
+        </div>
       </main>
     );
   }
@@ -46,23 +46,21 @@ export default async function RoomPage({ params }: RoomPageProps) {
   }
 
   return (
-    <main className="paper-bg min-h-screen px-4 py-8">
-      <section className="mx-auto w-full max-w-5xl space-y-6">
-        {loadError ? (
-          <div className="gallery-paper rounded-3xl border border-red-200 bg-red-50/90 p-8 text-sm text-red-700">
-            {loadError}
-          </div>
-        ) : (
-          <RoomDashboardManager
-            roomId={roomId}
-            roomName={room.name}
-            roomRootFolderId={roomFolderId}
-            photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
-            folders={folders.map((folder) => ({ id: folder.id, name: folder.name }))}
-          />
-        )}
-      </section>
-    </main>
+    <div className="min-h-dvh bg-background">
+      {loadError ? (
+        <main className="flex min-h-dvh items-center justify-center px-4">
+          <div className="card max-w-sm p-6 text-sm text-[color:var(--danger)]">{loadError}</div>
+        </main>
+      ) : (
+        <RoomDashboardManager
+          roomId={roomId}
+          roomName={room.name}
+          roomRootFolderId={roomFolderId}
+          photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
+          folders={folders.map((folder) => ({ id: folder.id, name: folder.name }))}
+        />
+      )}
+    </div>
   );
 }
 
