@@ -49,30 +49,13 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-5">
-      {/* Brand mark */}
-      <div className="mb-8 flex flex-col items-center gap-2">
-        {/* Simple decorative motif */}
-        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-          <circle cx="18" cy="18" r="17" stroke="var(--accent)" strokeWidth="1.5" />
-          <path
-            d="M11 22c1.5-4 3.5-7 7-7s5.5 3 7 7"
-            stroke="var(--primary)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          <circle cx="18" cy="13" r="2.5" fill="var(--primary)" />
-        </svg>
-        <h1 className="font-serif text-2xl font-semibold text-[color:var(--foreground)] tracking-tight">
-          가족 사진첩
-        </h1>
-        <p className="text-sm text-[color:var(--foreground-secondary)]">소중한 우리 가족의 추억</p>
-      </div>
+    <main className="flex min-h-dvh items-center justify-center px-5 py-8">
+      <section className="card w-full max-w-md border-[rgba(159,92,56,0.1)] bg-[rgba(255,253,249,0.92)] p-6 shadow-[0_18px_40px_rgba(64,39,22,0.08)] backdrop-blur sm:p-8">
+        <div className="mb-8 text-center">
+          <h1 className="font-serif text-4xl tracking-[-0.05em] text-[color:var(--foreground)]">가족 사진방</h1>
+        </div>
 
-      {/* Entry card */}
-      <div className="card w-full max-w-xs p-6">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
             <input
               id="room-code"
               name="room-code"
@@ -90,9 +73,8 @@ export default function Home() {
               maxLength={6}
               placeholder="6자리 숫자"
               autoComplete="one-time-code"
-              className="input-base text-center text-xl tracking-[0.3em] font-semibold"
+              className="input-base h-16 rounded-[1.25rem] border-[rgba(159,92,56,0.16)] bg-white/80 text-center text-2xl tracking-[0.45em] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
             />
-          </div>
 
           {error ? (
             <p className="rounded-[calc(var(--radius)/2)] border border-[#f5c6c0] bg-[color:var(--danger-light)] px-3 py-2 text-xs text-[color:var(--danger)]">
@@ -103,14 +85,12 @@ export default function Home() {
           <button
             type="submit"
             disabled={!canSubmit || loading}
-            className="btn-primary w-full"
+            className="btn-primary mt-2 h-14 w-full rounded-[1.2rem] text-sm tracking-[0.14em] uppercase"
           >
             {loading ? "확인 중..." : "입장하기"}
           </button>
         </form>
-      </div>
-
-      <p className="mt-6 text-xs text-[color:var(--foreground-secondary)]">6자리 입력 시 자동 입장</p>
+      </section>
     </main>
   );
 }

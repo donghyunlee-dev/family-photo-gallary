@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
+import { MOCK_CHILD_FOLDERS, MOCK_FOLDER_PHOTOS, MOCK_ROOM_FOLDERS } from "@/lib/gallery/mock-data";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
@@ -9,16 +10,54 @@ export const dynamic = "force-dynamic";
 
 type FolderPageProps = {
   params: Promise<{ roomId: string; folderId: string }>;
+  searchParams: Promise<{ mock?: string }>;
 };
 
-export default async function FolderPage({ params }: FolderPageProps) {
+export default async function FolderPage({ params, searchParams }: FolderPageProps) {
   const { roomId, folderId } = await params;
+  const { mock } = await searchParams;
+  const useMock = mock === "1";
   if (!isRoomKey(roomId)) notFound();
   if (!folderId) notFound();
 
   const room = getRoomById(roomId);
   if (!room) notFound();
   const roomRootFolderId = process.env[room.envFolderKey];
+  if (useMock) {
+    return (
+      <div className="min-h-dvh bg-background">
+        <header className="topbar px-4">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
+            <div>
+              <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)] leading-tight">
+                안동
+              </h1>
+              <p className="text-[11px] text-[color:var(--foreground-secondary)]">사진 {MOCK_FOLDER_PHOTOS.length}장</p>
+            </div>
+            <Link
+              href={`/${roomId}?mock=1`}
+              aria-label="뒤로 가기"
+              className="ghost-icon-button"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </div>
+        </header>
+        <div style={{ height: "var(--header-h)" }} aria-hidden />
+        <FolderPhotoManager
+          photos={MOCK_FOLDER_PHOTOS}
+          roomId={roomId}
+          currentFolderId={folderId}
+          roomRootFolderId="mock-room-root"
+          moveTargets={MOCK_ROOM_FOLDERS}
+          childFolders={MOCK_CHILD_FOLDERS}
+          isMock
+        />
+      </div>
+    );
+  }
   if (!roomRootFolderId) notFound();
 
   let photos: Awaited<ReturnType<typeof listRecentPhotosFromFolder>> = [];
@@ -42,19 +81,19 @@ export default async function FolderPage({ params }: FolderPageProps) {
     <div className="min-h-dvh bg-background">
       {/* ── Top bar ── */}
       <header className="topbar px-4">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
           <div>
-            <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)] leading-tight">
+            <h1 className="font-serif text-2xl font-semibold text-[color:var(--foreground)] leading-tight">
               {currentFolderName}
             </h1>
-            <p className="text-[11px] text-[color:var(--foreground-secondary)]">
+            <p className="text-sm text-[color:var(--foreground-secondary)]">
               사진 {photos.length}장
             </p>
           </div>
           <Link
             href={`/${roomId}`}
             aria-label="뒤로 가기"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground-secondary)] transition hover:bg-[color:var(--accent-light)]"
+            className="ghost-icon-button"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>

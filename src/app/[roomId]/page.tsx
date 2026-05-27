@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import RoomDashboardManager from "@/components/room/room-dashboard-manager";
+import { MOCK_ROOM_FOLDERS, MOCK_ROOM_PHOTOS } from "@/lib/gallery/mock-data";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
 
@@ -8,16 +9,33 @@ export const dynamic = "force-dynamic";
 
 type RoomPageProps = {
   params: Promise<{ roomId: string }>;
+  searchParams: Promise<{ mock?: string }>;
 };
 
-export default async function RoomPage({ params }: RoomPageProps) {
+export default async function RoomPage({ params, searchParams }: RoomPageProps) {
   const { roomId } = await params;
+  const { mock } = await searchParams;
+  const useMock = mock === "1";
   if (!isRoomKey(roomId)) notFound();
 
   const room = getRoomById(roomId);
   if (!room) notFound();
 
   const roomFolderId = process.env[room.envFolderKey];
+  if (useMock) {
+    return (
+      <div className="min-h-dvh bg-background">
+        <RoomDashboardManager
+          roomId={roomId}
+          roomName={room.name}
+          roomRootFolderId="mock-room-root"
+          photos={MOCK_ROOM_PHOTOS}
+          folders={MOCK_ROOM_FOLDERS}
+          isMock
+        />
+      </div>
+    );
+  }
   if (!roomFolderId) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background px-4">
