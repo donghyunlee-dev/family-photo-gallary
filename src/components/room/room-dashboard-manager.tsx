@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -11,7 +11,6 @@ import UploadForm from "@/components/upload/upload-form";
 type PhotoItem = { id: string; name: string };
 type FolderItem = { id: string; name: string };
 type ActionTarget = "file" | "folder" | null;
-type GalleryViewMode = "plain" | "polaroid" | "photobook" | "wall" | "filmstrip" | "magazine";
 
 type RoomDashboardManagerProps = {
   roomId: string;
@@ -44,27 +43,11 @@ export default function RoomDashboardManager({
   const [newFolderName, setNewFolderName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [viewMode, setViewMode] = useState<GalleryViewMode>(() => {
-    if (typeof window === "undefined") return "polaroid";
-    const savedMode = window.localStorage.getItem("room-gallery-view-mode");
-    if (savedMode && ["plain", "polaroid", "photobook", "wall", "filmstrip", "magazine"].includes(savedMode)) {
-      return savedMode as GalleryViewMode;
-    }
-    return "plain";
-  });
 
   const photoSelectionMode = target === "file";
   const folderSelectionMode = target === "folder";
 
   const currentPhoto = activePhotoIndex !== null ? photos[activePhotoIndex] : null;
-  const viewModes: Array<{ key: GalleryViewMode; label: string; icon: string }> = [
-    { key: "plain", label: "기본", icon: "☷" },
-    { key: "polaroid", label: "폴라로이드", icon: "▣" },
-    { key: "photobook", label: "포토북", icon: "▤" },
-    { key: "wall", label: "벽사진", icon: "◫" },
-    { key: "filmstrip", label: "필름스트립", icon: "☰" },
-    { key: "magazine", label: "콜라주", icon: "◧" },
-  ];
 
   const moveTargets = useMemo(
     () => folders.filter((folder) => !selectedFolderIds.includes(folder.id)),
@@ -78,48 +61,30 @@ export default function RoomDashboardManager({
 
   const closeLightbox = useCallback(() => setActivePhotoIndex(null), []);
   const prev = useCallback(() => {
-    setActivePhotoIndex((value) => (value === null ? value : value === 0 ? photos.length - 1 : value - 1));
+    setActivePhotoIndex((v) => (v === null ? v : v === 0 ? photos.length - 1 : v - 1));
   }, [photos.length]);
   const next = useCallback(() => {
-    setActivePhotoIndex((value) => (value === null ? value : value === photos.length - 1 ? 0 : value + 1));
+    setActivePhotoIndex((v) => (v === null ? v : v === photos.length - 1 ? 0 : v + 1));
   }, [photos.length]);
 
   useEffect(() => {
     if (activePhotoIndex === null) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") closeLightbox();
-      if (event.key === "ArrowLeft") prev();
-      if (event.key === "ArrowRight") next();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
     }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [activePhotoIndex, closeLightbox, prev, next]);
 
   useEffect(() => {
-    window.localStorage.setItem("room-gallery-view-mode", viewMode);
-  }, [viewMode]);
-
-  useEffect(() => {
-    const shouldAutoRefresh =
-      !showUploadPopup &&
-      !showFileMovePopup &&
-      !showFolderCreatePopup &&
-      !showFolderMovePopup &&
-      !busy &&
-      activePhotoIndex === null;
-
-    if (!shouldAutoRefresh) return;
-    const timer = window.setInterval(() => router.refresh(), 30000);
-    return () => window.clearInterval(timer);
-  }, [
-    activePhotoIndex,
-    busy,
-    router,
-    showFileMovePopup,
-    showFolderCreatePopup,
-    showFolderMovePopup,
-    showUploadPopup,
-  ]);
+    const idle =
+      !showUploadPopup && !showFileMovePopup && !showFolderCreatePopup && !showFolderMovePopup && !busy && activePhotoIndex === null;
+    if (!idle) return;
+    const t = window.setInterval(() => router.refresh(), 30000);
+    return () => window.clearInterval(t);
+  }, [activePhotoIndex, busy, router, showFileMovePopup, showFolderCreatePopup, showFolderMovePopup, showUploadPopup]);
 
   function resetSelections() {
     setSelectedPhotoIds([]);
@@ -127,8 +92,8 @@ export default function RoomDashboardManager({
     setError("");
   }
 
-  function toggleTarget(nextTarget: ActionTarget) {
-    setTarget((current) => (current === nextTarget ? null : nextTarget));
+  function toggleTarget(next: ActionTarget) {
+    setTarget((cur) => (cur === next ? null : next));
     resetSelections();
   }
 
@@ -141,8 +106,8 @@ export default function RoomDashboardManager({
   function onPhotoTap(index: number, photoId: string) {
     setError("");
     if (photoSelectionMode) {
-      setSelectedPhotoIds((prevIds) =>
-        prevIds.includes(photoId) ? prevIds.filter((id) => id !== photoId) : [...prevIds, photoId],
+      setSelectedPhotoIds((prev) =>
+        prev.includes(photoId) ? prev.filter((id) => id !== photoId) : [...prev, photoId],
       );
       return;
     }
@@ -151,472 +116,389 @@ export default function RoomDashboardManager({
 
   function onFolderTap(folderId: string) {
     if (!folderSelectionMode) return;
-    setSelectedFolderIds((prevIds) =>
-      prevIds.includes(folderId) ? prevIds.filter((id) => id !== folderId) : [...prevIds, folderId],
-    );
-  }
-
-  function renderPhotoCard(photo: PhotoItem, index: number, className: string, imageClassName = "aspect-[4/3]") {
-    const selected = selectedPhotoIds.includes(photo.id);
-    return (
-      <article
-        key={photo.id}
-        onClick={() => onPhotoTap(index, photo.id)}
-        className={`w-full cursor-pointer overflow-hidden border bg-white ${className} ${
-          selected ? "border-blue-500 ring-2 ring-blue-200" : "border-stone-200"
-        }`}
-      >
-        <div className={imageClassName}>
-          <Image
-            src={`/api/drive/file/${photo.id}`}
-            alt={photo.name}
-            width={480}
-            height={360}
-            sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
-            className="h-full w-full object-cover"
-          />
-        </div>
-      </article>
-    );
-  }
-
-  function renderGalleryByView() {
-    if (viewMode === "filmstrip") {
-      return (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {photos.map((photo, index) => (
-            <div key={photo.id} className="rounded-2xl border border-stone-300 bg-stone-900 p-2">
-              <div className="mb-2 flex items-center justify-between px-1 text-stone-300">
-                <span className="text-[10px] tracking-[0.35em]">•••••</span>
-                <span className="text-[10px] tracking-[0.35em]">•••••</span>
-              </div>
-              <div>
-                {renderPhotoCard(photo, index, "rounded-lg border-stone-700", "aspect-[4/3]")}
-              </div>
-              <div className="mt-2 flex items-center justify-between px-1 text-stone-300">
-                <span className="text-[10px] tracking-[0.35em]">•••••</span>
-                <span className="text-[10px] tracking-[0.35em]">•••••</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    if (viewMode === "wall") {
-      return (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {photos.map((photo, index) => (
-            <div key={photo.id} className={index % 2 === 0 ? "translate-y-1" : ""}>
-              {renderPhotoCard(photo, index, "rounded-sm border-[6px] border-white shadow-md", "aspect-[4/5]")}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    if (viewMode === "magazine") {
-      return (
-        <div className="grid auto-rows-[110px] grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {photos.map((photo, index) => {
-            const big = index % 7 === 0 || index % 7 === 3;
-            return (
-              <div key={photo.id} className={big ? "col-span-2 row-span-2" : "col-span-1 row-span-1"}>
-                {renderPhotoCard(photo, index, "rounded-xl", "h-full")}
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-    if (viewMode === "photobook") {
-      return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {photos.map((photo, index) => (
-            <div key={photo.id} className="rounded-3xl bg-stone-50 p-3 shadow-inner">
-              {renderPhotoCard(photo, index, "rounded-2xl", "aspect-[4/3]")}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    if (viewMode === "plain") {
-      return (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {photos.map((photo, index) => (
-            <div key={photo.id}>
-              {renderPhotoCard(photo, index, "rounded-lg", "aspect-[4/3]")}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid grid-cols-2 gap-3 overflow-x-hidden sm:grid-cols-3 md:grid-cols-4">
-        {photos.map((photo, index) => (
-          <div key={photo.id} className={index % 2 === 0 ? "pt-2" : ""}>
-            {renderPhotoCard(photo, index, `rounded-md ${index % 2 === 0 ? "-rotate-[1deg]" : "rotate-[1deg]"}`, "aspect-[4/3]")}
-          </div>
-        ))}
-      </div>
+    setSelectedFolderIds((prev) =>
+      prev.includes(folderId) ? prev.filter((id) => id !== folderId) : [...prev, folderId],
     );
   }
 
   async function deleteFiles() {
     if (selectedPhotoIds.length === 0 || busy) return;
     if (!confirm(`${selectedPhotoIds.length}개 파일을 삭제할까요?`)) return;
-
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/drive/file/delete", {
+      const res = await fetch("/api/drive/file/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fileIds: selectedPhotoIds }),
       });
-      const data = (await response.json()) as { error?: string };
-      if (!response.ok) {
-        setError(data.error ?? "파일 삭제에 실패했습니다.");
-        return;
-      }
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) { setError(data.error ?? "파일 삭제에 실패했습니다."); return; }
       resetSelections();
       router.refresh();
-    } catch {
-      setError("네트워크 오류로 파일 삭제에 실패했습니다.");
-    } finally {
-      setBusy(false);
-    }
+    } catch { setError("네트워크 오류로 파일 삭제에 실패했습니다."); }
+    finally { setBusy(false); }
   }
 
   async function moveFiles() {
     if (selectedPhotoIds.length === 0 || !effectiveTargetFolderId || busy) return;
-
     setBusy(true);
     setError("");
     try {
       for (const fileId of selectedPhotoIds) {
-        const response = await fetch("/api/drive/file/move", {
+        const res = await fetch("/api/drive/file/move", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileId,
-            fromFolderId: roomRootFolderId,
-            toFolderId: effectiveTargetFolderId,
-          }),
+          body: JSON.stringify({ fileId, fromFolderId: roomRootFolderId, toFolderId: effectiveTargetFolderId }),
         });
-        const data = (await response.json()) as { error?: string };
-        if (!response.ok) {
-          setError(data.error ?? "파일 이동에 실패했습니다.");
-          setBusy(false);
-          return;
-        }
+        const data = (await res.json()) as { error?: string };
+        if (!res.ok) { setError(data.error ?? "파일 이동에 실패했습니다."); setBusy(false); return; }
       }
       setShowFileMovePopup(false);
       resetSelections();
       router.refresh();
-    } catch {
-      setError("네트워크 오류로 파일 이동에 실패했습니다.");
-    } finally {
-      setBusy(false);
-    }
+    } catch { setError("네트워크 오류로 파일 이동에 실패했습니다."); }
+    finally { setBusy(false); }
   }
 
   async function createFolder() {
     if (!newFolderName.trim() || busy) return;
-
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/drive/folder", {
+      const res = await fetch("/api/drive/folder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ parentFolderId: roomRootFolderId, folderName: newFolderName.trim() }),
       });
-      const data = (await response.json()) as { error?: string };
-      if (!response.ok) {
-        setError(data.error ?? "폴더 생성에 실패했습니다.");
-        return;
-      }
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) { setError(data.error ?? "폴더 생성에 실패했습니다."); return; }
       setNewFolderName("");
       setShowFolderCreatePopup(false);
       router.refresh();
-    } catch {
-      setError("네트워크 오류로 폴더 생성에 실패했습니다.");
-    } finally {
-      setBusy(false);
-    }
+    } catch { setError("네트워크 오류로 폴더 생성에 실패했습니다."); }
+    finally { setBusy(false); }
   }
 
   async function moveFolders() {
     if (selectedFolderIds.length === 0 || !effectiveTargetFolderId || busy) return;
-
     setBusy(true);
     setError("");
     try {
       for (const folderId of selectedFolderIds) {
-        const response = await fetch("/api/drive/file/move", {
+        const res = await fetch("/api/drive/file/move", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileId: folderId,
-            fromFolderId: roomRootFolderId,
-            toFolderId: effectiveTargetFolderId,
-          }),
+          body: JSON.stringify({ fileId: folderId, fromFolderId: roomRootFolderId, toFolderId: effectiveTargetFolderId }),
         });
-        const data = (await response.json()) as { error?: string };
-        if (!response.ok) {
-          setError(data.error ?? "폴더 이동에 실패했습니다.");
-          setBusy(false);
-          return;
-        }
+        const data = (await res.json()) as { error?: string };
+        if (!res.ok) { setError(data.error ?? "폴더 이동에 실패했습니다."); setBusy(false); return; }
       }
       setShowFolderMovePopup(false);
       resetSelections();
       router.refresh();
-    } catch {
-      setError("네트워크 오류로 폴더 이동에 실패했습니다.");
-    } finally {
-      setBusy(false);
-    }
+    } catch { setError("네트워크 오류로 폴더 이동에 실패했습니다."); }
+    finally { setBusy(false); }
   }
 
   async function deleteFolders() {
     if (selectedFolderIds.length === 0 || busy) return;
     if (!confirm(`${selectedFolderIds.length}개 폴더를 삭제할까요?`)) return;
-
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/drive/file/delete", {
+      const res = await fetch("/api/drive/file/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fileIds: selectedFolderIds }),
       });
-      const data = (await response.json()) as { error?: string };
-      if (!response.ok) {
-        setError(data.error ?? "폴더 삭제에 실패했습니다.");
-        return;
-      }
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) { setError(data.error ?? "폴더 삭제에 실패했습니다."); return; }
       resetSelections();
       router.refresh();
-    } catch {
-      setError("네트워크 오류로 폴더 삭제에 실패했습니다.");
-    } finally {
-      setBusy(false);
-    }
+    } catch { setError("네트워크 오류로 폴더 삭제에 실패했습니다."); }
+    finally { setBusy(false); }
   }
+
+  /* ─── Bottom sheet folder height: 2 rows approx ─── */
+  const FOLDER_ROW_H = folders.length > 0 ? "88px" : "44px";
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-[9993] border-b border-[color:var(--accent-soft)] bg-[color:var(--background)]/95 px-4 py-2 backdrop-blur">
-        <div className="gallery-paper relative mx-auto w-full max-w-5xl rounded-2xl p-4">
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{roomName}</h1>
-        <p className="mt-1 text-sm text-stone-600">최근 사진 {photos.length}장 · 폴더 {folders.length}개</p>
-        <Link
-          href="/"
-          aria-label="로그아웃"
-          className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-300 bg-white text-lg font-semibold text-stone-700 shadow-sm transition hover:bg-stone-50"
-        >
-          ⎋
-        </Link>
+      {/* ── Top bar ── */}
+      <header className="topbar px-4 py-3">
+        <div className="mx-auto flex max-w-2xl items-center justify-between">
+          <div>
+            <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)] leading-tight">{roomName}</h1>
+            <p className="text-[11px] text-[color:var(--foreground-secondary)]">
+              사진 {photos.length}장 · 폴더 {folders.length}개
+            </p>
+          </div>
+          <Link
+            href="/"
+            aria-label="나가기"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground-secondary)] transition hover:bg-[color:var(--accent-light)]"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
         </div>
-      </div>
-      <div className="h-24" aria-hidden />
+      </header>
 
-      <section className="overflow-x-clip pb-32 pt-1">
-        <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
-          {viewModes.map((mode) => (
-            <button
-              key={mode.key}
-              type="button"
-              title={mode.label}
-              aria-label={mode.label}
-              onClick={() => setViewMode(mode.key)}
-            className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold transition ${
-                viewMode === mode.key
-                  ? "border-[color:var(--accent-terracotta)] bg-[color:var(--accent-terracotta)] text-white"
-                  : "border-[color:var(--accent-soft)] bg-white text-[color:var(--foreground)] hover:bg-[color:var(--accent-soft)]/30"
-              }`}
-            >
-              {mode.icon}
-            </button>
-          ))}
+      {/* spacer for topbar */}
+      <div style={{ height: "57px" }} aria-hidden />
+
+      {/* ── Selection mode banner ── */}
+      {(photoSelectionMode || folderSelectionMode) && (
+        <div className="sticky top-[57px] z-[9990] bg-[color:var(--accent-light)] px-4 py-2 text-center text-xs font-semibold text-[color:var(--primary)]">
+          {photoSelectionMode
+            ? `사진 선택 중 · ${selectedPhotoIds.length}개 선택됨`
+            : `폴더 선택 중 · ${selectedFolderIds.length}개 선택됨`}
         </div>
+      )}
+
+      {/* ── Photo grid ── */}
+      <main className="pb-[calc(var(--bottom-sheet-h,96px)+4rem)]">
         {photos.length === 0 ? (
-          <p className="mt-3 text-sm text-stone-600">아직 표시할 사진이 없습니다.</p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-sm text-[color:var(--foreground-secondary)]">아직 업로드된 사진이 없습니다.</p>
+          </div>
         ) : (
-          renderGalleryByView()
+          <div className="photo-grid">
+            {photos.map((photo, index) => {
+              const selected = selectedPhotoIds.includes(photo.id);
+              return (
+                <div
+                  key={photo.id}
+                  className={`photo-thumb${selected ? " selected" : ""}`}
+                  onClick={() => onPhotoTap(index, photo.id)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={photo.name}
+                  onKeyDown={(e) => e.key === "Enter" && onPhotoTap(index, photo.id)}
+                >
+                  <Image
+                    src={`/api/drive/file/${photo.id}`}
+                    alt={photo.name}
+                    fill
+                    sizes="(max-width: 480px) 33vw, (max-width: 768px) 33vw, 200px"
+                    className="object-cover"
+                  />
+                  {selected && (
+                    <span className="check-badge" aria-hidden="true">✓</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
-      </section>
+      </main>
 
-      <section className="fixed inset-x-0 bottom-0 z-[9992] border-t border-[color:var(--accent-soft)] bg-white/95 px-4 pb-2 pt-2 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur">
-        <div className="mx-auto w-full max-w-5xl">
+      {/* ── Error banner ── */}
+      {error ? (
+        <div className="sticky bottom-[calc(var(--bottom-sheet-h,96px)+3.5rem)] z-[9991] mx-3 mb-1 rounded-[calc(var(--radius)/2)] border border-[#f5c6c0] bg-[color:var(--danger-light)] px-3 py-2 text-xs text-[color:var(--danger)]">
+          {error}
+        </div>
+      ) : null}
+
+      {/* ── Bottom sheet: folders ── */}
+      <div
+        className="bottom-sheet"
+        style={{ "--bottom-sheet-h": FOLDER_ROW_H } as React.CSSProperties}
+      >
+        <div className="mx-auto w-full max-w-2xl px-3 py-2">
           {folders.length === 0 ? (
-            <p className="mt-2 text-xs text-stone-600">아직 생성된 폴더가 없습니다.</p>
+            <p className="py-2 text-center text-xs text-[color:var(--foreground-secondary)]">폴더가 없습니다</p>
           ) : (
-            <ul className="mt-1 grid max-h-56 grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4 md:grid-cols-5">
+            <div className="flex gap-1 overflow-x-auto pb-safe-area-inset-bottom">
               {folders.map((folder) => {
                 const selected = selectedFolderIds.includes(folder.id);
                 return (
-                  <li key={folder.id} className="flex justify-center">
-                    <Link
-                      href={`/${roomId}/folder/${folder.id}`}
-                      onClick={(event) => {
-                        if (!folderSelectionMode) return;
-                        event.preventDefault();
-                        onFolderTap(folder.id);
-                      }}
-                      className={`flex w-full flex-col items-center ${folderSelectionMode ? "" : ""}`}
-                    >
-                      <div
-                        className={`relative flex h-16 w-16 items-center justify-center rounded-2xl border shadow-sm transition ${
-                          selected
-                            ? "border-sky-300 bg-sky-100 ring-2 ring-sky-200"
-                            : "border-slate-300 bg-slate-100"
-                        }`}
-                      >
-                        <span className="absolute left-2 top-2 h-2.5 w-5 rounded-t-md bg-slate-300" />
-                        <span className="mt-1 h-7 w-10 rounded-md bg-slate-400" />
-                      </div>
-                      <p className="mt-2 line-clamp-2 text-center text-[11px] font-medium text-stone-800">{folder.name}</p>
-                    </Link>
-                  </li>
+                  <Link
+                    key={folder.id}
+                    href={`/${roomId}/folder/${folder.id}`}
+                    onClick={(e) => {
+                      if (!folderSelectionMode) return;
+                      e.preventDefault();
+                      onFolderTap(folder.id);
+                    }}
+                    className={`folder-item min-w-[56px] flex-shrink-0${selected ? " selected" : ""}`}
+                  >
+                    <div className="folder-icon" aria-hidden="true">
+                      <span className="folder-icon-tab" />
+                      <span className="folder-icon-body" />
+                    </div>
+                    <span className="w-14 truncate text-center text-[10px] font-medium text-[color:var(--foreground)]">
+                      {folder.name}
+                    </span>
+                  </Link>
                 );
               })}
-            </ul>
+            </div>
           )}
-        </div>
-      </section>
-
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-
-      <div
-        className="fixed right-4 z-[9997]"
-        style={{ bottom: "max(10rem, calc(env(safe-area-inset-bottom) + 9.5rem))" }}
-      >
-        <div className="relative flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => toggleTarget("file")}
-            className={`h-16 w-16 rounded-full text-sm font-semibold shadow-lg ${target === "file" ? "bg-[color:var(--accent-soft)] text-[color:var(--foreground)]" : "bg-[color:var(--foreground)] text-white"}`}
-          >
-            파일
-          </button>
-          <button
-            type="button"
-            onClick={() => toggleTarget("folder")}
-            className={`h-16 w-16 rounded-full text-sm font-semibold shadow-lg ${target === "folder" ? "bg-[color:var(--accent-soft)] text-[color:var(--foreground)]" : "bg-[color:var(--foreground)] text-white"}`}
-          >
-            폴더
-          </button>
-          <button
-            type="button"
-            onClick={refreshView}
-            className="h-16 w-16 rounded-full border border-stone-300 bg-white text-2xl font-semibold text-stone-700 shadow-lg"
-            aria-label="새로고침"
-          >
-            ↻
-          </button>
-          {target === "file" ? (
-            <div className="absolute right-[4.5rem] top-1/2 flex -translate-y-1/2 flex-col gap-2">
-              <button type="button" onClick={() => setShowUploadPopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
-              <button
-                type="button"
-                disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy}
-                onClick={() => setShowFileMovePopup(true)}
-                className="h-14 w-14 rounded-full border border-sky-200 bg-sky-100 text-xs font-semibold text-sky-900 shadow-lg disabled:bg-stone-200 disabled:text-stone-500"
-              >
-                이동
-              </button>
-              <button
-                type="button"
-                disabled={selectedPhotoIds.length === 0 || busy}
-                onClick={deleteFiles}
-                className="h-14 w-14 rounded-full border border-rose-200 bg-rose-100 text-xs font-semibold text-rose-900 shadow-lg disabled:bg-stone-200 disabled:text-stone-500"
-              >
-                삭제
-              </button>
-            </div>
-          ) : null}
-
-          {target === "folder" ? (
-            <div className="absolute right-[4.5rem] top-1/2 flex -translate-y-1/2 flex-col gap-2">
-              <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="h-14 w-14 rounded-full bg-stone-800 text-xs font-semibold text-white shadow-lg">추가</button>
-              <button
-                type="button"
-                disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy}
-                onClick={() => setShowFolderMovePopup(true)}
-                className="h-14 w-14 rounded-full border border-sky-200 bg-sky-100 text-xs font-semibold text-sky-900 shadow-lg disabled:bg-stone-200 disabled:text-stone-500"
-              >
-                이동
-              </button>
-              <button
-                type="button"
-                disabled={selectedFolderIds.length === 0 || busy}
-                onClick={deleteFolders}
-                className="h-14 w-14 rounded-full border border-rose-200 bg-rose-100 text-xs font-semibold text-rose-900 shadow-lg disabled:bg-stone-200 disabled:text-stone-500"
-              >
-                삭제
-              </button>
-            </div>
-          ) : null}
         </div>
       </div>
 
+      {/* ── FAB cluster ── */}
+      <div
+        className="fixed right-4 z-[9997] flex flex-col items-end gap-2"
+        style={{ bottom: "calc(var(--bottom-sheet-h, 96px) + 1rem)" }}
+      >
+        {/* File sub-actions */}
+        {target === "file" && (
+          <div className="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowUploadPopup(true)}
+              className="fab bg-[color:var(--foreground)] text-[color:var(--primary-fg)]"
+              aria-label="사진 추가"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M9 3v12M3 9h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy}
+              onClick={() => setShowFileMovePopup(true)}
+              className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] disabled:opacity-30"
+              aria-label="이동"
+            >
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                <path d="M3 8.5h11M10 5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              disabled={selectedPhotoIds.length === 0 || busy}
+              onClick={deleteFiles}
+              className="fab border border-[#f5c6c0] bg-[color:var(--danger-light)] text-[color:var(--danger)] disabled:opacity-30"
+              aria-label="삭제"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Folder sub-actions */}
+        {target === "folder" && (
+          <div className="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowFolderCreatePopup(true)}
+              className="fab bg-[color:var(--foreground)] text-[color:var(--primary-fg)]"
+              aria-label="폴더 추가"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M9 3v12M3 9h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy}
+              onClick={() => setShowFolderMovePopup(true)}
+              className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)] disabled:opacity-30"
+              aria-label="이동"
+            >
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                <path d="M3 8.5h11M10 5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              disabled={selectedFolderIds.length === 0 || busy}
+              onClick={deleteFolders}
+              className="fab border border-[#f5c6c0] bg-[color:var(--danger-light)] text-[color:var(--danger)] disabled:opacity-30"
+              aria-label="삭제"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 4h10M6 4V2h4v2M5 4v9h6V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Primary FABs */}
+        <button
+          type="button"
+          onClick={() => toggleTarget("file")}
+          className={`fab ${target === "file" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "bg-[color:var(--foreground)] text-[color:var(--primary-fg)]"}`}
+          aria-label="파일 관리"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <rect x="3" y="2" width="8" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M7 2v10M3 8h8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+            <path d="M11 8l4 4M15 8l-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleTarget("folder")}
+          className={`fab ${target === "folder" ? "bg-[color:var(--primary)] text-[color:var(--primary-fg)]" : "border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)]"}`}
+          aria-label="폴더 관리"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M2 5a2 2 0 012-2h3l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={refreshView}
+          className="fab border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground)]"
+          aria-label="새로고침"
+        >
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+            <path d="M3 8.5a5.5 5.5 0 1110.5-2.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            <path d="M13.5 3v3.2H10.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* ── Upload modal ── */}
       {showUploadPopup
         ? createPortal(
-            <div className="fixed inset-0 z-[9998] flex items-end bg-black/40 p-4" onClick={() => setShowUploadPopup(false)}>
-              <div className="w-full rounded-3xl border border-stone-200 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-stone-900">파일 추가</h3>
+            <div className="modal-overlay" onClick={() => setShowUploadPopup(false)}>
+              <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="font-serif text-base font-semibold text-[color:var(--foreground)]">사진 추가</h2>
                   <button
                     type="button"
                     onClick={() => setShowUploadPopup(false)}
                     aria-label="닫기"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-stone-300 text-sm font-medium text-stone-700"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-[color:var(--border)] text-[color:var(--foreground-secondary)] hover:bg-[color:var(--accent-light)]"
                   >
                     ×
                   </button>
                 </div>
-                <div className="mt-3">
-                  <UploadForm folderId={roomRootFolderId} />
-                </div>
+                <UploadForm folderId={roomRootFolderId} />
               </div>
             </div>,
             document.body,
           )
         : null}
 
+      {/* ── File move modal ── */}
       {showFileMovePopup
         ? createPortal(
-            <div className="fixed inset-0 z-[9998] flex items-end bg-black/40 p-4" onClick={() => setShowFileMovePopup(false)}>
-              <div className="w-full rounded-2xl bg-white p-4" onClick={(event) => event.stopPropagation()}>
-                <h3 className="text-base font-semibold text-stone-900">파일 이동</h3>
-                <p className="mt-1 text-sm text-stone-600">{selectedPhotoIds.length}개 파일 선택됨</p>
+            <div className="modal-overlay" onClick={() => setShowFileMovePopup(false)}>
+              <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+                <h2 className="font-serif text-base font-semibold text-[color:var(--foreground)]">사진 이동</h2>
+                <p className="mt-1 text-xs text-[color:var(--foreground-secondary)]">{selectedPhotoIds.length}개 선택됨</p>
                 <select
                   value={effectiveTargetFolderId}
-                  onChange={(event) => setTargetFolderId(event.target.value)}
-                  className="mt-3 h-11 w-full rounded-xl border border-stone-300 px-3 text-sm"
+                  onChange={(e) => setTargetFolderId(e.target.value)}
+                  className="input-base mt-3"
                 >
-                  {moveTargets.map((folder) => (
-                    <option key={folder.id} value={folder.id}>
-                      {folder.name}
-                    </option>
+                  {moveTargets.map((f) => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
                   ))}
                 </select>
                 <div className="mt-4 flex gap-2">
-                  <button type="button" onClick={() => setShowFileMovePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">취소</button>
-                  <button
-                    type="button"
-                    disabled={!effectiveTargetFolderId || selectedPhotoIds.length === 0 || busy}
-                    onClick={moveFiles}
-                    className="h-11 flex-1 rounded-xl bg-blue-600 text-sm text-white disabled:bg-stone-400"
-                  >
-                    이동하기
-                  </button>
+                  <button type="button" onClick={() => setShowFileMovePopup(false)} className="btn-ghost flex-1">취소</button>
+                  <button type="button" disabled={!effectiveTargetFolderId || selectedPhotoIds.length === 0 || busy} onClick={moveFiles} className="btn-primary flex-1">이동하기</button>
                 </div>
               </div>
             </div>,
@@ -624,28 +506,22 @@ export default function RoomDashboardManager({
           )
         : null}
 
+      {/* ── Folder create modal ── */}
       {showFolderCreatePopup
         ? createPortal(
-            <div className="fixed inset-0 z-[9998] flex items-end bg-black/40 p-4" onClick={() => setShowFolderCreatePopup(false)}>
-              <div className="w-full rounded-3xl border border-stone-200 bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-                <h3 className="text-lg font-semibold text-stone-900">폴더 추가</h3>
-                {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
+            <div className="modal-overlay" onClick={() => setShowFolderCreatePopup(false)}>
+              <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+                <h2 className="font-serif text-base font-semibold text-[color:var(--foreground)]">폴더 만들기</h2>
+                {error ? <p className="mt-2 text-xs text-[color:var(--danger)]">{error}</p> : null}
                 <input
                   value={newFolderName}
-                  onChange={(event) => setNewFolderName(event.target.value)}
-                  placeholder="예: 2026-08-강릉여행"
-                  className="mt-3 h-11 w-full rounded-xl border border-stone-300 bg-stone-50 px-3 text-sm font-medium text-stone-900 placeholder:text-stone-400"
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="예: 2026-여름방학"
+                  className="input-base mt-3"
                 />
                 <div className="mt-4 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">취소</button>
-                  <button
-                    type="button"
-                    disabled={!newFolderName.trim() || busy}
-                    onClick={createFolder}
-                    className="h-11 flex-1 rounded-xl bg-emerald-600 text-sm text-white disabled:bg-stone-400"
-                  >
-                    만들기
-                  </button>
+                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="btn-ghost flex-1">취소</button>
+                  <button type="button" disabled={!newFolderName.trim() || busy} onClick={createFolder} className="btn-primary flex-1">만들기</button>
                 </div>
               </div>
             </div>,
@@ -653,33 +529,25 @@ export default function RoomDashboardManager({
           )
         : null}
 
+      {/* ── Folder move modal ── */}
       {showFolderMovePopup
         ? createPortal(
-            <div className="fixed inset-0 z-[9998] flex items-end bg-black/40 p-4" onClick={() => setShowFolderMovePopup(false)}>
-              <div className="w-full rounded-2xl bg-white p-4" onClick={(event) => event.stopPropagation()}>
-                <h3 className="text-base font-semibold text-stone-900">폴더 이동</h3>
-                <p className="mt-1 text-sm text-stone-600">{selectedFolderIds.length}개 폴더 선택됨</p>
+            <div className="modal-overlay" onClick={() => setShowFolderMovePopup(false)}>
+              <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+                <h2 className="font-serif text-base font-semibold text-[color:var(--foreground)]">폴더 이동</h2>
+                <p className="mt-1 text-xs text-[color:var(--foreground-secondary)]">{selectedFolderIds.length}개 선택됨</p>
                 <select
                   value={effectiveTargetFolderId}
-                  onChange={(event) => setTargetFolderId(event.target.value)}
-                  className="mt-3 h-11 w-full rounded-xl border border-stone-300 px-3 text-sm"
+                  onChange={(e) => setTargetFolderId(e.target.value)}
+                  className="input-base mt-3"
                 >
-                  {moveTargets.map((folder) => (
-                    <option key={folder.id} value={folder.id}>
-                      {folder.name}
-                    </option>
+                  {moveTargets.map((f) => (
+                    <option key={f.id} value={f.id}>{f.name}</option>
                   ))}
                 </select>
                 <div className="mt-4 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="h-11 flex-1 rounded-xl border border-stone-300 text-sm">취소</button>
-                  <button
-                    type="button"
-                    disabled={!effectiveTargetFolderId || selectedFolderIds.length === 0 || busy}
-                    onClick={moveFolders}
-                    className="h-11 flex-1 rounded-xl bg-blue-600 text-sm text-white disabled:bg-stone-400"
-                  >
-                    이동하기
-                  </button>
+                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="btn-ghost flex-1">취소</button>
+                  <button type="button" disabled={!effectiveTargetFolderId || selectedFolderIds.length === 0 || busy} onClick={moveFolders} className="btn-primary flex-1">이동하기</button>
                 </div>
               </div>
             </div>,
@@ -687,46 +555,53 @@ export default function RoomDashboardManager({
           )
         : null}
 
+      {/* ── Lightbox ── */}
       {currentPhoto
         ? createPortal(
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4" onClick={closeLightbox}>
-              <div className="relative w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
-                <button
-                  type="button"
-                  onClick={closeLightbox}
-                  aria-label="닫기"
-                  className="absolute right-2 top-2 z-10 h-10 w-10 rounded-full bg-black/55 text-xl text-white hover:bg-black/70"
-                >
-                  ×
-                </button>
-
-                <button
-                  type="button"
-                  onClick={prev}
-                  aria-label="이전 사진"
-                  className="absolute left-2 top-1/2 z-10 h-10 w-10 -translate-y-1/2 rounded-full bg-black/55 text-xl text-white hover:bg-black/70"
-                >
-                  ‹
-                </button>
-
-                <button
-                  type="button"
-                  onClick={next}
-                  aria-label="다음 사진"
-                  className="absolute right-2 top-1/2 z-10 h-10 w-10 -translate-y-1/2 rounded-full bg-black/55 text-xl text-white hover:bg-black/70"
-                >
-                  ›
-                </button>
-
+            <div
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
+              onClick={closeLightbox}
+            >
+              <button
+                type="button"
+                onClick={closeLightbox}
+                aria-label="닫기"
+                className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+              >
+                ×
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); prev(); }}
+                aria-label="이전"
+                className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur-sm hover:bg-white/20"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); next(); }}
+                aria-label="다음"
+                className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-2xl text-white backdrop-blur-sm hover:bg-white/20"
+              >
+                ›
+              </button>
+              <div
+                className="relative flex h-full w-full items-center justify-center p-4"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Image
                   src={`/api/drive/file/${currentPhoto.id}`}
                   alt={currentPhoto.name}
-                  width={1600}
-                  height={1200}
-                  className="max-h-[78vh] w-full rounded-2xl object-contain"
+                  fill
+                  sizes="100vw"
+                  className="object-contain"
                   unoptimized
                 />
               </div>
+              <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-white/60">
+                {activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${photos.length}` : ""}
+              </p>
             </div>,
             document.body,
           )

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
@@ -36,42 +36,50 @@ export default async function FolderPage({ params }: FolderPageProps) {
     const message = error instanceof Error ? error.message : "unknown error";
     loadError = `폴더 데이터를 불러오지 못했습니다: ${message}`;
   }
-  const currentFolderName = moveTargets.find((folder) => folder.id === folderId)?.name ?? "현재 폴더";
+  const currentFolderName = moveTargets.find((f) => f.id === folderId)?.name ?? "현재 폴더";
 
   return (
-    <main className="paper-bg min-h-screen px-4 py-8">
-      <section className="mx-auto w-full max-w-5xl space-y-6">
-        <div className="fixed inset-x-0 top-0 z-[9993] border-b border-[color:var(--accent-soft)] bg-[color:var(--background)]/95 px-4 py-3 backdrop-blur">
-          <div className="gallery-paper relative mx-auto w-full max-w-5xl rounded-2xl p-4">
-            <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--foreground)]">{currentFolderName}</h1>
-            <p className="mt-1 text-sm text-[color:var(--text-secondary)]">사진 {photos.length}장</p>
-            <Link
-              href={`/${roomId}`}
-              aria-label="방으로 돌아가기"
-              className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--accent-soft)] bg-white text-lg text-[color:var(--foreground)] shadow-sm transition hover:bg-stone-50"
-            >
-              ←
-            </Link>
+    <div className="min-h-dvh bg-background">
+      {/* ── Top bar ── */}
+      <header className="topbar px-4 py-3">
+        <div className="mx-auto flex max-w-2xl items-center justify-between">
+          <div>
+            <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)] leading-tight">
+              {currentFolderName}
+            </h1>
+            <p className="text-[11px] text-[color:var(--foreground-secondary)]">
+              사진 {photos.length}장
+            </p>
           </div>
+          <Link
+            href={`/${roomId}`}
+            aria-label="뒤로 가기"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--foreground-secondary)] transition hover:bg-[color:var(--accent-light)]"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
         </div>
-        <div className="h-28" aria-hidden />
+      </header>
 
-        {loadError ? (
-          <div className="gallery-paper rounded-3xl border border-red-200 bg-red-50/90 p-8 text-sm text-red-700">{loadError}</div>
-        ) : null}
+      {/* spacer */}
+      <div style={{ height: "57px" }} aria-hidden />
 
-        {!loadError ? (
-          <FolderPhotoManager
-            photos={photos.map((photo) => ({ id: photo.id, name: photo.name }))}
-            roomId={roomId}
-            currentFolderId={folderId}
-            roomRootFolderId={roomRootFolderId}
-            moveTargets={moveTargets.map((folder) => ({ id: folder.id, name: folder.name }))}
-            childFolders={childFolders.map((folder) => ({ id: folder.id, name: folder.name }))}
-          />
-        ) : null}
-      </section>
-    </main>
+      {loadError ? (
+        <div className="flex items-center justify-center p-6">
+          <div className="card max-w-sm p-5 text-sm text-[color:var(--danger)]">{loadError}</div>
+        </div>
+      ) : (
+        <FolderPhotoManager
+          photos={photos.map((p) => ({ id: p.id, name: p.name }))}
+          roomId={roomId}
+          currentFolderId={folderId}
+          roomRootFolderId={roomRootFolderId}
+          moveTargets={moveTargets.map((f) => ({ id: f.id, name: f.name }))}
+          childFolders={childFolders.map((f) => ({ id: f.id, name: f.name }))}
+        />
+      )}
+    </div>
   );
 }
-

@@ -45,46 +45,71 @@ export default function Home() {
   }
 
   return (
-    <main className="paper-bg flex min-h-screen items-center justify-center px-4 py-12 text-stone-900">
-      <section className="gallery-paper w-full max-w-md rounded-[1.75rem] p-8">
-        <p className="text-sm tracking-wide text-[color:var(--text-secondary)]">Family Photo Gallery</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-[color:var(--foreground)]">가족사진관</h1>
-        <p className="mt-3 text-sm leading-6 text-[color:var(--text-secondary)]">
-          공유받은 6자리 코드를 입력하면 가족 사진방으로 입장할 수 있어요.
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-          <label htmlFor="room-code" className="text-sm font-medium text-[color:var(--foreground)]">
-            입장 코드
-          </label>
-          <input
-            id="room-code"
-            name="room-code"
-            value={code}
-            onChange={(event) => {
-              const nextValue = event.target.value.replace(/\D/g, "").slice(0, 6);
-              setCode(nextValue);
-            }}
-            inputMode="numeric"
-            maxLength={6}
-            placeholder="6자리 숫자"
-            autoComplete="one-time-code"
-            className="h-12 w-full rounded-xl border border-[color:var(--accent-soft)] bg-white/80 px-4 text-lg tracking-[0.25em] outline-none transition focus:border-[color:var(--primary-warm)]"
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-5">
+      {/* Brand mark */}
+      <div className="mb-8 flex flex-col items-center gap-2">
+        {/* Simple decorative motif */}
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <circle cx="18" cy="18" r="17" stroke="var(--accent)" strokeWidth="1.5" />
+          <path
+            d="M11 22c1.5-4 3.5-7 7-7s5.5 3 7 7"
+            stroke="var(--primary)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
           />
+          <circle cx="18" cy="13" r="2.5" fill="var(--primary)" />
+        </svg>
+        <h1 className="font-serif text-2xl font-semibold text-[color:var(--foreground)] tracking-tight">
+          가족 사진첩
+        </h1>
+        <p className="text-sm text-[color:var(--foreground-secondary)]">소중한 우리 가족의 추억</p>
+      </div>
+
+      {/* Entry card */}
+      <div className="card w-full max-w-xs p-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="room-code"
+              className="text-xs font-semibold uppercase tracking-wider text-[color:var(--foreground-secondary)]"
+            >
+              입장 코드
+            </label>
+            <input
+              id="room-code"
+              name="room-code"
+              value={code}
+              onChange={(event) => {
+                const next = event.target.value.replace(/\D/g, "").slice(0, 6);
+                setCode(next);
+              }}
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="6자리 숫자"
+              autoComplete="one-time-code"
+              className="input-base text-center text-xl tracking-[0.3em] font-semibold"
+            />
+          </div>
+
+          {error ? (
+            <p className="rounded-[calc(var(--radius)/2)] border border-[#f5c6c0] bg-[color:var(--danger-light)] px-3 py-2 text-xs text-[color:var(--danger)]">
+              {error}
+            </p>
+          ) : null}
+
           <button
             type="submit"
             disabled={!canSubmit || loading}
-            className="h-12 w-full rounded-xl bg-[color:var(--accent-terracotta)] text-sm font-medium text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:bg-stone-300"
+            className="btn-primary w-full"
           >
             {loading ? "확인 중..." : "입장하기"}
           </button>
         </form>
+      </div>
 
-        {error ? (
-          <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-        ) : null}
-      </section>
+      <p className="mt-6 text-xs text-[color:var(--foreground-secondary)]">
+        공유받은 코드를 입력하세요
+      </p>
     </main>
   );
 }
-
