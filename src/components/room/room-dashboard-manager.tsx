@@ -229,10 +229,10 @@ export default function RoomDashboardManager({
   const FOLDER_ROW_H = folders.length > 0 ? "88px" : "44px";
 
   return (
-    <>
+    <div style={{ "--bottom-sheet-h": FOLDER_ROW_H } as React.CSSProperties}>
       {/* ── Top bar ── */}
       <header className="topbar px-4 py-3">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
           <div>
             <h1 className="font-serif text-lg font-semibold text-[color:var(--foreground)] leading-tight">{roomName}</h1>
             <p className="text-[11px] text-[color:var(--foreground-secondary)]">
@@ -270,7 +270,8 @@ export default function RoomDashboardManager({
             <p className="text-sm text-[color:var(--foreground-secondary)]">아직 업로드된 사진이 없습니다.</p>
           </div>
         ) : (
-          <div className="photo-grid">
+          <div className="mx-auto w-full max-w-2xl px-1 sm:px-2">
+            <div className="photo-grid">
             {visiblePhotos.map((photo, index) => {
               const selected = selectedPhotoIds.includes(photo.id);
               return (
@@ -299,6 +300,7 @@ export default function RoomDashboardManager({
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </main>
@@ -311,10 +313,7 @@ export default function RoomDashboardManager({
       ) : null}
 
       {/* ── Bottom sheet: folders ── */}
-      <div
-        className="bottom-sheet"
-        style={{ "--bottom-sheet-h": FOLDER_ROW_H } as React.CSSProperties}
-      >
+      <div className="bottom-sheet">
         <div className="mx-auto w-full max-w-2xl px-3 py-2">
           {folders.length === 0 ? (
             <p className="py-2 text-center text-xs text-[color:var(--foreground-secondary)]">폴더가 없습니다</p>
@@ -614,6 +613,6 @@ export default function RoomDashboardManager({
             document.body,
           )
         : null}
-    </>
+    </div>
   );
 }

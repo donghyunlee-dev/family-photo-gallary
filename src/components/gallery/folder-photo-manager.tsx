@@ -213,7 +213,7 @@ export default function FolderPhotoManager({
   const BOTTOM_H = childFolders.length > 0 ? "88px" : "44px";
 
   return (
-    <>
+    <div style={{ "--bottom-sheet-h": BOTTOM_H } as React.CSSProperties}>
       {/* ── Selection mode banner ── */}
       {(selectionMode || target === "folder") && (
         <div className="sticky top-[var(--header-h)] z-[9990] bg-[color:var(--accent-light)] px-4 py-2 text-center text-xs font-semibold text-[color:var(--primary)]">
@@ -230,7 +230,8 @@ export default function FolderPhotoManager({
             <p className="text-sm text-[color:var(--foreground-secondary)]">이 폴더에는 아직 사진이 없습니다.</p>
           </div>
         ) : (
-          <div className="photo-grid">
+          <div className="mx-auto w-full max-w-2xl px-1 sm:px-2">
+            <div className="photo-grid">
             {visiblePhotos.map((photo, index) => {
               const selected = selectedIds.includes(photo.id);
               return (
@@ -259,6 +260,7 @@ export default function FolderPhotoManager({
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </main>
@@ -271,10 +273,7 @@ export default function FolderPhotoManager({
       ) : null}
 
       {/* ── Bottom sheet: child folders ── */}
-      <div
-        className="bottom-sheet"
-        style={{ "--bottom-sheet-h": BOTTOM_H } as React.CSSProperties}
-      >
+      <div className="bottom-sheet">
         <div className="mx-auto w-full max-w-2xl px-3 py-2">
           {childFolders.length === 0 ? (
             <p className="py-2 text-center text-xs text-[color:var(--foreground-secondary)]">하위 폴더 없음</p>
@@ -490,6 +489,6 @@ export default function FolderPhotoManager({
             document.body,
           )
         : null}
-    </>
+    </div>
   );
 }
