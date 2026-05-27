@@ -16,18 +16,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No files selected." }, { status: 400 });
     }
 
-    const tasks = files.map(async (file) => {
+    const uploaded = [];
+    for (const file of files) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      return uploadPhotoToFolder({
+      const saved = await uploadPhotoToFolder({
         folderId,
         fileName: file.name,
         mimeType: file.type || "application/octet-stream",
         buffer,
       });
-    });
-
-    const uploaded = await Promise.all(tasks);
+      uploaded.push(saved);
+    }
     return NextResponse.json({ uploadedCount: uploaded.length }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Upload failed.";

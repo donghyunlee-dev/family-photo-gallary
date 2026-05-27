@@ -40,11 +40,16 @@ export default function FolderPhotoManager({
   const [showFolderMovePopup, setShowFolderMovePopup] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [hiddenPhotoIds, setHiddenPhotoIds] = useState<string[]>([]);
   const [targetFolderId, setTargetFolderId] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
 
   const selectionMode = target === "file";
-  const current = activeIndex !== null ? photos[activeIndex] : null;
+  const visiblePhotos = useMemo(
+    () => photos.filter((photo) => !hiddenPhotoIds.includes(photo.id)),
+    [hiddenPhotoIds, photos],
+  );
+  const current = activeIndex !== null ? visiblePhotos[activeIndex] : null;
 
   const moveFolderTargets = useMemo(
     () => moveTargets.filter((f) => f.id !== currentFolderId),
@@ -57,11 +62,11 @@ export default function FolderPhotoManager({
 
   const closeLightbox = useCallback(() => setActiveIndex(null), []);
   const prev = useCallback(() => {
-    setActiveIndex((v) => (v === null ? v : v === 0 ? photos.length - 1 : v - 1));
-  }, [photos.length]);
+    setActiveIndex((v) => (v === null ? v : v === 0 ? visiblePhotos.length - 1 : v - 1));
+  }, [visiblePhotos.length]);
   const next = useCallback(() => {
-    setActiveIndex((v) => (v === null ? v : v === photos.length - 1 ? 0 : v + 1));
-  }, [photos.length]);
+    setActiveIndex((v) => (v === null ? v : v === visiblePhotos.length - 1 ? 0 : v + 1));
+  }, [visiblePhotos.length]);
 
   useEffect(() => {
     if (activeIndex === null) return;
@@ -211,7 +216,7 @@ export default function FolderPhotoManager({
     <>
       {/* ── Selection mode banner ── */}
       {(selectionMode || target === "folder") && (
-        <div className="sticky top-[57px] z-[9990] bg-[color:var(--accent-light)] px-4 py-2 text-center text-xs font-semibold text-[color:var(--primary)]">
+        <div className="sticky top-[var(--header-h)] z-[9990] bg-[color:var(--accent-light)] px-4 py-2 text-center text-xs font-semibold text-[color:var(--primary)]">
           {selectionMode
             ? `사진 선택 중 · ${selectedIds.length}개 선택됨`
             : "폴더 관리 모드"}
@@ -219,14 +224,14 @@ export default function FolderPhotoManager({
       )}
 
       {/* ── Photo grid ── */}
-      <main className="pb-[calc(var(--bottom-h,88px)+4rem)]">
-        {photos.length === 0 ? (
+      <main className="pb-[calc(var(--bottom-sheet-h,88px)+4rem)]">
+        {visiblePhotos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <p className="text-sm text-[color:var(--foreground-secondary)]">이 폴더에는 아직 사진이 없습니다.</p>
           </div>
         ) : (
           <div className="photo-grid">
-            {photos.map((photo, index) => {
+            {visiblePhotos.map((photo, index) => {
               const selected = selectedIds.includes(photo.id);
               return (
                 <div
@@ -244,6 +249,9 @@ export default function FolderPhotoManager({
                     fill
                     sizes="(max-width: 480px) 33vw, (max-width: 768px) 33vw, 200px"
                     className="object-cover"
+                    onError={() =>
+                      setHiddenPhotoIds((prev) => (prev.includes(photo.id) ? prev : [...prev, photo.id]))
+                    }
                   />
                   {selected && (
                     <span className="check-badge" aria-hidden="true">✓</span>
@@ -257,7 +265,7 @@ export default function FolderPhotoManager({
 
       {/* ── Error ── */}
       {error ? (
-        <div className="fixed bottom-[calc(var(--bottom-h,88px)+3.5rem)] left-0 right-0 z-[9991] mx-3 rounded-[calc(var(--radius)/2)] border border-[#f5c6c0] bg-[color:var(--danger-light)] px-3 py-2 text-xs text-[color:var(--danger)]">
+        <div className="fixed bottom-[calc(var(--bottom-sheet-h,88px)+3.5rem)] left-0 right-0 z-[9991] mx-3 rounded-[calc(var(--radius)/2)] border border-[#f5c6c0] bg-[color:var(--danger-light)] px-3 py-2 text-xs text-[color:var(--danger)]">
           {error}
         </div>
       ) : null}
@@ -265,7 +273,7 @@ export default function FolderPhotoManager({
       {/* ── Bottom sheet: child folders ── */}
       <div
         className="bottom-sheet"
-        style={{ "--bottom-h": BOTTOM_H } as React.CSSProperties}
+        style={{ "--bottom-sheet-h": BOTTOM_H } as React.CSSProperties}
       >
         <div className="mx-auto w-full max-w-2xl px-3 py-2">
           {childFolders.length === 0 ? (
@@ -295,7 +303,7 @@ export default function FolderPhotoManager({
       {/* ── FAB cluster ── */}
       <div
         className="fixed right-4 z-[9997] flex flex-col items-end gap-2"
-        style={{ bottom: "calc(var(--bottom-h, 88px) + 1rem)" }}
+        style={{ bottom: "calc(var(--bottom-sheet-h, 88px) + 1rem)" }}
       >
         {/* File sub-actions */}
         {target === "file" && (
@@ -476,7 +484,7 @@ export default function FolderPhotoManager({
                 />
               </div>
               <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-white/60">
-                {activeIndex !== null ? `${activeIndex + 1} / ${photos.length}` : ""}
+                {activeIndex !== null ? `${activeIndex + 1} / ${visiblePhotos.length}` : ""}
               </p>
             </div>,
             document.body,

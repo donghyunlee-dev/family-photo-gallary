@@ -196,12 +196,13 @@ export async function deleteFileById(fileId: string) {
 
   const drive = createDriveClient();
   try {
-    await drive.files.delete({
+    await drive.files.update({
       fileId,
+      requestBody: { trashed: true },
       supportsAllDrives: true,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown drive error";
-    throw new Error(`drive.files.delete failed (${message})`);
+    throw new Error(`drive.files.update trash failed (${message})`);
   }
 }

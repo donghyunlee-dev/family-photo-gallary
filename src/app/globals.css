@@ -17,6 +17,8 @@
   --success:      #5a7a4a;
   --success-light:#eef4ea;
   --radius:       0.5rem;
+  --header-h: 64px;
+  --bottom-sheet-h: 96px;
 }
 
 @theme inline {
@@ -175,6 +177,7 @@ h1, h2, h3 {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--accent-light);
+  border-radius: 4px;
   cursor: pointer;
 }
 .photo-thumb img {
@@ -215,8 +218,10 @@ h1, h2, h3 {
   inset-x: 0;
   bottom: 0;
   z-index: 9992;
+  min-height: var(--bottom-sheet-h);
   background: var(--surface);
   border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Folder item */
@@ -272,15 +277,17 @@ h1, h2, h3 {
   position: fixed;
   inset-x: 0;
   top: 0;
+  min-height: var(--header-h);
   z-index: 9993;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  padding-top: env(safe-area-inset-top);
 }
 
 /* FAB cluster */
 .fab {
-  width: 3rem;
-  height: 3rem;
+  width: 3.25rem;
+  height: 3.25rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -289,8 +296,16 @@ h1, h2, h3 {
   font-weight: 600;
   font-family: var(--font-sans);
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  border: 1px solid rgba(0,0,0,0.08);
   cursor: pointer;
   transition: transform 0.12s, opacity 0.12s;
+}
+.fab svg {
+  width: 20px;
+  height: 20px;
+}
+.fab:disabled {
+  opacity: 0.45;
 }
 .fab:active {
   transform: scale(0.94);
@@ -314,4 +329,10 @@ h1, h2, h3 {
   padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
   max-height: 85vh;
   overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --header-h: 68px;
+  }
 }

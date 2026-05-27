@@ -64,7 +64,7 @@ export default async function FolderPage({ params }: FolderPageProps) {
       </header>
 
       {/* spacer */}
-      <div style={{ height: "57px" }} aria-hidden />
+      <div style={{ height: "var(--header-h)" }} aria-hidden />
 
       {loadError ? (
         <div className="flex items-center justify-center p-6">

@@ -43,11 +43,16 @@ export default function RoomDashboardManager({
   const [newFolderName, setNewFolderName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [hiddenPhotoIds, setHiddenPhotoIds] = useState<string[]>([]);
 
   const photoSelectionMode = target === "file";
   const folderSelectionMode = target === "folder";
+  const visiblePhotos = useMemo(
+    () => photos.filter((photo) => !hiddenPhotoIds.includes(photo.id)),
+    [hiddenPhotoIds, photos],
+  );
 
-  const currentPhoto = activePhotoIndex !== null ? photos[activePhotoIndex] : null;
+  const currentPhoto = activePhotoIndex !== null ? visiblePhotos[activePhotoIndex] : null;
 
   const moveTargets = useMemo(
     () => folders.filter((folder) => !selectedFolderIds.includes(folder.id)),
@@ -61,11 +66,11 @@ export default function RoomDashboardManager({
 
   const closeLightbox = useCallback(() => setActivePhotoIndex(null), []);
   const prev = useCallback(() => {
-    setActivePhotoIndex((v) => (v === null ? v : v === 0 ? photos.length - 1 : v - 1));
-  }, [photos.length]);
+    setActivePhotoIndex((v) => (v === null ? v : v === 0 ? visiblePhotos.length - 1 : v - 1));
+  }, [visiblePhotos.length]);
   const next = useCallback(() => {
-    setActivePhotoIndex((v) => (v === null ? v : v === photos.length - 1 ? 0 : v + 1));
-  }, [photos.length]);
+    setActivePhotoIndex((v) => (v === null ? v : v === visiblePhotos.length - 1 ? 0 : v + 1));
+  }, [visiblePhotos.length]);
 
   useEffect(() => {
     if (activePhotoIndex === null) return;
@@ -247,11 +252,11 @@ export default function RoomDashboardManager({
       </header>
 
       {/* spacer for topbar */}
-      <div style={{ height: "57px" }} aria-hidden />
+      <div style={{ height: "var(--header-h)" }} aria-hidden />
 
       {/* ── Selection mode banner ── */}
       {(photoSelectionMode || folderSelectionMode) && (
-        <div className="sticky top-[57px] z-[9990] bg-[color:var(--accent-light)] px-4 py-2 text-center text-xs font-semibold text-[color:var(--primary)]">
+        <div className="sticky top-[var(--header-h)] z-[9990] bg-[color:var(--accent-light)] px-4 py-2 text-center text-xs font-semibold text-[color:var(--primary)]">
           {photoSelectionMode
             ? `사진 선택 중 · ${selectedPhotoIds.length}개 선택됨`
             : `폴더 선택 중 · ${selectedFolderIds.length}개 선택됨`}
@@ -260,13 +265,13 @@ export default function RoomDashboardManager({
 
       {/* ── Photo grid ── */}
       <main className="pb-[calc(var(--bottom-sheet-h,96px)+4rem)]">
-        {photos.length === 0 ? (
+        {visiblePhotos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <p className="text-sm text-[color:var(--foreground-secondary)]">아직 업로드된 사진이 없습니다.</p>
           </div>
         ) : (
           <div className="photo-grid">
-            {photos.map((photo, index) => {
+            {visiblePhotos.map((photo, index) => {
               const selected = selectedPhotoIds.includes(photo.id);
               return (
                 <div
@@ -284,6 +289,9 @@ export default function RoomDashboardManager({
                     fill
                     sizes="(max-width: 480px) 33vw, (max-width: 768px) 33vw, 200px"
                     className="object-cover"
+                    onError={() =>
+                      setHiddenPhotoIds((prev) => (prev.includes(photo.id) ? prev : [...prev, photo.id]))
+                    }
                   />
                   {selected && (
                     <span className="check-badge" aria-hidden="true">✓</span>
@@ -600,7 +608,7 @@ export default function RoomDashboardManager({
                 />
               </div>
               <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-white/60">
-                {activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${photos.length}` : ""}
+                {activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${visiblePhotos.length}` : ""}
               </p>
             </div>,
             document.body,

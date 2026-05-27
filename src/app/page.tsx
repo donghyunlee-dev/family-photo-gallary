@@ -15,9 +15,8 @@ export default function Home() {
   const [error, setError] = useState("");
   const canSubmit = useMemo(() => /^\d{6}$/.test(code), [code]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!canSubmit || loading) return;
+  async function verifyAndEnter(inputCode: string) {
+    if (!/^\d{6}$/.test(inputCode) || loading) return;
 
     setLoading(true);
     setError("");
@@ -26,7 +25,7 @@ export default function Home() {
       const response = await fetch("/api/auth/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code: inputCode }),
       });
 
       if (!response.ok) {
@@ -42,6 +41,11 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await verifyAndEnter(code);
   }
 
   return (
@@ -69,12 +73,6 @@ export default function Home() {
       <div className="card w-full max-w-xs p-6">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="room-code"
-              className="text-xs font-semibold uppercase tracking-wider text-[color:var(--foreground-secondary)]"
-            >
-              입장 코드
-            </label>
             <input
               id="room-code"
               name="room-code"
@@ -82,6 +80,11 @@ export default function Home() {
               onChange={(event) => {
                 const next = event.target.value.replace(/\D/g, "").slice(0, 6);
                 setCode(next);
+                if (next.length === 6 && !loading) {
+                  queueMicrotask(() => {
+                    void verifyAndEnter(next);
+                  });
+                }
               }}
               inputMode="numeric"
               maxLength={6}
@@ -107,9 +110,7 @@ export default function Home() {
         </form>
       </div>
 
-      <p className="mt-6 text-xs text-[color:var(--foreground-secondary)]">
-        공유받은 코드를 입력하세요
-      </p>
+      <p className="mt-6 text-xs text-[color:var(--foreground-secondary)]">6자리 입력 시 자동 입장</p>
     </main>
   );
 }
