@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
+import { createRoomSessionCookieOptions, ROOM_SESSION_COOKIE } from "@/lib/auth/session";
 import { getRoomByCode } from "@/lib/room/config";
 
 type VerifyRequest = {
@@ -27,5 +28,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "올바르지 않은 코드입니다." }, { status: 401 });
   }
 
-  return NextResponse.json({ roomId: room.id, roomName: room.name }, { status: 200 });
+  const response = NextResponse.json({ roomId: room.id, roomName: room.name }, { status: 200 });
+  response.cookies.set(ROOM_SESSION_COOKIE, room.id, createRoomSessionCookieOptions());
+  return response;
 }
+

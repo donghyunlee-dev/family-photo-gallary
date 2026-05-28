@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Geist_Mono, IBM_Plex_Sans_KR, Nanum_Myeongjo } from "next/font/google";
 import "./globals.css";
 
@@ -22,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Photo Gallery",
-  description: "A private family photo gallery.",
+  title: "Family Photo Gallery",
+  description: "A private family photo gallery for shared memories.",
 };
 
 export const viewport: Viewport = {
@@ -48,3 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
+

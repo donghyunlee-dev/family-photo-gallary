@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --background: #f5efe6;
@@ -131,7 +131,8 @@ select {
 .ghost-icon-button:hover:not(:disabled),
 .action-orb:hover:not(:disabled),
 .folder-rail-handle:hover:not(:disabled),
-.folder-chip:hover {
+.folder-chip:hover,
+.viewer-nav:hover {
   transform: translateY(-2px);
 }
 
@@ -228,20 +229,33 @@ select {
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.ghost-icon-button-danger {
+  color: #8d4337;
+}
+
+.ghost-icon-button-dark {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff9f5;
 }
 
 .ghost-icon-button:active,
 .action-orb:active,
 .folder-rail-handle:active,
-.folder-chip:active {
+.folder-chip:active,
+.viewer-nav:active {
   transform: scale(0.96);
 }
 
 .ghost-icon-button svg,
 .action-orb svg,
 .folder-rail-handle svg,
-.folder-chip-icon svg {
+.folder-chip-icon svg,
+.viewer-nav svg {
   width: 1.15rem;
   height: 1.15rem;
 }
@@ -467,6 +481,10 @@ select {
   margin: 0 auto;
 }
 
+.topbar-shell--room {
+  grid-template-columns: auto 1fr auto;
+}
+
 .topbar-center {
   display: flex;
   min-width: 0;
@@ -554,32 +572,40 @@ select {
 .editorial-gallery {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  align-items: start;
   gap: 0.9rem;
 }
 
 .editorial-photo-card {
   position: relative;
   overflow: hidden;
-  min-height: 12.2rem;
-  border-radius: 1.9rem;
-  background: rgba(255, 251, 247, 0.66);
-  box-shadow: 0 20px 38px rgba(47, 31, 19, 0.14);
+  min-height: 12.4rem;
+  border-radius: 1.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: linear-gradient(180deg, rgba(255, 251, 247, 0.88), rgba(242, 232, 220, 0.65));
+  box-shadow: 0 18px 40px rgba(47, 31, 19, 0.14);
   cursor: pointer;
   isolation: isolate;
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease,
-    filter 0.3s ease;
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    filter 0.28s ease;
 }
 
 .editorial-photo-card::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  pointer-events: none;
-  z-index: 2;
+  top: 0.85rem;
+  left: 50%;
+  z-index: 3;
+  width: 4rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: rgba(255, 249, 239, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  transform: translateX(-50%) rotate(-4deg);
+  backdrop-filter: blur(3px);
 }
 
 .editorial-photo-card::after {
@@ -587,7 +613,7 @@ select {
   position: absolute;
   inset: auto 0 0;
   height: 40%;
-  background: linear-gradient(180deg, transparent, rgba(19, 13, 9, 0.5));
+  background: linear-gradient(180deg, transparent, rgba(19, 13, 9, 0.55));
   pointer-events: none;
 }
 
@@ -596,22 +622,34 @@ select {
 }
 
 .editorial-photo-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px) rotate(0deg);
   box-shadow: 0 26px 46px rgba(47, 31, 19, 0.18);
 }
 
 .editorial-photo-card:hover img {
-  transform: scale(1.04);
-  filter: saturate(1.06) contrast(1.02);
-}
-
-.editorial-photo-card--feature {
-  grid-column: span 2;
-  min-height: 18rem;
+  transform: scale(1.045);
+  filter: saturate(1.08) contrast(1.03);
 }
 
 .editorial-photo-card--tall {
-  min-height: 15.4rem;
+  min-height: 16rem;
+}
+
+.editorial-photo-card--tilt-left {
+  transform: rotate(-1.6deg);
+}
+
+.editorial-photo-card--tilt-right {
+  transform: rotate(1.4deg);
+}
+
+.editorial-photo-card--raised {
+  transform: translateY(0.55rem) rotate(-0.8deg);
+}
+
+.editorial-photo-card--soft::before {
+  transform: translateX(-50%) rotate(4deg);
+  width: 3.2rem;
 }
 
 .editorial-photo-meta {
@@ -654,19 +692,18 @@ select {
 
 .action-dock {
   position: fixed;
-  right: 0.95rem;
+  right: 1rem;
   z-index: 70;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.7rem;
 }
 
 .action-main-stack,
 .action-subdock {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.72rem;
   align-items: flex-end;
 }
 
@@ -855,6 +892,13 @@ select {
   word-break: break-word;
 }
 
+.folder-rail-empty {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0 1rem;
+  color: rgba(112, 95, 83, 0.62);
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -873,6 +917,82 @@ select {
   background: rgba(255, 251, 247, 0.98);
   padding: 1.3rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
   box-shadow: 0 -18px 44px rgba(14, 10, 8, 0.18);
+}
+
+.viewer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(9, 7, 6, 0.94);
+  backdrop-filter: blur(10px);
+}
+
+.viewer-shell {
+  position: relative;
+  display: flex;
+  height: 100%;
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: 1rem 1rem 1.5rem;
+  flex-direction: column;
+}
+
+.viewer-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.8rem;
+}
+
+.viewer-counter {
+  min-height: 2.6rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 250, 244, 0.88);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.viewer-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.viewer-image {
+  object-fit: contain;
+}
+
+.viewer-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  width: 3.25rem;
+  height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff9f5;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+  transform: translateY(-50%);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.viewer-nav-left {
+  left: 0.5rem;
+}
+
+.viewer-nav-right {
+  right: 0.5rem;
 }
 
 @media (max-width: 640px) {
@@ -923,7 +1043,7 @@ select {
   }
 
   .brand-mark span {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
 
   .counter-pill {
@@ -937,24 +1057,20 @@ select {
   }
 
   .editorial-gallery {
-    gap: 0.75rem;
+    gap: 0.78rem;
   }
 
   .editorial-photo-card {
-    min-height: 11.2rem;
+    min-height: 11.8rem;
     border-radius: 1.6rem;
   }
 
-  .editorial-photo-card--feature {
-    min-height: 15.8rem;
-  }
-
   .editorial-photo-card--tall {
-    min-height: 14.1rem;
+    min-height: 15rem;
   }
 
   .action-dock {
-    right: 0.72rem;
+    right: 0.82rem;
   }
 
   .action-orb {
@@ -979,4 +1095,15 @@ select {
   .folder-chip-name {
     font-size: 0.9rem;
   }
+
+  .viewer-shell {
+    padding-inline: 0.85rem;
+    padding-bottom: 1.15rem;
+  }
+
+  .viewer-nav {
+    width: 2.9rem;
+    height: 2.9rem;
+  }
 }
+

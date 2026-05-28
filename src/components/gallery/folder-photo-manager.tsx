@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -24,9 +24,13 @@ type FolderPhotoManagerProps = {
 };
 
 function getPhotoVariant(index: number) {
-  if (index === 0) return "editorial-photo-card editorial-photo-card--feature";
-  if (index % 4 === 0) return "editorial-photo-card editorial-photo-card--tall";
-  return "editorial-photo-card";
+  const pattern = index % 6;
+  if (pattern === 0) return "editorial-photo-card editorial-photo-card--tall editorial-photo-card--tilt-left";
+  if (pattern === 1) return "editorial-photo-card editorial-photo-card--tilt-right";
+  if (pattern === 2) return "editorial-photo-card editorial-photo-card--raised";
+  if (pattern === 3) return "editorial-photo-card editorial-photo-card--soft";
+  if (pattern === 4) return "editorial-photo-card editorial-photo-card--tall editorial-photo-card--tilt-right";
+  return "editorial-photo-card editorial-photo-card--tilt-left";
 }
 
 function PhotoIcon() {
@@ -61,12 +65,7 @@ function FolderIcon() {
 function AddIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 5v14M5 12h14"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -116,13 +115,7 @@ function ChevronIcon({ up = false }: { up?: boolean }) {
 function CheckIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="m6.5 12.5 3.5 3.5 7-8"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="m6.5 12.5 3.5 3.5 7-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -130,12 +123,23 @@ function CheckIcon() {
 function CloseIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="m7 7 10 10M17 7 7 17"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="m7 7 10 10M17 7 7 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PrevIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="m15 6-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function NextIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="m9 6 6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -162,7 +166,7 @@ export default function FolderPhotoManager({
   const [hiddenPhotoIds, setHiddenPhotoIds] = useState<string[]>([]);
   const [targetFolderId, setTargetFolderId] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
-  const [folderRailCollapsed, setFolderRailCollapsed] = useState(false);
+  const [folderRailCollapsed, setFolderRailCollapsed] = useState(childFolders.length === 0);
 
   const visiblePhotos = photos.filter((photo) => !hiddenPhotoIds.includes(photo.id));
   const moveFolderTargets = moveTargets.filter((folder) => folder.id !== currentFolderId);
@@ -172,13 +176,12 @@ export default function FolderPhotoManager({
       : moveFolderTargets[0]?.id ?? "";
   const currentPhoto = activeIndex !== null ? visiblePhotos[activeIndex] : null;
   const fileSelectionMode = target === "file";
-  const railOffset = folderRailCollapsed ? "4.4rem" : "calc(var(--bottom-sheet-h) + 0.9rem)";
-  const contentPaddingBottom = folderRailCollapsed
-    ? "8.5rem"
-    : "calc(var(--bottom-sheet-h) + 5rem)";
+  const railOffset = folderRailCollapsed ? "5.3rem" : "calc(var(--bottom-sheet-h) + 1.85rem)";
+  const contentPaddingBottom = folderRailCollapsed ? "9rem" : "calc(var(--bottom-sheet-h) + 6.1rem)";
 
   useEffect(() => {
     if (activeIndex === null) return;
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setActiveIndex(null);
       if (event.key === "ArrowLeft") {
@@ -192,8 +195,15 @@ export default function FolderPhotoManager({
         );
       }
     }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, [activeIndex, visiblePhotos.length]);
 
   useEffect(() => {
@@ -204,6 +214,7 @@ export default function FolderPhotoManager({
       !showFolderMovePopup &&
       !busy &&
       activeIndex === null;
+
     if (!isIdle || isMock) return;
     const timer = window.setInterval(() => router.refresh(), 30000);
     return () => window.clearInterval(timer);
@@ -234,7 +245,8 @@ export default function FolderPhotoManager({
 
   async function deleteSelectedFiles() {
     if (selectedIds.length === 0 || busy || isMock) return;
-    if (!confirm(`Delete ${selectedIds.length} selected photo(s)?`)) return;
+    if (!confirm(`선택한 사진 ${selectedIds.length}장을 삭제할까요?`)) return;
+
     setBusy(true);
     setError("");
     try {
@@ -245,13 +257,13 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "Unable to delete photo.");
+        setError(data.error ?? "사진을 삭제할 수 없습니다.");
         return;
       }
       setSelectedIds([]);
       router.refresh();
     } catch {
-      setError("Network error while deleting photos.");
+      setError("네트워크 오류로 사진 삭제에 실패했습니다.");
     } finally {
       setBusy(false);
     }
@@ -259,6 +271,7 @@ export default function FolderPhotoManager({
 
   async function moveSelectedFiles() {
     if (selectedIds.length === 0 || !effectiveTargetFolderId || busy || isMock) return;
+
     setBusy(true);
     setError("");
     try {
@@ -274,7 +287,7 @@ export default function FolderPhotoManager({
         });
         const data = (await response.json()) as { error?: string };
         if (!response.ok) {
-          setError(data.error ?? "Unable to move photo.");
+          setError(data.error ?? "사진을 이동할 수 없습니다.");
           return;
         }
       }
@@ -282,7 +295,7 @@ export default function FolderPhotoManager({
       setShowMovePopup(false);
       router.refresh();
     } catch {
-      setError("Network error while moving photos.");
+      setError("네트워크 오류로 사진 이동에 실패했습니다.");
     } finally {
       setBusy(false);
     }
@@ -290,6 +303,7 @@ export default function FolderPhotoManager({
 
   async function createSubFolder() {
     if (!newFolderName.trim() || busy || isMock) return;
+
     setBusy(true);
     setError("");
     try {
@@ -300,21 +314,22 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "Unable to create folder.");
+        setError(data.error ?? "폴더를 만들 수 없습니다.");
         return;
       }
       setNewFolderName("");
       setShowFolderCreatePopup(false);
       router.refresh();
     } catch {
-      setError("Network error while creating folder.");
+      setError("네트워크 오류로 폴더 생성에 실패했습니다.");
     } finally {
       setBusy(false);
     }
   }
 
   async function moveCurrentFolder() {
-    if (!effectiveTargetFolderId || busy || isMock) return;
+    if (!effectiveTargetFolderId || moveFolderTargets.length === 0 || busy || isMock) return;
+
     setBusy(true);
     setError("");
     try {
@@ -329,26 +344,23 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "Unable to move folder.");
+        setError(data.error ?? "폴더를 이동할 수 없습니다.");
         return;
       }
       setShowFolderMovePopup(false);
       router.push(`/${roomId}`);
       router.refresh();
     } catch {
-      setError("Network error while moving folder.");
+      setError("네트워크 오류로 폴더 이동에 실패했습니다.");
     } finally {
       setBusy(false);
     }
   }
 
   async function deleteCurrentFolder() {
-    if (busy || isMock) return;
-    if (photos.length > 0) {
-      setError("Move or delete photos before removing this folder.");
-      return;
-    }
-    if (!confirm("Delete this folder?")) return;
+    if (busy || isMock || photos.length > 0) return;
+    if (!confirm("이 폴더를 삭제할까요?")) return;
+
     setBusy(true);
     setError("");
     try {
@@ -359,16 +371,76 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "Unable to delete folder.");
+        setError(data.error ?? "폴더를 삭제할 수 없습니다.");
         return;
       }
       router.push(`/${roomId}`);
       router.refresh();
     } catch {
-      setError("Network error while deleting folder.");
+      setError("네트워크 오류로 폴더 삭제에 실패했습니다.");
     } finally {
       setBusy(false);
     }
+  }
+
+  function renderSubdock(kind: "file" | "folder") {
+    if (kind === "file") {
+      return (
+        <div className="action-subdock" data-testid="file-subdock">
+          <button type="button" onClick={() => setShowUploadPopup(true)} className="action-orb subtle" data-testid="file-add-button" aria-label="Add photo">
+            <AddIcon />
+          </button>
+          <button
+            type="button"
+            disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy || isMock}
+            onClick={() => setShowMovePopup(true)}
+            className="action-orb subtle"
+            data-testid="file-move-button"
+            aria-label="Move selected photos"
+          >
+            <MoveIcon />
+          </button>
+          <button
+            type="button"
+            disabled={selectedIds.length === 0 || busy || isMock}
+            onClick={deleteSelectedFiles}
+            className="action-orb danger"
+            data-testid="file-delete-button"
+            aria-label="Delete selected photos"
+          >
+            <TrashIcon />
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="action-subdock" data-testid="folder-subdock">
+        <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-orb folder-subtle" data-testid="folder-add-button" aria-label="Add folder">
+          <AddIcon />
+        </button>
+        <button
+          type="button"
+          disabled={moveFolderTargets.length === 0 || busy || isMock}
+          onClick={() => setShowFolderMovePopup(true)}
+          className="action-orb folder-subtle"
+          data-testid="folder-move-button"
+          aria-label="Move this folder"
+        >
+          <MoveIcon />
+        </button>
+        <button
+          type="button"
+          disabled={busy || isMock || photos.length > 0}
+          onClick={deleteCurrentFolder}
+          className="action-orb danger"
+          data-testid="folder-delete-button"
+          aria-label="Delete this folder"
+        >
+          <TrashIcon />
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -439,75 +511,8 @@ export default function FolderPhotoManager({
       ) : null}
 
       <div className="action-dock" style={{ bottom: railOffset }} data-testid="folder-page-action-dock">
-        {target === "file" ? (
-          <div className="action-subdock" data-testid="file-subdock">
-            <button
-              type="button"
-              onClick={() => setShowUploadPopup(true)}
-              className="action-orb subtle"
-              data-testid="file-add-button"
-              aria-label="Add photo"
-            >
-              <AddIcon />
-            </button>
-            <button
-              type="button"
-              disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy || isMock}
-              onClick={() => setShowMovePopup(true)}
-              className="action-orb subtle"
-              data-testid="file-move-button"
-              aria-label="Move selected photos"
-            >
-              <MoveIcon />
-            </button>
-            <button
-              type="button"
-              disabled={selectedIds.length === 0 || busy || isMock}
-              onClick={deleteSelectedFiles}
-              className="action-orb danger"
-              data-testid="file-delete-button"
-              aria-label="Delete selected photos"
-            >
-              <TrashIcon />
-            </button>
-          </div>
-        ) : null}
-
-        {target === "folder" ? (
-          <div className="action-subdock" data-testid="folder-subdock">
-            <button
-              type="button"
-              onClick={() => setShowFolderCreatePopup(true)}
-              className="action-orb folder-subtle"
-              data-testid="folder-add-button"
-              aria-label="Add folder"
-            >
-              <AddIcon />
-            </button>
-            <button
-              type="button"
-              disabled={moveFolderTargets.length === 0 || busy || isMock}
-              onClick={() => setShowFolderMovePopup(true)}
-              className="action-orb folder-subtle"
-              data-testid="folder-move-button"
-              aria-label="Move this folder"
-            >
-              <MoveIcon />
-            </button>
-            <button
-              type="button"
-              disabled={busy || isMock}
-              onClick={deleteCurrentFolder}
-              className="action-orb danger"
-              data-testid="folder-delete-button"
-              aria-label="Delete this folder"
-            >
-              <TrashIcon />
-            </button>
-          </div>
-        ) : null}
-
         <div className="action-main-stack">
+          {target === "file" ? renderSubdock("file") : null}
           <button
             type="button"
             onClick={() => {
@@ -521,6 +526,7 @@ export default function FolderPhotoManager({
             <PhotoIcon />
             {selectedIds.length > 0 ? <span className="orb-dot">{selectedIds.length}</span> : null}
           </button>
+          {target === "folder" ? renderSubdock("folder") : null}
           <button
             type="button"
             onClick={() => setTarget((current) => (current === "folder" ? null : "folder"))}
@@ -533,7 +539,7 @@ export default function FolderPhotoManager({
         </div>
       </div>
 
-      <section className={`folder-rail${folderRailCollapsed ? " is-collapsed" : ""}`}>
+      <section className={`folder-rail${folderRailCollapsed ? " is-collapsed" : ""}${childFolders.length === 0 ? " is-empty" : ""}`}>
         <div className="folder-rail-inner">
           <div className="folder-rail-top">
             <button
@@ -542,27 +548,21 @@ export default function FolderPhotoManager({
               onClick={() => setFolderRailCollapsed((current) => !current)}
               aria-label={folderRailCollapsed ? "Show folders" : "Hide folders"}
             >
-              <ChevronIcon up={!folderRailCollapsed} />
+              <ChevronIcon up={folderRailCollapsed} />
             </button>
           </div>
           {childFolders.length === 0 ? (
-            <div className="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 text-center text-sm text-[color:var(--foreground-secondary)]">
+            <div className="folder-rail-empty">
               <FolderIcon />
             </div>
           ) : (
             <div className="folder-chip-row">
               {childFolders.map((folder) => (
-                <Link
-                  key={folder.id}
-                  href={`/${roomId}/folder/${folder.id}${isMock ? "?mock=1" : ""}`}
-                  className="folder-chip"
-                >
+                <Link key={folder.id} href={`/${roomId}/folder/${folder.id}${isMock ? "?mock=1" : ""}`} className="folder-chip">
                   <span className="folder-chip-icon" aria-hidden="true">
                     <FolderIcon />
                   </span>
-                  <span className="folder-chip-name" data-testid={`folder-chip-${folder.id}`}>
-                    {folder.name}
-                  </span>
+                  <span className="folder-chip-name" data-testid={`folder-chip-${folder.id}`}>{folder.name}</span>
                 </Link>
               ))}
             </div>
@@ -579,12 +579,7 @@ export default function FolderPhotoManager({
                     <p className="eyebrow">Upload</p>
                     <h2 className="font-serif text-xl text-[color:var(--foreground)]">Add Photos</h2>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowUploadPopup(false)}
-                    className="ghost-icon-button"
-                    aria-label="Close upload"
-                  >
+                  <button type="button" onClick={() => setShowUploadPopup(false)} className="ghost-icon-button" aria-label="Close upload">
                     <CloseIcon />
                   </button>
                 </div>
@@ -600,29 +595,14 @@ export default function FolderPhotoManager({
             <div className="modal-overlay" onClick={() => setShowMovePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
                 <h2 className="font-serif text-xl text-[color:var(--foreground)]">Move Photos</h2>
-                <select
-                  value={effectiveTargetFolderId}
-                  onChange={(event) => setTargetFolderId(event.target.value)}
-                  className="input-base mt-4"
-                >
+                <select value={effectiveTargetFolderId} onChange={(event) => setTargetFolderId(event.target.value)} className="input-base mt-4">
                   {moveFolderTargets.map((folder) => (
-                    <option key={folder.id} value={folder.id}>
-                      {folder.name}
-                    </option>
+                    <option key={folder.id} value={folder.id}>{folder.name}</option>
                   ))}
                 </select>
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowMovePopup(false)} className="btn-ghost flex-1">
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!effectiveTargetFolderId || selectedIds.length === 0 || busy}
-                    onClick={moveSelectedFiles}
-                    className="btn-primary flex-1"
-                  >
-                    Move
-                  </button>
+                  <button type="button" onClick={() => setShowMovePopup(false)} className="btn-ghost flex-1">Cancel</button>
+                  <button type="button" disabled={!effectiveTargetFolderId || selectedIds.length === 0 || busy} onClick={moveSelectedFiles} className="btn-primary flex-1">Move</button>
                 </div>
               </div>
             </div>,
@@ -635,24 +615,10 @@ export default function FolderPhotoManager({
             <div className="modal-overlay" onClick={() => setShowFolderCreatePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
                 <h2 className="font-serif text-xl text-[color:var(--foreground)]">New Folder</h2>
-                <input
-                  value={newFolderName}
-                  onChange={(event) => setNewFolderName(event.target.value)}
-                  placeholder="Folder name"
-                  className="input-base mt-4"
-                />
+                <input value={newFolderName} onChange={(event) => setNewFolderName(event.target.value)} placeholder="Folder name" className="input-base mt-4" />
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="btn-ghost flex-1">
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!newFolderName.trim() || busy}
-                    onClick={createSubFolder}
-                    className="btn-primary flex-1"
-                  >
-                    Create
-                  </button>
+                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="btn-ghost flex-1">Cancel</button>
+                  <button type="button" disabled={!newFolderName.trim() || busy} onClick={createSubFolder} className="btn-primary flex-1">Create</button>
                 </div>
               </div>
             </div>,
@@ -665,29 +631,14 @@ export default function FolderPhotoManager({
             <div className="modal-overlay" onClick={() => setShowFolderMovePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
                 <h2 className="font-serif text-xl text-[color:var(--foreground)]">Move Folder</h2>
-                <select
-                  value={effectiveTargetFolderId}
-                  onChange={(event) => setTargetFolderId(event.target.value)}
-                  className="input-base mt-4"
-                >
+                <select value={effectiveTargetFolderId} onChange={(event) => setTargetFolderId(event.target.value)} className="input-base mt-4">
                   {moveFolderTargets.map((folder) => (
-                    <option key={folder.id} value={folder.id}>
-                      {folder.name}
-                    </option>
+                    <option key={folder.id} value={folder.id}>{folder.name}</option>
                   ))}
                 </select>
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="btn-ghost flex-1">
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!effectiveTargetFolderId || busy}
-                    onClick={moveCurrentFolder}
-                    className="btn-primary flex-1"
-                  >
-                    Move
-                  </button>
+                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="btn-ghost flex-1">Cancel</button>
+                  <button type="button" disabled={!effectiveTargetFolderId || moveFolderTargets.length === 0 || busy} onClick={moveCurrentFolder} className="btn-primary flex-1">Move</button>
                 </div>
               </div>
             </div>,
@@ -697,90 +648,23 @@ export default function FolderPhotoManager({
 
       {currentPhoto
         ? createPortal(
-            <div className="fixed inset-0 z-[9999] bg-[rgba(12,9,7,0.94)]" onClick={() => setActiveIndex(null)}>
-              <div className="mx-auto flex h-full w-full max-w-6xl flex-col px-4 py-5">
-                <div className="mb-4 flex items-center justify-between text-white/80">
-                  <div>
-                    <p className="eyebrow text-[rgba(255,250,244,0.55)]">Viewer</p>
-                    <h3 className="font-serif text-2xl text-white">
-                      {activeIndex !== null ? `${activeIndex + 1} / ${visiblePhotos.length}` : ""}
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveIndex(null)}
-                    className="ghost-icon-button border-white/20 bg-white/10 text-white"
-                    aria-label="Close viewer"
-                  >
+            <div className="viewer-overlay" onClick={() => setActiveIndex(null)}>
+              <div className="viewer-shell" onClick={(event) => event.stopPropagation()}>
+                <div className="viewer-topbar">
+                  <div className="viewer-counter">{activeIndex !== null ? `${activeIndex + 1} / ${visiblePhotos.length}` : ""}</div>
+                  <button type="button" onClick={() => setActiveIndex(null)} className="ghost-icon-button ghost-icon-button-dark" aria-label="Close viewer">
                     <CloseIcon />
                   </button>
                 </div>
-                <div
-                  className="relative flex flex-1 items-center justify-center"
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveIndex((currentValue) =>
-                        currentValue === null
-                          ? currentValue
-                          : currentValue === 0
-                            ? visiblePhotos.length - 1
-                            : currentValue - 1,
-                      )
-                    }
-                    className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur"
-                    aria-label="Previous photo"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="m15 6-6 6 6 6"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                <div className="viewer-stage">
+                  <button type="button" onClick={() => setActiveIndex((current) => (current === null ? current : current === 0 ? visiblePhotos.length - 1 : current - 1))} className="viewer-nav viewer-nav-left" aria-label="Previous photo">
+                    <PrevIcon />
                   </button>
-                  <div className="relative h-full w-full overflow-hidden rounded-[1.6rem] border border-white/10">
-                    <Image
-                      src={photoSrc(currentPhoto, activeIndex ?? 0)}
-                      alt={currentPhoto.name}
-                      fill
-                      unoptimized={isMock}
-                      sizes="100vw"
-                      className="object-contain"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActiveIndex((currentValue) =>
-                        currentValue === null
-                          ? currentValue
-                          : currentValue === visiblePhotos.length - 1
-                            ? 0
-                            : currentValue + 1,
-                      )
-                    }
-                    className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur"
-                    aria-label="Next photo"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="m9 6 6 6-6 6"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                  <Image src={photoSrc(currentPhoto, activeIndex ?? 0)} alt={currentPhoto.name} fill unoptimized={isMock} sizes="100vw" className="viewer-image" />
+                  <button type="button" onClick={() => setActiveIndex((current) => (current === null ? current : current === visiblePhotos.length - 1 ? 0 : current + 1))} className="viewer-nav viewer-nav-right" aria-label="Next photo">
+                    <NextIcon />
                   </button>
                 </div>
-                <p className="mt-4 text-center text-sm text-white/62">
-                  {activeIndex !== null ? `${activeIndex + 1} / ${visiblePhotos.length}` : ""}
-                </p>
               </div>
             </div>,
             document.body,
@@ -789,3 +673,4 @@ export default function FolderPhotoManager({
     </>
   );
 }
+

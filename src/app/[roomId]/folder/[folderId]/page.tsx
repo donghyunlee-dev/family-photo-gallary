@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+﻿import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 
 import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
+import { getAuthorizedRoomId } from "@/lib/auth/session";
 import { MOCK_CHILD_FOLDERS, MOCK_FOLDER_PHOTOS, MOCK_ROOM_FOLDERS } from "@/lib/gallery/mock-data";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
@@ -67,6 +68,13 @@ export default async function FolderPage({ params, searchParams }: FolderPagePro
   const room = getRoomById(roomId);
   if (!room) notFound();
 
+  if (!useMock) {
+    const authorizedRoomId = await getAuthorizedRoomId();
+    if (authorizedRoomId !== roomId) {
+      redirect("/");
+    }
+  }
+
   const roomRootFolderId = process.env[room.envFolderKey];
 
   if (useMock) {
@@ -80,7 +88,7 @@ export default async function FolderPage({ params, searchParams }: FolderPagePro
             <div className="topbar-center">
               <div className="brand-mark">
                 <GalleryIcon />
-                <span>Collection</span>
+                <span>Family Photo Gallery</span>
               </div>
             </div>
             <div className="counter-pill" aria-label={`${MOCK_FOLDER_PHOTOS.length} photos`}>
@@ -131,7 +139,7 @@ export default async function FolderPage({ params, searchParams }: FolderPagePro
           <div className="topbar-center">
             <div className="brand-mark">
               <GalleryIcon />
-              <span>Collection</span>
+              <span>Family Photo Gallery</span>
             </div>
           </div>
           <div className="counter-pill" aria-label={`${photos.length} photos`}>
@@ -160,3 +168,4 @@ export default async function FolderPage({ params, searchParams }: FolderPagePro
     </div>
   );
 }
+
