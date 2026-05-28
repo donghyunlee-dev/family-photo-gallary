@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 type UploadFormProps = { folderId: string };
 type UploadSessionResponse = { error?: string; uploadUrl?: string };
+const CHUNK_SIZE = 3 * 1024 * 1024;
 
 async function createUploadSession(input: { folderId: string; file: File }) {
   const response = await fetch("/api/drive/upload/session", {
@@ -42,43 +43,61 @@ function uploadSingleFile(input: {
       return;
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("PUT", uploadUrl);
-    xhr.timeout = 0;
-    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
-    xhr.setRequestHeader("Content-Length", String(file.size));
+    const uploadChunk = (chunk: Blob, startByte: number, endByte: number) =>
+      new Promise<void>((chunkResolve, chunkReject) => {
+        const formData = new FormData();
+        formData.append("uploadUrl", uploadUrl);
+        formData.append("mimeType", file.type || "application/octet-stream");
+        formData.append("startByte", String(startByte));
+        formData.append("endByte", String(endByte));
+        formData.append("totalBytes", String(file.size));
+        formData.append("chunk", chunk, file.name);
 
-    xhr.upload.onprogress = (event) => {
-      if (!event.lengthComputable) return;
-      onProgress(Math.min(100, Math.round((event.loaded / event.total) * 100)));
-    };
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/drive/upload/chunk");
+        xhr.timeout = 600000;
 
-    xhr.onload = () => {
-      if (xhr.status === 200 || xhr.status === 201) {
-        onProgress(100);
-        resolve();
-        return;
-      }
-
-      let message = "업로드에 실패했습니다.";
-      try {
-        const data = JSON.parse(xhr.responseText || "{}") as {
-          error?: { message?: string };
-          error_description?: string;
+        xhr.upload.onprogress = (event) => {
+          if (!event.lengthComputable) return;
+          const uploadedBytes = startByte + event.loaded;
+          onProgress(Math.min(100, Math.round((uploadedBytes / file.size) * 100)));
         };
-        message = data.error?.message ?? data.error_description ?? message;
-      } catch {
-        if (xhr.responseText) {
-          message = xhr.responseText;
-        }
+
+        xhr.onload = () => {
+          let message = "업로드에 실패했습니다.";
+          try {
+            const data = JSON.parse(xhr.responseText || "{}") as { error?: string };
+            if (xhr.status >= 200 && xhr.status < 300) {
+              onProgress(Math.min(100, Math.round(((endByte + 1) / file.size) * 100)));
+              chunkResolve();
+              return;
+            }
+            message = data.error ?? message;
+          } catch {
+            if (xhr.responseText) {
+              message = xhr.responseText;
+            }
+          }
+
+          chunkReject(new Error(message));
+        };
+
+        xhr.onerror = () => chunkReject(new Error("네트워크 오류가 발생했습니다."));
+        xhr.ontimeout = () => chunkReject(new Error("업로드 시간이 초과되었습니다."));
+        xhr.send(formData);
+      });
+
+    try {
+      for (let startByte = 0; startByte < file.size; startByte += CHUNK_SIZE) {
+        const endByte = Math.min(file.size - 1, startByte + CHUNK_SIZE - 1);
+        const chunk = file.slice(startByte, endByte + 1);
+        await uploadChunk(chunk, startByte, endByte);
       }
-
-      reject(new Error(message));
-    };
-
-    xhr.onerror = () => reject(new Error("네트워크 오류가 발생했습니다."));
-    xhr.ontimeout = () => reject(new Error("업로드 시간이 초과되었습니다."));
-    xhr.send(file);
+      onProgress(100);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 

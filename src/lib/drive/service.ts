@@ -197,6 +197,45 @@ export async function createResumableUploadSession(input: {
   return { uploadUrl };
 }
 
+export async function uploadChunkToResumableSession(input: {
+  chunk: Buffer;
+  endByte: number;
+  mimeType: string;
+  startByte: number;
+  totalBytes: number;
+  uploadUrl: string;
+}) {
+  const { chunk, endByte, mimeType, startByte, totalBytes, uploadUrl } = input;
+
+  if (!uploadUrl.trim()) throw new Error("uploadUrl is empty.");
+  if (!mimeType.startsWith("image/")) throw new Error("Only image files are allowed.");
+  if (!Number.isFinite(totalBytes) || totalBytes <= 0) throw new Error("totalBytes must be greater than 0.");
+  if (!Number.isFinite(startByte) || startByte < 0) throw new Error("startByte must be 0 or greater.");
+  if (!Number.isFinite(endByte) || endByte < startByte) throw new Error("endByte must be greater than or equal to startByte.");
+  if (chunk.byteLength === 0) throw new Error("chunk is empty.");
+
+  const response = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Length": String(chunk.byteLength),
+      "Content-Range": `bytes ${startByte}-${endByte}/${totalBytes}`,
+      "Content-Type": mimeType,
+    },
+    body: chunk,
+  });
+
+  if (response.status === 308) {
+    return { complete: false };
+  }
+
+  if (response.status === 200 || response.status === 201) {
+    return { complete: true };
+  }
+
+  const body = await response.text();
+  throw new Error(`drive resumable chunk failed (${response.status}: ${body || response.statusText})`);
+}
+
 export async function createFolderInFolder(input: { parentFolderId: string; folderName: string }) {
   const { parentFolderId, folderName } = input;
   if (!parentFolderId.trim()) throw new Error("parentFolderId is empty.");
