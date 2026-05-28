@@ -697,7 +697,7 @@ export default function RoomDashboardManager({
                     <CloseIcon />
                   </button>
                 </div>
-                <UploadForm folderId={roomRootFolderId} folderName={roomName} />
+                <UploadForm folderId={roomRootFolderId} />
               </div>
             </div>,
             document.body,
