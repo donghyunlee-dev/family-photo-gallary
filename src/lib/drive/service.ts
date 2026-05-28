@@ -213,6 +213,7 @@ export async function uploadChunkToResumableSession(input: {
   if (!Number.isFinite(startByte) || startByte < 0) throw new Error("startByte must be 0 or greater.");
   if (!Number.isFinite(endByte) || endByte < startByte) throw new Error("endByte must be greater than or equal to startByte.");
   if (chunk.byteLength === 0) throw new Error("chunk is empty.");
+  const chunkBody = new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength);
 
   const response = await fetch(uploadUrl, {
     method: "PUT",
@@ -221,7 +222,7 @@ export async function uploadChunkToResumableSession(input: {
       "Content-Range": `bytes ${startByte}-${endByte}/${totalBytes}`,
       "Content-Type": mimeType,
     },
-    body: chunk,
+    body: chunkBody,
   });
 
   if (response.status === 308) {
