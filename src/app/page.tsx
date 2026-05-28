@@ -8,6 +8,21 @@ type VerifyResponse = {
   roomName: string;
 };
 
+function ArrowRightIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M7 12h10m-4-4 4 4-4 4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
   const [code, setCode] = useState("");
@@ -30,14 +45,14 @@ export default function Home() {
 
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
-        setError(data.error ?? "입장에 실패했습니다. 다시 시도해 주세요.");
+        setError(data.error ?? "Unable to enter. Please try again.");
         return;
       }
 
       const data = (await response.json()) as VerifyResponse;
       router.push(`/${data.roomId}`);
     } catch {
-      setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -49,13 +64,27 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-5 py-8">
-      <section className="card w-full max-w-md border-[rgba(159,92,56,0.1)] bg-[rgba(255,253,249,0.92)] p-6 shadow-[0_18px_40px_rgba(64,39,22,0.08)] backdrop-blur sm:p-8">
-        <div className="mb-8 text-center">
-          <h1 className="font-serif text-4xl tracking-[-0.05em] text-[color:var(--foreground)]">가족 사진방</h1>
+    <main className="landing-shell">
+      <div className="landing-backdrop" aria-hidden="true">
+        <div className="landing-glow landing-glow-left" />
+        <div className="landing-glow landing-glow-right" />
+        <div className="landing-film-strip landing-film-strip-left" />
+        <div className="landing-film-strip landing-film-strip-right" />
+        <div className="landing-photo landing-photo-one" />
+        <div className="landing-photo landing-photo-two" />
+      </div>
+
+      <section className="landing-content">
+        <div className="landing-heading">
+          <p className="landing-kicker">Private access</p>
+          <h1 className="landing-title">Photo Gallery</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="landing-form">
+          <label htmlFor="room-code" className="sr-only">
+            Access code
+          </label>
+          <div className="landing-input-wrap">
             <input
               id="room-code"
               name="room-code"
@@ -71,24 +100,21 @@ export default function Home() {
               }}
               inputMode="numeric"
               maxLength={6}
-              placeholder="6자리 숫자"
+              placeholder="000000"
               autoComplete="one-time-code"
-              className="input-base h-16 rounded-[1.25rem] border-[rgba(159,92,56,0.16)] bg-white/80 text-center text-2xl tracking-[0.45em] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
+              className="input-base pin-input"
             />
+            <button
+              type="submit"
+              disabled={!canSubmit || loading}
+              className="landing-submit"
+              aria-label={loading ? "Checking access code" : "Enter gallery"}
+            >
+              <ArrowRightIcon />
+            </button>
+          </div>
 
-          {error ? (
-            <p className="rounded-[calc(var(--radius)/2)] border border-[#f5c6c0] bg-[color:var(--danger-light)] px-3 py-2 text-xs text-[color:var(--danger)]">
-              {error}
-            </p>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={!canSubmit || loading}
-            className="btn-primary mt-2 h-14 w-full rounded-[1.2rem] text-sm tracking-[0.14em] uppercase"
-          >
-            {loading ? "확인 중..." : "입장하기"}
-          </button>
+          {error ? <p className="landing-error">{error}</p> : null}
         </form>
       </section>
     </main>

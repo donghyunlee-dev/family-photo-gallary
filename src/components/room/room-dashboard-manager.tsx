@@ -28,9 +28,149 @@ function getPhotoVariant(index: number) {
   return "editorial-photo-card";
 }
 
+function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="m15 6-6 6 6 6"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function GalleryIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="13" y="5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="4" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M13 18.5h7m-3.5-3.5v7"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function PhotoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="14" rx="3" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="9" cy="10" r="1.5" fill="currentColor" />
+      <path
+        d="m7 16 3.2-3.2a1 1 0 0 1 1.4 0L14 15l1.2-1.2a1 1 0 0 1 1.4 0L19 16"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function FolderIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 8.5A2.5 2.5 0 0 1 6.5 6H10l2 2h5.5A2.5 2.5 0 0 1 20 10.5v6A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function AddIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function MoveIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M7 7h10m0 0-2.5-2.5M17 7l-2.5 2.5M17 17H7m0 0 2.5-2.5M7 17l2.5 2.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M5 7h14m-9-2h4m-7 2 1 11a2 2 0 0 0 2 1.8h4a2 2 0 0 0 2-1.8L17 7"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ChevronIcon({ up = false }: { up?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d={up ? "m6 14 6-6 6 6" : "m6 10 6 6 6-6"}
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CounterIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 18h16M6.5 16V9.5m5 6.5V6.5M17.5 16v-4"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="m6.5 12.5 3.5 3.5 7-8"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function RoomDashboardManager({
   roomId,
-  roomName,
   roomRootFolderId,
   photos,
   folders,
@@ -50,6 +190,7 @@ export default function RoomDashboardManager({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [hiddenPhotoIds, setHiddenPhotoIds] = useState<string[]>([]);
+  const [folderRailCollapsed, setFolderRailCollapsed] = useState(false);
 
   const photoSelectionMode = target === "file";
   const folderSelectionMode = target === "folder";
@@ -60,6 +201,10 @@ export default function RoomDashboardManager({
       ? targetFolderId
       : moveTargets[0]?.id ?? "";
   const currentPhoto = activePhotoIndex !== null ? visiblePhotos[activePhotoIndex] : null;
+  const railOffset = folderRailCollapsed ? "4.4rem" : "calc(var(--bottom-sheet-h) + 0.9rem)";
+  const contentPaddingBottom = folderRailCollapsed
+    ? "8.5rem"
+    : "calc(var(--bottom-sheet-h) + 5rem)";
 
   useEffect(() => {
     if (activePhotoIndex === null) return;
@@ -137,7 +282,7 @@ export default function RoomDashboardManager({
 
   async function deleteFiles() {
     if (selectedPhotoIds.length === 0 || busy || isMock) return;
-    if (!confirm(`${selectedPhotoIds.length}개 파일을 삭제할까요?`)) return;
+    if (!confirm(`Delete ${selectedPhotoIds.length} selected photo(s)?`)) return;
     setBusy(true);
     setError("");
     try {
@@ -148,13 +293,13 @@ export default function RoomDashboardManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "파일 삭제에 실패했습니다.");
+        setError(data.error ?? "Unable to delete photo.");
         return;
       }
       resetSelections();
       router.refresh();
     } catch {
-      setError("네트워크 오류로 파일 삭제에 실패했습니다.");
+      setError("Network error while deleting photos.");
     } finally {
       setBusy(false);
     }
@@ -177,7 +322,7 @@ export default function RoomDashboardManager({
         });
         const data = (await response.json()) as { error?: string };
         if (!response.ok) {
-          setError(data.error ?? "파일 이동에 실패했습니다.");
+          setError(data.error ?? "Unable to move photo.");
           return;
         }
       }
@@ -185,7 +330,7 @@ export default function RoomDashboardManager({
       resetSelections();
       router.refresh();
     } catch {
-      setError("네트워크 오류로 파일 이동에 실패했습니다.");
+      setError("Network error while moving photos.");
     } finally {
       setBusy(false);
     }
@@ -203,14 +348,14 @@ export default function RoomDashboardManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "폴더 생성에 실패했습니다.");
+        setError(data.error ?? "Unable to create folder.");
         return;
       }
       setNewFolderName("");
       setShowFolderCreatePopup(false);
       router.refresh();
     } catch {
-      setError("네트워크 오류로 폴더 생성에 실패했습니다.");
+      setError("Network error while creating folder.");
     } finally {
       setBusy(false);
     }
@@ -233,7 +378,7 @@ export default function RoomDashboardManager({
         });
         const data = (await response.json()) as { error?: string };
         if (!response.ok) {
-          setError(data.error ?? "폴더 이동에 실패했습니다.");
+          setError(data.error ?? "Unable to move folder.");
           return;
         }
       }
@@ -241,7 +386,7 @@ export default function RoomDashboardManager({
       resetSelections();
       router.refresh();
     } catch {
-      setError("네트워크 오류로 폴더 이동에 실패했습니다.");
+      setError("Network error while moving folders.");
     } finally {
       setBusy(false);
     }
@@ -249,7 +394,7 @@ export default function RoomDashboardManager({
 
   async function deleteFolders() {
     if (selectedFolderIds.length === 0 || busy || isMock) return;
-    if (!confirm(`${selectedFolderIds.length}개 폴더를 삭제할까요?`)) return;
+    if (!confirm(`Delete ${selectedFolderIds.length} selected folder(s)?`)) return;
     setBusy(true);
     setError("");
     try {
@@ -260,13 +405,13 @@ export default function RoomDashboardManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "폴더 삭제에 실패했습니다.");
+        setError(data.error ?? "Unable to delete folder.");
         return;
       }
       resetSelections();
       router.refresh();
     } catch {
-      setError("네트워크 오류로 폴더 삭제에 실패했습니다.");
+      setError("Network error while deleting folders.");
     } finally {
       setBusy(false);
     }
@@ -275,36 +420,43 @@ export default function RoomDashboardManager({
   return (
     <>
       <header className="topbar px-4">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-2xl font-semibold tracking-[-0.03em] text-[color:var(--foreground)]">
-              {roomName}
-            </h1>
-            <p className="text-sm text-[color:var(--foreground-secondary)]">
-              사진 {visiblePhotos.length}장 · 폴더 {folders.length}개
-            </p>
-          </div>
-          <Link href="/" aria-label="나가기" className="ghost-icon-button">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+        <div className="topbar-shell">
+          <Link href="/" aria-label="Back to code entry" className="ghost-icon-button">
+            <BackIcon />
           </Link>
+          <div className="topbar-center">
+            <div className="brand-mark">
+              <GalleryIcon />
+              <span>Photo Gallery</span>
+            </div>
+          </div>
+          <div className="counter-pill" aria-label={`${visiblePhotos.length} photos and ${folders.length} folders`}>
+            <CounterIcon />
+            <span>{visiblePhotos.length}</span>
+            <span>/</span>
+            <span>{folders.length}</span>
+          </div>
         </div>
       </header>
 
       <div style={{ height: "var(--header-h)" }} aria-hidden />
 
-      <main className="app-shell">
-        {(photoSelectionMode || folderSelectionMode) ? (
-          <section className="mb-4 flex items-center justify-between rounded-[1rem] bg-[rgba(255,253,249,0.72)] px-4 py-3 text-sm text-[color:var(--foreground-secondary)]">
-            <span>{photoSelectionMode ? "사진 선택" : "폴더 선택"}</span>
-            <span>{photoSelectionMode ? selectedPhotoIds.length : selectedFolderIds.length}</span>
+      <main className="app-shell" style={{ paddingBottom: contentPaddingBottom }}>
+        {photoSelectionMode || folderSelectionMode ? (
+          <section className="mb-4 flex justify-center">
+            <div className="selection-hint">
+              {photoSelectionMode ? <PhotoIcon /> : <FolderIcon />}
+              <span>{photoSelectionMode ? selectedPhotoIds.length : selectedFolderIds.length}</span>
+            </div>
           </section>
         ) : null}
 
         {visiblePhotos.length === 0 ? (
-          <section className="editorial-hero">
-            <p className="text-sm text-[color:var(--foreground-secondary)]">아직 업로드된 사진이 없습니다.</p>
+          <section className="editorial-hero flex items-center justify-center">
+            <div className="selection-hint">
+              <PhotoIcon />
+              <span>0</span>
+            </div>
           </section>
         ) : (
           <section className="editorial-gallery">
@@ -313,7 +465,7 @@ export default function RoomDashboardManager({
               return (
                 <article
                   key={photo.id}
-                  className={`${getPhotoVariant(index)}${isSelected ? " ring-2 ring-[color:var(--primary)] ring-offset-2 ring-offset-[color:var(--background)]" : ""}`}
+                  className={`${getPhotoVariant(index)}${isSelected ? " ring-2 ring-[color:var(--accent)] ring-offset-2 ring-offset-[color:var(--background)]" : ""}`}
                   onClick={() => onPhotoTap(index, photo.id)}
                   role="button"
                   tabIndex={0}
@@ -333,11 +485,13 @@ export default function RoomDashboardManager({
                       )
                     }
                   />
-                  {isSelected ? <span className="check-badge" aria-hidden="true">✓</span> : null}
+                  {isSelected ? (
+                    <span className="check-badge" aria-hidden="true">
+                      <CheckIcon />
+                    </span>
+                  ) : null}
                   <div className="editorial-photo-meta">
-                    <div>
-                      <p className="editorial-photo-index">{String(index + 1).padStart(2, "0")}</p>
-                    </div>
+                    <p className="editorial-photo-index">{String(index + 1).padStart(2, "0")}</p>
                   </div>
                 </article>
               );
@@ -352,81 +506,115 @@ export default function RoomDashboardManager({
         </div>
       ) : null}
 
-      <div className="action-dock" data-testid="room-action-dock">
+      <div className="action-dock" style={{ bottom: railOffset }} data-testid="room-action-dock">
         {target === "file" ? (
           <div className="action-subdock" data-testid="file-subdock">
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle" data-testid="file-add-button">
-              추가
+            <button
+              type="button"
+              onClick={() => setShowUploadPopup(true)}
+              className="action-orb subtle"
+              data-testid="file-add-button"
+              aria-label="Add photo"
+            >
+              <AddIcon />
             </button>
             <button
               type="button"
               disabled={selectedPhotoIds.length === 0 || moveTargets.length === 0 || busy || isMock}
               onClick={() => setShowFileMovePopup(true)}
-              className="action-pill subtle disabled:opacity-40"
+              className="action-orb subtle"
               data-testid="file-move-button"
+              aria-label="Move selected photos"
             >
-              이동
+              <MoveIcon />
             </button>
             <button
               type="button"
               disabled={selectedPhotoIds.length === 0 || busy || isMock}
               onClick={deleteFiles}
-              className="action-pill danger disabled:opacity-40"
+              className="action-orb danger"
               data-testid="file-delete-button"
+              aria-label="Delete selected photos"
             >
-              삭제
+              <TrashIcon />
             </button>
           </div>
         ) : null}
+
         {target === "folder" ? (
           <div className="action-subdock" data-testid="folder-subdock">
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle" data-testid="folder-add-button">
-              추가
+            <button
+              type="button"
+              onClick={() => setShowFolderCreatePopup(true)}
+              className="action-orb folder-subtle"
+              data-testid="folder-add-button"
+              aria-label="Add folder"
+            >
+              <AddIcon />
             </button>
             <button
               type="button"
               disabled={selectedFolderIds.length === 0 || moveTargets.length === 0 || busy || isMock}
               onClick={() => setShowFolderMovePopup(true)}
-              className="action-pill subtle disabled:opacity-40"
+              className="action-orb folder-subtle"
               data-testid="folder-move-button"
+              aria-label="Move selected folders"
             >
-              이동
+              <MoveIcon />
             </button>
             <button
               type="button"
               disabled={selectedFolderIds.length === 0 || busy || isMock}
               onClick={deleteFolders}
-              className="action-pill danger disabled:opacity-40"
+              className="action-orb danger"
               data-testid="folder-delete-button"
+              aria-label="Delete selected folders"
             >
-              삭제
+              <TrashIcon />
             </button>
           </div>
         ) : null}
-        <div className="action-main-row">
-        <button
-          type="button"
-          onClick={() => toggleTarget("file")}
-          className={`action-pill action-pill-main ${target === "file" ? "active" : ""}`}
-          data-testid="file-main-button"
-        >
-          파일
-        </button>
-        <button
-          type="button"
-          onClick={() => toggleTarget("folder")}
-          className={`action-pill action-pill-main ${target === "folder" ? "secondary-active" : "subtle"}`}
-          data-testid="folder-main-button"
-        >
-          폴더
-        </button>
+
+        <div className="action-main-stack">
+          <button
+            type="button"
+            onClick={() => toggleTarget("file")}
+            className={`action-orb action-orb-main file-mode ${target === "file" ? "is-open" : ""}`}
+            data-testid="file-main-button"
+            aria-label="Photo actions"
+          >
+            <PhotoIcon />
+            {selectedPhotoIds.length > 0 ? <span className="orb-dot">{selectedPhotoIds.length}</span> : null}
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleTarget("folder")}
+            className={`action-orb action-orb-main folder-mode ${target === "folder" ? "is-open" : ""}`}
+            data-testid="folder-main-button"
+            aria-label="Folder actions"
+          >
+            <FolderIcon />
+            {selectedFolderIds.length > 0 ? <span className="orb-dot">{selectedFolderIds.length}</span> : null}
+          </button>
         </div>
       </div>
 
-      <section className="folder-rail">
+      <section className={`folder-rail${folderRailCollapsed ? " is-collapsed" : ""}`}>
         <div className="folder-rail-inner">
+          <div className="folder-rail-top">
+            <button
+              type="button"
+              className="folder-rail-handle"
+              onClick={() => setFolderRailCollapsed((current) => !current)}
+              aria-label={folderRailCollapsed ? "Show folders" : "Hide folders"}
+            >
+              <ChevronIcon up={!folderRailCollapsed} />
+            </button>
+          </div>
           {folders.length === 0 ? (
-            <p className="text-sm text-[color:var(--foreground-secondary)]">폴더 없음</p>
+            <div className="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 text-center text-sm text-[color:var(--foreground-secondary)]">
+              <FolderIcon />
+            </div>
           ) : (
             <div className="folder-chip-row">
               {folders.map((folder) => {
@@ -443,7 +631,10 @@ export default function RoomDashboardManager({
                     className={`folder-chip${isSelected ? " selected" : ""}`}
                     data-testid={`folder-chip-${folder.id}`}
                   >
-                    <span className="font-serif text-lg leading-none">{folder.name}</span>
+                    <span className="folder-chip-icon" aria-hidden="true">
+                      <FolderIcon />
+                    </span>
+                    <span className="folder-chip-name">{folder.name}</span>
                   </Link>
                 );
               })}
@@ -458,11 +649,16 @@ export default function RoomDashboardManager({
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <p className="eyebrow">Upload editor</p>
-                    <h2 className="font-serif text-xl text-[color:var(--foreground)]">새 사진 추가</h2>
+                    <p className="eyebrow">Upload</p>
+                    <h2 className="font-serif text-xl text-[color:var(--foreground)]">Add Photos</h2>
                   </div>
-                  <button type="button" onClick={() => setShowUploadPopup(false)} className="ghost-icon-button" aria-label="닫기">
-                    ×
+                  <button
+                    type="button"
+                    onClick={() => setShowUploadPopup(false)}
+                    className="ghost-icon-button"
+                    aria-label="Close upload"
+                  >
+                    <BackIcon />
                   </button>
                 </div>
                 <UploadForm folderId={roomRootFolderId} />
@@ -476,9 +672,12 @@ export default function RoomDashboardManager({
         ? createPortal(
             <div className="modal-overlay" onClick={() => setShowFileMovePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
-                <h2 className="font-serif text-xl text-[color:var(--foreground)]">사진 이동</h2>
-                <p className="mt-2 text-sm text-[color:var(--foreground-secondary)]">{selectedPhotoIds.length}장을 다른 폴더로 옮깁니다.</p>
-                <select value={effectiveTargetFolderId} onChange={(event) => setTargetFolderId(event.target.value)} className="input-base mt-4">
+                <h2 className="font-serif text-xl text-[color:var(--foreground)]">Move Photos</h2>
+                <select
+                  value={effectiveTargetFolderId}
+                  onChange={(event) => setTargetFolderId(event.target.value)}
+                  className="input-base mt-4"
+                >
                   {moveTargets.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.name}
@@ -486,8 +685,17 @@ export default function RoomDashboardManager({
                   ))}
                 </select>
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowFileMovePopup(false)} className="btn-ghost flex-1">취소</button>
-                  <button type="button" disabled={!effectiveTargetFolderId || selectedPhotoIds.length === 0 || busy} onClick={moveFiles} className="btn-primary flex-1">이동하기</button>
+                  <button type="button" onClick={() => setShowFileMovePopup(false)} className="btn-ghost flex-1">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!effectiveTargetFolderId || selectedPhotoIds.length === 0 || busy}
+                    onClick={moveFiles}
+                    className="btn-primary flex-1"
+                  >
+                    Move
+                  </button>
                 </div>
               </div>
             </div>,
@@ -499,16 +707,25 @@ export default function RoomDashboardManager({
         ? createPortal(
             <div className="modal-overlay" onClick={() => setShowFolderCreatePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
-                <h2 className="font-serif text-xl text-[color:var(--foreground)]">폴더 만들기</h2>
+                <h2 className="font-serif text-xl text-[color:var(--foreground)]">New Folder</h2>
                 <input
                   value={newFolderName}
                   onChange={(event) => setNewFolderName(event.target.value)}
-                  placeholder="예: 2026 봄 피크닉"
+                  placeholder="Folder name"
                   className="input-base mt-4"
                 />
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="btn-ghost flex-1">취소</button>
-                  <button type="button" disabled={!newFolderName.trim() || busy} onClick={createFolder} className="btn-primary flex-1">만들기</button>
+                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="btn-ghost flex-1">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!newFolderName.trim() || busy}
+                    onClick={createFolder}
+                    className="btn-primary flex-1"
+                  >
+                    Create
+                  </button>
                 </div>
               </div>
             </div>,
@@ -520,9 +737,12 @@ export default function RoomDashboardManager({
         ? createPortal(
             <div className="modal-overlay" onClick={() => setShowFolderMovePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
-                <h2 className="font-serif text-xl text-[color:var(--foreground)]">폴더 이동</h2>
-                <p className="mt-2 text-sm text-[color:var(--foreground-secondary)]">{selectedFolderIds.length}개 폴더를 다른 위치로 정리합니다.</p>
-                <select value={effectiveTargetFolderId} onChange={(event) => setTargetFolderId(event.target.value)} className="input-base mt-4">
+                <h2 className="font-serif text-xl text-[color:var(--foreground)]">Move Folders</h2>
+                <select
+                  value={effectiveTargetFolderId}
+                  onChange={(event) => setTargetFolderId(event.target.value)}
+                  className="input-base mt-4"
+                >
                   {moveTargets.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.name}
@@ -530,8 +750,17 @@ export default function RoomDashboardManager({
                   ))}
                 </select>
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="btn-ghost flex-1">취소</button>
-                  <button type="button" disabled={!effectiveTargetFolderId || selectedFolderIds.length === 0 || busy} onClick={moveFolders} className="btn-primary flex-1">이동하기</button>
+                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="btn-ghost flex-1">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!effectiveTargetFolderId || selectedFolderIds.length === 0 || busy}
+                    onClick={moveFolders}
+                    className="btn-primary flex-1"
+                  >
+                    Move
+                  </button>
                 </div>
               </div>
             </div>,
@@ -541,18 +770,31 @@ export default function RoomDashboardManager({
 
       {currentPhoto
         ? createPortal(
-            <div className="fixed inset-0 z-[9999] bg-[rgba(12,9,7,0.94)]" onClick={() => setActivePhotoIndex(null)}>
+            <div
+              className="fixed inset-0 z-[9999] bg-[rgba(12,9,7,0.94)]"
+              onClick={() => setActivePhotoIndex(null)}
+            >
               <div className="mx-auto flex h-full w-full max-w-6xl flex-col px-4 py-5">
                 <div className="mb-4 flex items-center justify-between text-white/80">
                   <div>
                     <p className="eyebrow text-[rgba(255,250,244,0.55)]">Viewer</p>
-                    <h3 className="font-serif text-2xl text-white">{activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${visiblePhotos.length}` : ""}</h3>
+                    <h3 className="font-serif text-2xl text-white">
+                      {activePhotoIndex !== null ? `${activePhotoIndex + 1} / ${visiblePhotos.length}` : ""}
+                    </h3>
                   </div>
-                  <button type="button" onClick={() => setActivePhotoIndex(null)} className="ghost-icon-button border-white/20 bg-white/10 text-white" aria-label="닫기">
-                    ×
+                  <button
+                    type="button"
+                    onClick={() => setActivePhotoIndex(null)}
+                    className="ghost-icon-button border-white/20 bg-white/10 text-white"
+                    aria-label="Close viewer"
+                  >
+                    <BackIcon />
                   </button>
                 </div>
-                <div className="relative flex flex-1 items-center justify-center" onClick={(event) => event.stopPropagation()}>
+                <div
+                  className="relative flex flex-1 items-center justify-center"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <button
                     type="button"
                     onClick={() =>
@@ -560,10 +802,10 @@ export default function RoomDashboardManager({
                         current === null ? current : current === 0 ? visiblePhotos.length - 1 : current - 1,
                       )
                     }
-                    className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
-                    aria-label="이전"
+                    className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur"
+                    aria-label="Previous photo"
                   >
-                    ‹
+                    <BackIcon />
                   </button>
                   <div className="relative h-full w-full overflow-hidden rounded-[1.6rem] border border-white/10">
                     <Image
@@ -579,13 +821,25 @@ export default function RoomDashboardManager({
                     type="button"
                     onClick={() =>
                       setActivePhotoIndex((current) =>
-                        current === null ? current : current === visiblePhotos.length - 1 ? 0 : current + 1,
+                        current === null
+                          ? current
+                          : current === visiblePhotos.length - 1
+                            ? 0
+                            : current + 1,
                       )
                     }
-                    className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
-                    aria-label="다음"
+                    className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur"
+                    aria-label="Next photo"
                   >
-                    ›
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="m9 6 6 6-6 6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                 </div>
                 <p className="mt-4 text-center text-sm text-white/62">

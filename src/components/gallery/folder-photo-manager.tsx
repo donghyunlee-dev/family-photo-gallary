@@ -29,6 +29,117 @@ function getPhotoVariant(index: number) {
   return "editorial-photo-card";
 }
 
+function PhotoIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="14" rx="3" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="9" cy="10" r="1.5" fill="currentColor" />
+      <path
+        d="m7 16 3.2-3.2a1 1 0 0 1 1.4 0L14 15l1.2-1.2a1 1 0 0 1 1.4 0L19 16"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function FolderIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 8.5A2.5 2.5 0 0 1 6.5 6H10l2 2h5.5A2.5 2.5 0 0 1 20 10.5v6A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function AddIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function MoveIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M7 7h10m0 0-2.5-2.5M17 7l-2.5 2.5M17 17H7m0 0 2.5-2.5M7 17l2.5 2.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M5 7h14m-9-2h4m-7 2 1 11a2 2 0 0 0 2 1.8h4a2 2 0 0 0 2-1.8L17 7"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ChevronIcon({ up = false }: { up?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d={up ? "m6 14 6-6 6 6" : "m6 10 6 6 6-6"}
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="m6.5 12.5 3.5 3.5 7-8"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="m7 7 10 10M17 7 7 17"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export default function FolderPhotoManager({
   photos,
   roomId,
@@ -51,6 +162,7 @@ export default function FolderPhotoManager({
   const [hiddenPhotoIds, setHiddenPhotoIds] = useState<string[]>([]);
   const [targetFolderId, setTargetFolderId] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
+  const [folderRailCollapsed, setFolderRailCollapsed] = useState(false);
 
   const visiblePhotos = photos.filter((photo) => !hiddenPhotoIds.includes(photo.id));
   const moveFolderTargets = moveTargets.filter((folder) => folder.id !== currentFolderId);
@@ -60,6 +172,10 @@ export default function FolderPhotoManager({
       : moveFolderTargets[0]?.id ?? "";
   const currentPhoto = activeIndex !== null ? visiblePhotos[activeIndex] : null;
   const fileSelectionMode = target === "file";
+  const railOffset = folderRailCollapsed ? "4.4rem" : "calc(var(--bottom-sheet-h) + 0.9rem)";
+  const contentPaddingBottom = folderRailCollapsed
+    ? "8.5rem"
+    : "calc(var(--bottom-sheet-h) + 5rem)";
 
   useEffect(() => {
     if (activeIndex === null) return;
@@ -118,7 +234,7 @@ export default function FolderPhotoManager({
 
   async function deleteSelectedFiles() {
     if (selectedIds.length === 0 || busy || isMock) return;
-    if (!confirm(`${selectedIds.length}개 파일을 삭제할까요?`)) return;
+    if (!confirm(`Delete ${selectedIds.length} selected photo(s)?`)) return;
     setBusy(true);
     setError("");
     try {
@@ -129,13 +245,13 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "파일 삭제에 실패했습니다.");
+        setError(data.error ?? "Unable to delete photo.");
         return;
       }
       setSelectedIds([]);
       router.refresh();
     } catch {
-      setError("네트워크 오류로 파일 삭제에 실패했습니다.");
+      setError("Network error while deleting photos.");
     } finally {
       setBusy(false);
     }
@@ -158,7 +274,7 @@ export default function FolderPhotoManager({
         });
         const data = (await response.json()) as { error?: string };
         if (!response.ok) {
-          setError(data.error ?? "파일 이동에 실패했습니다.");
+          setError(data.error ?? "Unable to move photo.");
           return;
         }
       }
@@ -166,7 +282,7 @@ export default function FolderPhotoManager({
       setShowMovePopup(false);
       router.refresh();
     } catch {
-      setError("네트워크 오류로 파일 이동에 실패했습니다.");
+      setError("Network error while moving photos.");
     } finally {
       setBusy(false);
     }
@@ -184,14 +300,14 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "폴더 생성에 실패했습니다.");
+        setError(data.error ?? "Unable to create folder.");
         return;
       }
       setNewFolderName("");
       setShowFolderCreatePopup(false);
       router.refresh();
     } catch {
-      setError("네트워크 오류로 폴더 생성에 실패했습니다.");
+      setError("Network error while creating folder.");
     } finally {
       setBusy(false);
     }
@@ -213,14 +329,14 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "폴더 이동에 실패했습니다.");
+        setError(data.error ?? "Unable to move folder.");
         return;
       }
       setShowFolderMovePopup(false);
       router.push(`/${roomId}`);
       router.refresh();
     } catch {
-      setError("네트워크 오류로 폴더 이동에 실패했습니다.");
+      setError("Network error while moving folder.");
     } finally {
       setBusy(false);
     }
@@ -229,10 +345,10 @@ export default function FolderPhotoManager({
   async function deleteCurrentFolder() {
     if (busy || isMock) return;
     if (photos.length > 0) {
-      setError("사진이 있는 폴더는 삭제할 수 없습니다. 먼저 사진을 모두 이동하거나 삭제해 주세요.");
+      setError("Move or delete photos before removing this folder.");
       return;
     }
-    if (!confirm("현재 폴더를 삭제할까요?")) return;
+    if (!confirm("Delete this folder?")) return;
     setBusy(true);
     setError("");
     try {
@@ -243,13 +359,13 @@ export default function FolderPhotoManager({
       });
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "폴더 삭제에 실패했습니다.");
+        setError(data.error ?? "Unable to delete folder.");
         return;
       }
       router.push(`/${roomId}`);
       router.refresh();
     } catch {
-      setError("네트워크 오류로 폴더 삭제에 실패했습니다.");
+      setError("Network error while deleting folder.");
     } finally {
       setBusy(false);
     }
@@ -257,17 +373,22 @@ export default function FolderPhotoManager({
 
   return (
     <>
-      <main className="app-shell">
+      <main className="app-shell" style={{ paddingBottom: contentPaddingBottom }}>
         {target ? (
-          <section className="mb-4 flex items-center justify-between rounded-[1rem] bg-[rgba(255,253,249,0.72)] px-4 py-3 text-sm text-[color:var(--foreground-secondary)]">
-            <span>{fileSelectionMode ? "사진 선택" : "폴더 선택"}</span>
-            <span>{fileSelectionMode ? selectedIds.length : 1}</span>
+          <section className="mb-4 flex justify-center">
+            <div className="selection-hint">
+              {fileSelectionMode ? <PhotoIcon /> : <FolderIcon />}
+              <span>{fileSelectionMode ? selectedIds.length : 1}</span>
+            </div>
           </section>
         ) : null}
 
         {visiblePhotos.length === 0 ? (
-          <section className="editorial-hero">
-            <p className="text-sm text-[color:var(--foreground-secondary)]">이 폴더에는 아직 사진이 없습니다.</p>
+          <section className="editorial-hero flex items-center justify-center">
+            <div className="selection-hint">
+              <PhotoIcon />
+              <span>0</span>
+            </div>
           </section>
         ) : (
           <section className="editorial-gallery">
@@ -276,7 +397,7 @@ export default function FolderPhotoManager({
               return (
                 <article
                   key={photo.id}
-                  className={`${getPhotoVariant(index)}${isSelected ? " ring-2 ring-[color:var(--primary)] ring-offset-2 ring-offset-[color:var(--background)]" : ""}`}
+                  className={`${getPhotoVariant(index)}${isSelected ? " ring-2 ring-[color:var(--accent)] ring-offset-2 ring-offset-[color:var(--background)]" : ""}`}
                   onClick={() => onPhotoTap(index, photo.id)}
                   role="button"
                   tabIndex={0}
@@ -296,11 +417,13 @@ export default function FolderPhotoManager({
                       )
                     }
                   />
-                  {isSelected ? <span className="check-badge" aria-hidden="true">✓</span> : null}
+                  {isSelected ? (
+                    <span className="check-badge" aria-hidden="true">
+                      <CheckIcon />
+                    </span>
+                  ) : null}
                   <div className="editorial-photo-meta">
-                    <div>
-                      <p className="editorial-photo-index">{String(index + 1).padStart(2, "0")}</p>
-                    </div>
+                    <p className="editorial-photo-index">{String(index + 1).padStart(2, "0")}</p>
                   </div>
                 </article>
               );
@@ -315,84 +438,117 @@ export default function FolderPhotoManager({
         </div>
       ) : null}
 
-      <div className="action-dock" data-testid="folder-page-action-dock">
+      <div className="action-dock" style={{ bottom: railOffset }} data-testid="folder-page-action-dock">
         {target === "file" ? (
           <div className="action-subdock" data-testid="file-subdock">
-            <button type="button" onClick={() => setShowUploadPopup(true)} className="action-pill subtle" data-testid="file-add-button">
-              추가
+            <button
+              type="button"
+              onClick={() => setShowUploadPopup(true)}
+              className="action-orb subtle"
+              data-testid="file-add-button"
+              aria-label="Add photo"
+            >
+              <AddIcon />
             </button>
             <button
               type="button"
               disabled={selectedIds.length === 0 || moveFolderTargets.length === 0 || busy || isMock}
               onClick={() => setShowMovePopup(true)}
-              className="action-pill subtle disabled:opacity-40"
+              className="action-orb subtle"
               data-testid="file-move-button"
+              aria-label="Move selected photos"
             >
-              이동
+              <MoveIcon />
             </button>
             <button
               type="button"
               disabled={selectedIds.length === 0 || busy || isMock}
               onClick={deleteSelectedFiles}
-              className="action-pill danger disabled:opacity-40"
+              className="action-orb danger"
               data-testid="file-delete-button"
+              aria-label="Delete selected photos"
             >
-              삭제
+              <TrashIcon />
             </button>
           </div>
         ) : null}
+
         {target === "folder" ? (
           <div className="action-subdock" data-testid="folder-subdock">
-            <button type="button" onClick={() => setShowFolderCreatePopup(true)} className="action-pill subtle" data-testid="folder-add-button">
-              추가
+            <button
+              type="button"
+              onClick={() => setShowFolderCreatePopup(true)}
+              className="action-orb folder-subtle"
+              data-testid="folder-add-button"
+              aria-label="Add folder"
+            >
+              <AddIcon />
             </button>
             <button
               type="button"
               disabled={moveFolderTargets.length === 0 || busy || isMock}
               onClick={() => setShowFolderMovePopup(true)}
-              className="action-pill subtle disabled:opacity-40"
+              className="action-orb folder-subtle"
               data-testid="folder-move-button"
+              aria-label="Move this folder"
             >
-              이동
+              <MoveIcon />
             </button>
             <button
               type="button"
               disabled={busy || isMock}
               onClick={deleteCurrentFolder}
-              className="action-pill danger disabled:opacity-40"
+              className="action-orb danger"
               data-testid="folder-delete-button"
+              aria-label="Delete this folder"
             >
-              삭제
+              <TrashIcon />
             </button>
           </div>
         ) : null}
-        <div className="action-main-row">
-        <button
-          type="button"
-          onClick={() => {
-            setTarget((current) => (current === "file" ? null : "file"));
-            setSelectedIds([]);
-          }}
-          className={`action-pill action-pill-main ${target === "file" ? "active" : ""}`}
-          data-testid="file-main-button"
-        >
-          파일
-        </button>
-        <button
-          type="button"
-          onClick={() => setTarget((current) => (current === "folder" ? null : "folder"))}
-          className={`action-pill action-pill-main ${target === "folder" ? "secondary-active" : "subtle"}`}
-          data-testid="folder-main-button"
-        >
-          폴더
-        </button>
+
+        <div className="action-main-stack">
+          <button
+            type="button"
+            onClick={() => {
+              setTarget((current) => (current === "file" ? null : "file"));
+              setSelectedIds([]);
+            }}
+            className={`action-orb action-orb-main file-mode ${target === "file" ? "is-open" : ""}`}
+            data-testid="file-main-button"
+            aria-label="Photo actions"
+          >
+            <PhotoIcon />
+            {selectedIds.length > 0 ? <span className="orb-dot">{selectedIds.length}</span> : null}
+          </button>
+          <button
+            type="button"
+            onClick={() => setTarget((current) => (current === "folder" ? null : "folder"))}
+            className={`action-orb action-orb-main folder-mode ${target === "folder" ? "is-open" : ""}`}
+            data-testid="folder-main-button"
+            aria-label="Folder actions"
+          >
+            <FolderIcon />
+          </button>
         </div>
       </div>
 
-      <section className="folder-rail">
+      <section className={`folder-rail${folderRailCollapsed ? " is-collapsed" : ""}`}>
         <div className="folder-rail-inner">
+          <div className="folder-rail-top">
+            <button
+              type="button"
+              className="folder-rail-handle"
+              onClick={() => setFolderRailCollapsed((current) => !current)}
+              aria-label={folderRailCollapsed ? "Show folders" : "Hide folders"}
+            >
+              <ChevronIcon up={!folderRailCollapsed} />
+            </button>
+          </div>
           {childFolders.length === 0 ? (
-            <p className="text-sm text-[color:var(--foreground-secondary)]">하위 폴더 없음</p>
+            <div className="px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2 text-center text-sm text-[color:var(--foreground-secondary)]">
+              <FolderIcon />
+            </div>
           ) : (
             <div className="folder-chip-row">
               {childFolders.map((folder) => (
@@ -401,7 +557,12 @@ export default function FolderPhotoManager({
                   href={`/${roomId}/folder/${folder.id}${isMock ? "?mock=1" : ""}`}
                   className="folder-chip"
                 >
-                  <span className="font-serif text-lg leading-none" data-testid={`folder-chip-${folder.id}`}>{folder.name}</span>
+                  <span className="folder-chip-icon" aria-hidden="true">
+                    <FolderIcon />
+                  </span>
+                  <span className="folder-chip-name" data-testid={`folder-chip-${folder.id}`}>
+                    {folder.name}
+                  </span>
                 </Link>
               ))}
             </div>
@@ -415,11 +576,16 @@ export default function FolderPhotoManager({
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <p className="eyebrow">Upload editor</p>
-                    <h2 className="font-serif text-xl text-[color:var(--foreground)]">사진 추가</h2>
+                    <p className="eyebrow">Upload</p>
+                    <h2 className="font-serif text-xl text-[color:var(--foreground)]">Add Photos</h2>
                   </div>
-                  <button type="button" onClick={() => setShowUploadPopup(false)} className="ghost-icon-button" aria-label="닫기">
-                    ×
+                  <button
+                    type="button"
+                    onClick={() => setShowUploadPopup(false)}
+                    className="ghost-icon-button"
+                    aria-label="Close upload"
+                  >
+                    <CloseIcon />
                   </button>
                 </div>
                 <UploadForm folderId={currentFolderId} />
@@ -433,9 +599,12 @@ export default function FolderPhotoManager({
         ? createPortal(
             <div className="modal-overlay" onClick={() => setShowMovePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
-                <h2 className="font-serif text-xl text-[color:var(--foreground)]">사진 이동</h2>
-                <p className="mt-2 text-sm text-[color:var(--foreground-secondary)]">{selectedIds.length}장을 다른 폴더로 옮깁니다.</p>
-                <select value={effectiveTargetFolderId} onChange={(event) => setTargetFolderId(event.target.value)} className="input-base mt-4">
+                <h2 className="font-serif text-xl text-[color:var(--foreground)]">Move Photos</h2>
+                <select
+                  value={effectiveTargetFolderId}
+                  onChange={(event) => setTargetFolderId(event.target.value)}
+                  className="input-base mt-4"
+                >
                   {moveFolderTargets.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.name}
@@ -443,8 +612,17 @@ export default function FolderPhotoManager({
                   ))}
                 </select>
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowMovePopup(false)} className="btn-ghost flex-1">취소</button>
-                  <button type="button" disabled={!effectiveTargetFolderId || selectedIds.length === 0 || busy} onClick={moveSelectedFiles} className="btn-primary flex-1">이동하기</button>
+                  <button type="button" onClick={() => setShowMovePopup(false)} className="btn-ghost flex-1">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!effectiveTargetFolderId || selectedIds.length === 0 || busy}
+                    onClick={moveSelectedFiles}
+                    className="btn-primary flex-1"
+                  >
+                    Move
+                  </button>
                 </div>
               </div>
             </div>,
@@ -456,16 +634,25 @@ export default function FolderPhotoManager({
         ? createPortal(
             <div className="modal-overlay" onClick={() => setShowFolderCreatePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
-                <h2 className="font-serif text-xl text-[color:var(--foreground)]">하위 폴더 만들기</h2>
+                <h2 className="font-serif text-xl text-[color:var(--foreground)]">New Folder</h2>
                 <input
                   value={newFolderName}
                   onChange={(event) => setNewFolderName(event.target.value)}
-                  placeholder="예: 저녁 산책"
+                  placeholder="Folder name"
                   className="input-base mt-4"
                 />
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="btn-ghost flex-1">취소</button>
-                  <button type="button" disabled={!newFolderName.trim() || busy} onClick={createSubFolder} className="btn-primary flex-1">만들기</button>
+                  <button type="button" onClick={() => setShowFolderCreatePopup(false)} className="btn-ghost flex-1">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!newFolderName.trim() || busy}
+                    onClick={createSubFolder}
+                    className="btn-primary flex-1"
+                  >
+                    Create
+                  </button>
                 </div>
               </div>
             </div>,
@@ -477,9 +664,12 @@ export default function FolderPhotoManager({
         ? createPortal(
             <div className="modal-overlay" onClick={() => setShowFolderMovePopup(false)}>
               <div className="modal-sheet" onClick={(event) => event.stopPropagation()}>
-                <h2 className="font-serif text-xl text-[color:var(--foreground)]">폴더 이동</h2>
-                <p className="mt-2 text-sm text-[color:var(--foreground-secondary)]">현재 폴더의 위치를 다시 정리합니다.</p>
-                <select value={effectiveTargetFolderId} onChange={(event) => setTargetFolderId(event.target.value)} className="input-base mt-4">
+                <h2 className="font-serif text-xl text-[color:var(--foreground)]">Move Folder</h2>
+                <select
+                  value={effectiveTargetFolderId}
+                  onChange={(event) => setTargetFolderId(event.target.value)}
+                  className="input-base mt-4"
+                >
                   {moveFolderTargets.map((folder) => (
                     <option key={folder.id} value={folder.id}>
                       {folder.name}
@@ -487,8 +677,17 @@ export default function FolderPhotoManager({
                   ))}
                 </select>
                 <div className="mt-5 flex gap-2">
-                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="btn-ghost flex-1">취소</button>
-                  <button type="button" disabled={!effectiveTargetFolderId || busy} onClick={moveCurrentFolder} className="btn-primary flex-1">이동하기</button>
+                  <button type="button" onClick={() => setShowFolderMovePopup(false)} className="btn-ghost flex-1">
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!effectiveTargetFolderId || busy}
+                    onClick={moveCurrentFolder}
+                    className="btn-primary flex-1"
+                  >
+                    Move
+                  </button>
                 </div>
               </div>
             </div>,
@@ -503,24 +702,46 @@ export default function FolderPhotoManager({
                 <div className="mb-4 flex items-center justify-between text-white/80">
                   <div>
                     <p className="eyebrow text-[rgba(255,250,244,0.55)]">Viewer</p>
-                    <h3 className="font-serif text-2xl text-white">{activeIndex !== null ? `${activeIndex + 1} / ${visiblePhotos.length}` : ""}</h3>
+                    <h3 className="font-serif text-2xl text-white">
+                      {activeIndex !== null ? `${activeIndex + 1} / ${visiblePhotos.length}` : ""}
+                    </h3>
                   </div>
-                  <button type="button" onClick={() => setActiveIndex(null)} className="ghost-icon-button border-white/20 bg-white/10 text-white" aria-label="닫기">
-                    ×
+                  <button
+                    type="button"
+                    onClick={() => setActiveIndex(null)}
+                    className="ghost-icon-button border-white/20 bg-white/10 text-white"
+                    aria-label="Close viewer"
+                  >
+                    <CloseIcon />
                   </button>
                 </div>
-                <div className="relative flex flex-1 items-center justify-center" onClick={(event) => event.stopPropagation()}>
+                <div
+                  className="relative flex flex-1 items-center justify-center"
+                  onClick={(event) => event.stopPropagation()}
+                >
                   <button
                     type="button"
                     onClick={() =>
                       setActiveIndex((currentValue) =>
-                        currentValue === null ? currentValue : currentValue === 0 ? visiblePhotos.length - 1 : currentValue - 1,
+                        currentValue === null
+                          ? currentValue
+                          : currentValue === 0
+                            ? visiblePhotos.length - 1
+                            : currentValue - 1,
                       )
                     }
-                    className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
-                    aria-label="이전"
+                    className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur"
+                    aria-label="Previous photo"
                   >
-                    ‹
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="m15 6-6 6 6 6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                   <div className="relative h-full w-full overflow-hidden rounded-[1.6rem] border border-white/10">
                     <Image
@@ -536,13 +757,25 @@ export default function FolderPhotoManager({
                     type="button"
                     onClick={() =>
                       setActiveIndex((currentValue) =>
-                        currentValue === null ? currentValue : currentValue === visiblePhotos.length - 1 ? 0 : currentValue + 1,
+                        currentValue === null
+                          ? currentValue
+                          : currentValue === visiblePhotos.length - 1
+                            ? 0
+                            : currentValue + 1,
                       )
                     }
-                    className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-2xl text-white backdrop-blur"
-                    aria-label="다음"
+                    className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur"
+                    aria-label="Next photo"
                   >
-                    ›
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="m9 6 6 6-6 6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                 </div>
                 <p className="mt-4 text-center text-sm text-white/62">
