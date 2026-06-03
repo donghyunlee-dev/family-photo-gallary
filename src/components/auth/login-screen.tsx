@@ -3,6 +3,8 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import DownloadAppButton from "@/components/auth/download-app-button";
+
 type VerifyResponse = {
   roomId: string;
   roomName: string;
@@ -117,6 +119,8 @@ export default function LoginScreen() {
 
           {error ? <p className="landing-error">{error}</p> : null}
         </form>
+
+        <DownloadAppButton />
       </section>
     </main>
   );

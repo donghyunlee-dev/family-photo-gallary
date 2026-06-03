@@ -460,6 +460,56 @@ select {
   text-align: center;
 }
 
+.download-mini-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.download-mini-label {
+  color: rgba(85, 111, 122, 0.88);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.download-mini-button {
+  display: inline-flex;
+  min-height: 2.85rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4f6973, #7fa0ac);
+  padding: 0.7rem 0.95rem;
+  color: #fffaf5;
+  font-size: 0.84rem;
+  font-weight: 700;
+  box-shadow: 0 14px 26px rgba(58, 84, 92, 0.18);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.download-mini-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 32px rgba(58, 84, 92, 0.24);
+  filter: saturate(1.04);
+}
+
+.download-mini-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.download-mini-button.is-disabled {
+  pointer-events: none;
+  opacity: 0.54;
+}
+
 .topbar {
   position: fixed;
   inset-inline: 0;

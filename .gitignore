@@ -42,3 +42,14 @@ next-env.d.ts
 
 # codex local artifacts
 .codex-remote-attachments/
+
+# local android packaging artifacts
+/.android-sdk*/
+/.android-tooling*/
+/android/local.properties
+/android/keystore.properties
+/android/keys/
+/android/.gradle/
+/android/.kotlin/
+/android/app/build/
+/dist/

@@ -62,3 +62,15 @@ After each phase step:
 1. You upload test photos directly to Google Drive.
 2. Redeploy from Vercel.
 3. Validate behavior on deployed URL.
+
+## 7) Android APK distribution
+1. Build release APK from `android/` in Android Studio.
+2. Upload the APK into Google Drive `photo/family-photo-gallery/app`.
+3. Create a direct download URL:
+
+```text
+https://drive.google.com/uc?export=download&id=FILE_ID
+```
+
+4. Set `NEXT_PUBLIC_ANDROID_APK_URL` in Vercel.
+5. Verify the login screen download button opens the APK URL on Android devices.

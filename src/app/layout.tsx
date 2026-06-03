@@ -22,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Family Photo Gallery",
-  description: "A private family photo gallery for shared memories.",
+  title: "찐앨범",
+  description: "가족끼리만 공유하는 프라이빗 사진 앨범.",
 };
 
 export const viewport: Viewport = {
