@@ -18,22 +18,22 @@ function DownloadIcon() {
 }
 
 export default function DownloadAppButton() {
-  const isConfigured = !ANDROID_APK_URL.includes("REPLACE_WITH_APP_FOLDER_ID");
+  const isConfigured = Boolean(ANDROID_APK_URL);
 
   return (
     <div className="download-mini-wrap" aria-label="Android app download">
-      <p className="download-mini-label">안드로이드 앱</p>
+      <p className="download-mini-label">Android app</p>
       <a
         className={`download-mini-button ${isConfigured ? "" : "is-disabled"}`.trim()}
         href={isConfigured ? ANDROID_APK_URL : undefined}
         target={isConfigured ? "_blank" : undefined}
         rel={isConfigured ? "noreferrer" : undefined}
         aria-disabled={!isConfigured}
-        aria-label={isConfigured ? "찐앨범 APK 다운로드" : "드라이브 링크 설정 필요"}
-        title={isConfigured ? "찐앨범 APK 다운로드" : "드라이브 링크 설정 필요"}
+        aria-label={isConfigured ? "Download Android APK" : "Download link unavailable"}
+        title={isConfigured ? "Download Android APK" : "Download link unavailable"}
       >
         <DownloadIcon />
-        <span>{isConfigured ? "앱 설치" : "링크 필요"}</span>
+        <span>{isConfigured ? "Install app" : "Link unavailable"}</span>
       </a>
     </div>
   );
