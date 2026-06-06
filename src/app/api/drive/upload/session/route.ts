@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getDriveErrorDetails } from "@/lib/drive/errors";
 import { createResumableUploadSession } from "@/lib/drive/service";
 
 type UploadSessionRequest = {
@@ -42,28 +43,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(session, { status: 200 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Upload session failed.";
-
-    if (message.includes("invalid_client")) {
-      return NextResponse.json(
-        {
-          error:
-            "Google OAuth 인증 정보가 올바르지 않습니다. Vercel의 GOOGLE_OAUTH_CLIENT_ID/SECRET/REFRESH_TOKEN 값을 다시 확인해 주세요.",
-        },
-        { status: 500 },
-      );
-    }
-
-    if (message.includes("storage quota") || message.includes("insufficientFilePermissions")) {
-      return NextResponse.json(
-        {
-          error:
-            "Google Drive 권한 또는 용량 문제입니다. OAuth 계정의 Drive 권한과 대상 폴더 편집 권한을 확인해 주세요.",
-        },
-        { status: 500 },
-      );
-    }
-
-    return NextResponse.json({ error: message }, { status: 500 });
+    const details = getDriveErrorDetails(error);
+    return NextResponse.json({ error: details.publicMessage, code: details.code }, { status: details.status });
   }
 }

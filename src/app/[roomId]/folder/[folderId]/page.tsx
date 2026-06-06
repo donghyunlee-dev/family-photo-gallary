@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import FolderPhotoManager from "@/components/gallery/folder-photo-manager";
 import { getAuthorizedRoomId } from "@/lib/auth/session";
+import { getDriveErrorDetails } from "@/lib/drive/errors";
 import { MOCK_CHILD_FOLDERS, MOCK_FOLDER_PHOTOS, MOCK_ROOM_FOLDERS } from "@/lib/gallery/mock-data";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
@@ -125,8 +126,8 @@ export default async function FolderPage({ params, searchParams }: FolderPagePro
       listFoldersFromFolder(folderId, 100),
     ]);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    loadError = `Unable to load folder data: ${message}`;
+    const { publicMessage } = getDriveErrorDetails(error);
+    loadError = `폴더 데이터를 불러오지 못했습니다. ${publicMessage}`;
   }
 
   return (

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getDriveErrorDetails } from "@/lib/drive/errors";
 import { uploadChunkToResumableSession } from "@/lib/drive/service";
 
 export async function POST(request: Request) {
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Upload chunk failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const details = getDriveErrorDetails(error);
+    return NextResponse.json({ error: details.publicMessage, code: details.code }, { status: details.status });
   }
 }

@@ -1,6 +1,7 @@
 import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 
+import { getDriveErrorDetails } from "@/lib/drive/errors";
 import { downloadFile } from "@/lib/drive/service";
 
 type RouteProps = {
@@ -24,7 +25,8 @@ export async function GET(_: Request, { params }: RouteProps) {
         "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
       },
     });
-  } catch {
-    return NextResponse.json({ error: "Failed to load file from Google Drive." }, { status: 500 });
+  } catch (error) {
+    const details = getDriveErrorDetails(error);
+    return NextResponse.json({ error: details.publicMessage, code: details.code }, { status: details.status });
   }
 }

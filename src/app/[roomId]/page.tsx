@@ -2,6 +2,7 @@
 
 import RoomDashboardManager from "@/components/room/room-dashboard-manager";
 import { getAuthorizedRoomId } from "@/lib/auth/session";
+import { getDriveErrorDetails } from "@/lib/drive/errors";
 import { MOCK_ROOM_FOLDERS, MOCK_ROOM_PHOTOS } from "@/lib/gallery/mock-data";
 import { listFoldersFromFolder, listRecentPhotosFromFolder } from "@/lib/drive/service";
 import { getRoomById, isRoomKey } from "@/lib/room/config";
@@ -70,8 +71,8 @@ export default async function RoomPage({ params, searchParams }: RoomPageProps) 
       listFoldersFromFolder(roomFolderId, 50),
     ]);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "unknown error";
-    loadError = `Google Drive에서 데이터를 불러오지 못했습니다. ${message}`;
+    const { publicMessage } = getDriveErrorDetails(error);
+    loadError = `Google Drive에서 데이터를 불러오지 못했습니다. ${publicMessage}`;
   }
 
   return (

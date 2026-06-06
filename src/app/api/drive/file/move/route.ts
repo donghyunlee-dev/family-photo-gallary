@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getDriveErrorDetails } from "@/lib/drive/errors";
 import { moveFileToFolder } from "@/lib/drive/service";
 
 type MoveBody = {
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
     const moved = await moveFileToFolder({ fileId, fromFolderId, toFolderId });
     return NextResponse.json({ moved }, { status: 200 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Move failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const details = getDriveErrorDetails(error);
+    return NextResponse.json({ error: details.publicMessage, code: details.code }, { status: details.status });
   }
 }

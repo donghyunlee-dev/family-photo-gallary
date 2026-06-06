@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getDriveErrorDetails } from "@/lib/drive/errors";
 import { deleteFileById } from "@/lib/drive/service";
 
 type DeleteBody = {
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     await Promise.all(fileIds.map((fileId) => deleteFileById(fileId)));
     return NextResponse.json({ deletedCount: fileIds.length }, { status: 200 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Delete failed.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const details = getDriveErrorDetails(error);
+    return NextResponse.json({ error: details.publicMessage, code: details.code }, { status: details.status });
   }
 }
